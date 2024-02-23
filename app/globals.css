@@ -1,0 +1,310 @@
+@import url('https://fonts.googleapis.com/css2?family=Agbalumo&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply bg-stone-800 text-white;
+}
+
+.bg-grid {
+    width: 100vw;
+    min-height: 100vh;
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    padding: 120px 24px 160px 24px;
+    pointer-events: none;
+}
+
+/* vignette */
+.bg-grid:before {
+    background: radial-gradient(circle farthest-corner at right bottom, #8516e0 0%, #0303b2 100%);
+    position: absolute;
+    content: '';
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    top: 0;
+} 
+
+/* grid svg */
+.bg-grid:after {
+    content: '';
+    background-image: url('../public/grid.svg');
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    opacity: 0.4;
+    /* filter: invert(1); */
+}
+
+.animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(45deg, #0303b2, #8516e0, #3c1875, #0303b2);
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+    opacity: 1; /* Añadir opacidad inicial */
+}
+
+.opacity-animation {
+    animation: fadeBackground 7s infinite alternate;
+}
+
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes fadeBackground {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.custom-gradient {
+    background: radial-gradient(circle farthest-corner at right bottom, #86efac 0%, #86efac 100%);
+    background-origin: border-box;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-family:'Agbalumo'; /*'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; */
+}
+
+.fuente {
+    font-family:'Agbalumo'; 
+}
+
+.gradient {
+    height: fit-content;
+    z-index: 3;
+    width: 100%;
+    max-width: 640px;
+    background-image: radial-gradient(
+            at 27% 37%,
+            hsla(215, 98%, 61%, 1) 0px,
+            transparent 0%
+        ),
+        radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 1) 0px, transparent 50%),
+        radial-gradient(at 52% 99%, hsla(354, 98%, 61%, 1) 0px, transparent 50%),
+        radial-gradient(at 10% 29%, hsla(256, 96%, 67%, 1) 0px, transparent 50%),
+        radial-gradient(at 97% 96%, hsla(38, 60%, 74%, 1) 0px, transparent 50%),
+        radial-gradient(at 33% 50%, hsla(222, 67%, 73%, 1) 0px, transparent 50%),
+        radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 1) 0px, transparent 50%);
+    position: absolute;
+    content: '';
+    width: 100%;
+    height: 100%;
+    filter: blur(100px) saturate(150%);
+    top: 80px;
+    opacity: 0.1;
+}
+
+.quiz-select {
+    @apply text-black cursor-pointer rounded;
+}
+
+.score-box {
+    display: inline-block;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    height: 100px; /* Ajusta la altura según sea necesario */
+    line-height: 100px; /* Igual que la altura para centrar verticalmente */
+}
+  
+  .green-box {
+    border: 2px solid #34D399; /* Borde verde */
+  }
+  
+  .yellow-box {
+    border: 2px solid #FCD34D; /* Borde amarillo */
+  }
+  
+  .red-box {
+    border: 2px solid #EF4444; /* Borde rojo */
+  }
+  
+  .green-text {
+    color: #34D399; /* Color verde */
+  }
+  
+  .yellow-text {
+    color: #FCD34D; /* Color amarillo */
+  }
+  
+  .red-text {
+    color: #EF4444; /* Color rojo */
+  }
+
+  .italic-option {
+    font-style: italic;
+  }
+
+@media screen {
+    h1 {
+        margin-top: 10px; /* Ajusta según sea necesario */
+    }
+    
+    h2 {
+        margin-top: 10px; /* Ajusta según sea necesario */
+    }
+
+    select[name='subject'] {
+        width: 60%; /* Puedes ajustar el ancho según sea necesario */
+        margin-bottom: 10px; /* Ajusta el margen inferior según sea necesario */
+    }
+
+    /* Ajustes para los 5 selects */
+    .quiz-select {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* Dividir los últimos 4 selects en dos filas */
+    .grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr); /* Dos columnas en lugar de cuatro */
+        gap: 10px; /* Espacio entre las columnas */
+    }
+
+    select {
+        position: relative;
+    }
+    
+    /* Ajustar las opciones del select */
+    option {
+        max-width: 100%;
+    }
+
+    .end-screen {
+        padding: 1rem; /* Agrega un relleno para separar el contenido del borde */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Agrega una sombra para resaltar el contenedor */
+        border-radius: 10px; /* Agrega esquinas redondeadas para un aspecto más suave */
+      }
+    
+      .end-screen h2 {
+        font-size: 2rem; /* Ajusta el tamaño del título para pantallas móviles */
+      }
+    
+      .end-screen iframe {
+        width: 100%; /* Hace que el iframe ocupe el ancho completo en pantallas móviles */
+        height: 180px; /* Ajusta la altura del iframe según tus necesidades */
+      }
+    
+      .end-screen p {
+        font-size: 1.5rem; /* Ajusta el tamaño del texto para pantallas móviles */
+      }
+    
+      .end-screen button {
+        font-size: 1rem; /* Ajusta el tamaño del botón para pantallas móviles */
+        padding: 0.5rem 1rem; /* Añade relleno al botón */
+      }
+
+      .flex-col-mobile {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .flex-col-mobile > * {
+        margin: 8px; /* Puedes ajustar el margen según sea necesario */
+    }
+}
+
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: #6ee7b7d9;
+    transform-origin: 0%;
+    /* z-index: 20; */
+}
+
+.q-button {
+    @apply inline-block border-2 border-customColor rounded text-customColor text-center uppercase text-lg font-semibold mx-auto mt-5 px-6 py-2 hover:bg-emerald-400/40 hover:border-emerald-400 hover:text-white duration-75 active:bg-emerald-600;
+}
+
+.q {
+    @apply bg-gradient-to-r from-emerald-500 via-pink-400 to-blue-500 bg-clip-text text-transparent q-animate-gradient;
+}
+
+.q-animate-gradient {
+    background-size: 300% 300%;
+    animation: gradient 12s ease infinite;
+}
+
+.qdos-animate-gradient {
+    background-size: 100% 100%;
+    animation: gradient 12s ease infinite;
+}
+
+.q-input {
+    @apply border-2 border-customColor rounded text-center uppercase text-lg font-semibold mx-auto mt-5 px-6 py-2;
+    color: black;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#audio-player button {
+    /* @apply border border-white px-2 py-1 rounded; */
+}
+
+option {
+    @apply text-sm;
+}
+
+.slide-background {
+    background-size: 200%;
+    /* width: 400%; */
+    animation: slideBackground 1s linear infinite;
+}
+
+@keyframes slideBackground {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 100% 0;
+    }
+}
+
+.reverse-text {
+    direction: rtl;
+    writing-mode: vertical-rl;
+}
+
+.question-buttons {
+    @apply flex justify-center;
+}
