@@ -18,9 +18,10 @@ const QuizPage = () => {
     const topic = params.get('topic')
     const numQuestions = Number(params.get('numQuestions'))
     const subject = params.get('subject')
+    let studentEmail = '';
 
     const [quiz, setQuiz] = useState([]) 
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true);
 
     const [numSubmitted, setNumSubmitted] = useState(0)
     const [numReported, setNumReported] = useState(0)
@@ -45,12 +46,10 @@ const QuizPage = () => {
     }
 
     const generateQuestions = async () => {
-        console.log('loading...')
-        setIsLoading(true)
-
         let responseText = ''
 
         try {
+            console.log('fetching questions for student: ', studentEmail)
             const response = await fetch('/api/questions', {
                 method: 'POST',
                 headers: {
@@ -61,6 +60,7 @@ const QuizPage = () => {
                     difficulty,
                     topic,
                     numQuestions,
+                    studentEmail
                 }),
             })
 
@@ -117,7 +117,17 @@ const QuizPage = () => {
     }
 
     useEffect(() => {
-        console.log('useEffect called. Generating questions...');        
+        console.log('useEffect called. Getting student email and generating questions...');       
+        console.log('loading...');
+        setIsLoading(true); 
+
+        studentEmail = window.localStorage.getItem('student_email');
+        if(studentEmail == null || studentEmail == "" || studentEmail == "undefined" || studentEmail == "null") {
+            console.log("NO EMAIL IN LOCALSTORAGE, WE ADD ANONYMOUS@EXAMPLE.COM");
+            studentEmail = "anonymous@example.com";
+        }
+        console.log('studentEmail: ', studentEmail);
+
         generateQuestions();
     }, [])
     

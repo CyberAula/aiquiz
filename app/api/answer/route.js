@@ -11,8 +11,8 @@ export async function POST(request) {
         const { id, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, created_at, updated_at } = await request.json();
         console.log("received params: ",id, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, created_at, updated_at);
         //check if question exists in database by id
-        const question = await Question.find({id: id});
-        if(question.length>0){
+        const questions = await Question.find({id: id});
+        if(questions.length>0){
             console.log("Question already exists, we update it (maybe it was answered or reported)");
             const questionUpdate = await Question.updateOne({
                 id: id},

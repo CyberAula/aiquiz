@@ -79,7 +79,7 @@ export default mongoose.models.Question || mongoose.model('Question', questionSc
     "answer": 0,
     "explanation": "El método setTimeout() se utiliza en JavaScript para ejecutar una función después de cierto tiempo, permitiendo así la programación asíncrona y el manejo de tareas diferidas en el tiempo.",
     "studentEmail": "pepe@alumnos.upm.es",
-    "studentAnswer": 0
+    "studentAnswer": 0,
     "studentReport": false
 }
 
