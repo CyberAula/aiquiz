@@ -46,7 +46,8 @@ const QuizPage = () => {
     }
 
     const generateQuestions = async () => {
-        let responseText = ''
+        let responseText = '';
+        let cleanedResponse = '';
 
         try {
             console.log('fetching questions for student: ', studentEmail)
@@ -98,10 +99,10 @@ const QuizPage = () => {
             }
 
             // streaming way
-            let cleanedResponse = responseText.replace(/\n/g, '');
+            cleanedResponse = responseText.replace(/\n/g, '');
             //replace ```json and ``` with nothing (Sometimes the response is wrapped in ```json and ``` which is not valid JSON)
             cleanedResponse = cleanedResponse.replace(/```json/g, '').replace(/```/g, '');
-            let jsonResponse = JSON.parse(cleanedResponse)
+            let jsonResponse = JSON.parse(cleanedResponse);
             const allQuestions = jsonResponse.questions; 
             console.log('allQuestions', allQuestions);
         
@@ -110,6 +111,24 @@ const QuizPage = () => {
             setQuiz(questionsToShow); // Establecer el estado de quiz con las preguntas a mostrar                
         } catch (err) {
             console.log('Quiz Page:', err)
+            //save error log to file
+            const errorLog = {
+                date: new Date().toISOString(),
+                studentEmail: studentEmail,
+                language: language,
+                difficulty: difficulty,
+                topic: topic,
+                numQuestions: numQuestions,
+                error: err.message,
+                cleanedResponse: cleanedResponse
+            }
+            const response = await fetch('/api/error-log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(errorLog),
+            });
         } finally {
             setIsLoading(false)
             // console.log('done loading')
