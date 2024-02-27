@@ -33,10 +33,10 @@ export async function POST(request) {
                 previousQuestionsPrompt += getPreviousQuestionPrompt(previousQuestions[i]);
             }
         } else if (num_prev_questions_only_lang>3){
-            console.log("Student already answered " + num_questions_only_lang + " questions in " + language);
+            console.log("Student already answered " + num_prev_questions_only_lang + " questions in " + language);
             //compose a prompt with the previous questions to inform the IA about the track record (max 20 questions)
             let previousQuestions = await Question.find({studentEmail: studentEmail, language: language, studentReport: false}).limit(20);
-            previousQuestionsPrompt += `Anteriormente ya he respondido ${num_questions_only_lang} preguntas en el lenguaje ${language}.`;
+            previousQuestionsPrompt += `Anteriormente ya he respondido ${num_prev_questions_only_lang} preguntas en el lenguaje ${language}.`;
 
             for (let i = 0; i < previousQuestions.length; i++) {
                 previousQuestionsPrompt += getPreviousQuestionPrompt(previousQuestions[i]);
@@ -48,6 +48,7 @@ export async function POST(request) {
         console.log("params: lang, difficulty, topic, numquestions: ", language, difficulty, topic, numQuestions);
         // Generación de preguntas
         previousQuestionsPrompt += `Dame ${numQuestions} preguntas de opción múltiple sobre ${topic} en el lenguaje de programación ${language}.`;
+        previousQuestionsPrompt += `Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
         previousQuestionsPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente.`;
         
         console.log("previousQuestionsPrompt: ", previousQuestionsPrompt);
@@ -80,7 +81,12 @@ export async function POST(request) {
 
 
 function getPreviousQuestionPrompt(previousQuestion){
-    let prompt = `A la pregunta "${previousQuestion.query}" con opciones "${getChoicesWithNumbers(previousQuestion.choices)}", donde la correcta era la respuesta ${previousQuestion.answer}, respondí con la opción ${previousQuestion.studentAnswer}.`;  
+    let prompt = '';
+    if(previousQuestion.studentAnswer === previousQuestion.answer){
+        prompt = `A la pregunta "${previousQuestion.query}" con opciones "${getChoicesWithNumbers(previousQuestion.choices)}", donde la correcta era la respuesta ${previousQuestion.answer}, respondí correctamente con la opción ${previousQuestion.studentAnswer}. `;
+    } else {
+        prompt = `A la pregunta "${previousQuestion.query}" con opciones "${getChoicesWithNumbers(previousQuestion.choices)}", donde la correcta era la respuesta ${previousQuestion.answer}, respondí incorrectamente con la opción ${previousQuestion.studentAnswer}. `;
+    }
 
     return prompt;
 }
@@ -91,5 +97,5 @@ function getChoicesWithNumbers(choices){
         choicesWithNumbers += `${i}. ${choices[i]}, `;
     }
     //we remove the last comma
-    return choicesWithNumbers.slice(0, -1);
+    return choicesWithNumbers.slice(0, -2);
 }
