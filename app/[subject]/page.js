@@ -17,10 +17,13 @@ const HomePage = ({ params: { subject } }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("subject", subject);
     // Actualizar el lenguaje seleccionado
-    const newLanguage = language[subject][0].value;
-    setLanguageSelected(newLanguage);
+    let newLanguage = languageSelected;
+    const subjectLanguages = language[subject] || []
+    if (!subjectLanguages.find(lang => lang.value === newLanguage)){
+      newLanguage = language[subject][0].value;
+      setLanguageSelected(newLanguage);
+    }
 
     // Asignar el primer tema del lenguaje automáticamente
     if (topics[newLanguage]?.length > 0) {
@@ -95,7 +98,7 @@ const HomePage = ({ params: { subject } }) => {
 
         {loading==false && myUserEmail==null && <div className="flex flex-col items-center justify-center mt-5">
           <p className="text-center text-red-600 fuente">⚠️ Debes introducir tu email de alumno para empezar ⚠️</p>
-          <input type="email" size="40" value={inputEmail} className="q-input" placeholder="emailalumno@alumnos.upm.es" onChange={(e) => setInputEmail(e.target.value)} />
+          <input type="email" value={inputEmail} className="q-input" placeholder="emailalumno@alumnos.upm.es" onChange={(e) => setInputEmail(e.target.value)} />
           <button type="button" onClick={() => saveStudentEmail()} className="q-button fuente">
             Guardar email
           </button>
