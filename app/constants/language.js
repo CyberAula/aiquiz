@@ -3,9 +3,12 @@ export const language = {
     { value: 'java', label: 'Java' },
   ],
   CORE: [
-    { value: 'javascript', label: 'Javascript' },
+    { value: 'http', label: 'HTTP' },
     { value: 'html', label: 'HTML' },
     { value: 'css', label: 'CSS' },
+    { value: 'javascript_cliente', label: 'JavaScript Cliente' },
+    { value: 'javascript', label: 'Lenguaje JavaScript' },
+    { value: 'node', label: 'Node' },
   ],
   IWEB: [
     { value: 'react', label: 'React' },
