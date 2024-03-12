@@ -8,13 +8,14 @@ import Image from 'next/image';
 const HomePage = ({ params: { subject } }) => {
   const [languageSelected, setLanguageSelected] = useState('java');
   const [topic, setTopic] = useState('');
-  const [difficulty, setDifficulty] = useState('facil');
+  const [difficulty, setDifficulty] = useState('intermedio');
   const [numQuestions, setNumQuestions] = useState('5');
   const [defaultTopic, setDefaultTopic] = useState('');
   const [isTopicSelected, setIsTopicSelected] = useState(false);
   const [inputEmail, setInputEmail] = useState('');
   const [myUserEmail, setMyUserEmail] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [languageText, setLanguageText] = useState('');
 
   useEffect(() => {
     // Actualizar el lenguaje seleccionado
@@ -80,6 +81,8 @@ const HomePage = ({ params: { subject } }) => {
 
   const handleLanguageSelect = (e) => {
     setLanguageSelected(e.target.value);
+    // save option text content
+    setLanguageText(e.target.options[e.target.selectedIndex].text);
     setTopic('');
   };
 
@@ -92,7 +95,7 @@ const HomePage = ({ params: { subject } }) => {
           </h1>
         </a>
         <h2 className='text-center text-xl md:text-2xl mt-2 font-bold custom-gradient q-animate-gradient'>
-          ¡Entrena programación hasta que no puedas más!
+          ¡Haz cuestionarios sobre temas de la asignatura hasta que no puedas más!
         </h2>
         {loading && <div className="flex items-center justify-center w-screen bg-myBg"><Image src="/spinner.gif" height={250} width={250} alt="loading"/></div>}
 
@@ -155,8 +158,8 @@ const HomePage = ({ params: { subject } }) => {
               </select>
             </div>
 
-            {/* DIFICULTAD */}
-            <div className='flex flex-col'>
+            {/* DIFICULTAD, quitado para BBDD */}
+            {subject!=="BBDD" && <div className='flex flex-col'>
               <label
                 htmlFor='difficult'
                 className='uppercase text-xs font-bold custom-gradient q-animate-gradient'
@@ -176,10 +179,10 @@ const HomePage = ({ params: { subject } }) => {
                 <option value='intermedio' style={{ color: '#86efac', backgroundColor: 'black' }} className='font-bold'>Intermedio</option>
                 <option value='avanzado' style={{ color: '#86efac', backgroundColor: 'black' }} className='font-bold'>Avanzado</option>
               </select>
-            </div>
+            </div>}
 
-            {/* NUMERO DE PREGUNTAS */}
-            <div className='flex flex-col'>
+            {/* NUMERO DE PREGUNTAS, quitado para BBDD, siempre 5 */}
+            {subject!=="BBDD" && <div className='flex flex-col'>
               <label
                 htmlFor='numQuestions'
                 className='uppercase text-xs font-bold custom-gradient q-animate-gradient'
@@ -200,7 +203,7 @@ const HomePage = ({ params: { subject } }) => {
                 <option value='15' style={{ color: '#86efac', backgroundColor: 'black' }} className='font-bold'>15</option>
                 <option value='20' style={{ color: '#86efac', backgroundColor: 'black' }} className='font-bold'>20</option>
               </select>
-            </div>
+            </div>}
           </div>
 
           <div className='mx-auto mt-2'>
@@ -210,7 +213,7 @@ const HomePage = ({ params: { subject } }) => {
                 href={{
                   pathname: '/quiz',
                   query: {
-                    language: languageSelected,
+                    language: languageText,
                     difficulty: difficulty.toLowerCase(),
                     topic: topic.toLowerCase(), // Utilizamos el tema seleccionado
                     numQuestions: numQuestions,

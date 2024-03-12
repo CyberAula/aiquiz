@@ -10,6 +10,13 @@ export const language = {
     { value: 'javascript', label: 'Lenguaje JavaScript' },
     { value: 'node', label: 'Node' },
   ],
+  BBDD: [
+    { value: 'intro_nosql', label: 'Introducción a NoSQL' },
+    { value: 'json', label: 'JSON' },
+    { value: 'schema_design', label: 'Schema Design en NoSQL y en MongoDB' },
+    { value: 'mongosh', label: 'MongoDB Shell' },
+    { value: 'mongodb_aggregation', label: 'MongoDB Aggregation Framework' },
+  ],
   IWEB: [
     { value: 'react', label: 'React' },
     { value: 'swift', label: 'Swift' },

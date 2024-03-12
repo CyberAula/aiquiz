@@ -14,9 +14,14 @@ if (!process.env.OPENAI_API_KEY) {
 // Manejar las solicitudes HTTP POST
 export async function POST(request) {
     try {
-        const { language, difficulty, topic, numQuestions, studentEmail } = await request.json();
+        const { language, difficulty, topic, numQuestions, studentEmail, subject } = await request.json();
 
-        let previousQuestionsPrompt = `Soy un estudiante de una asignatura de universidad. `;
+        let previousQuestionsPrompt = "";
+        if(subject === 'BBDD'){
+            previousQuestionsPrompt = `Soy un estudiante de una asignatura de nombre "bases de datos no relacionales" en la universidad. En esta asignatura vemos temas de bases de datos no relacionales, big data, nosql, json, json schema, modelos de datos nosql, mongodb shell y mongodb aggregation framework.`;
+        } else {
+            previousQuestionsPrompt = `Soy un estudiante de una asignatura de universidad. `;
+        }
         //count questions from this same student and language and topic
         console.log("studentEmail: ", studentEmail, "language: ", language, "topic: ", topic);
         const num_prev_questions = await Question.countDocuments({studentEmail: studentEmail, language: language, topic: topic, studentReport: false});
@@ -47,7 +52,13 @@ export async function POST(request) {
        
         console.log("params: lang, difficulty, topic, numquestions: ", language, difficulty, topic, numQuestions);
         // Generación de preguntas
-        previousQuestionsPrompt += `Dame ${numQuestions} preguntas de opción múltiple sobre ${topic} en el lenguaje de programación ${language}.`;
+        //añado este if para no tocar lo antiguo que especifica que se habla de un lenguaje de programacion
+        //cambio solo para que en BBDD no se hable de lenguaje de programacion como tal sino de tema, esto hay que mejorarlo
+        if(subject === 'BBDD'){
+            previousQuestionsPrompt += `Dame ${numQuestions} preguntas de opción múltiple sobre "${topic}" enmarcadas en el tema "${language}".`;
+        } else {
+            previousQuestionsPrompt += `Dame ${numQuestions} preguntas de opción múltiple sobre "${topic}" en el lenguaje de programación ${language}.`;
+        }
         previousQuestionsPrompt += `Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
         previousQuestionsPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente.`;
         

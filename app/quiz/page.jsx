@@ -61,7 +61,8 @@ const QuizPage = () => {
                     difficulty,
                     topic,
                     numQuestions,
-                    studentEmail
+                    studentEmail,
+                    subject
                 }),
             })
 

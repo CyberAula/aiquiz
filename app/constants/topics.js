@@ -114,4 +114,37 @@ export const topics = {
         'Uso de if let y guard let',
         'Nil coalescing',
     ],
+    intro_nosql: [
+        'las 5 Vs del Big Data',
+        "Data LifeCycle Management",
+        "Data Value Pyramid",
+        "Sistema Distribuido, Particionamiento y Replicación",
+        "Teorema CAP",
+        "Teorema BASE",
+        "Teorema ACID"
+    ],
+    json: [
+        'Estructura de un documento JSON',
+        'Tipos de datos JSON',
+        'Arrays y objetos JSON',
+        'Que es JSON Schema y para que sirve',
+        'Estructura de un documento JSON Schema',
+    ],
+    schema_design: [
+        'Modelo de datos no relacional o NoSQL',
+        'Modelo de datos orientado a documentos con MongoDB'    
+    ],
+    mongosh: [
+        'Comandos básicos',
+        'Operaciones CRUD',
+        'Operaciones de consulta',
+        'Operaciones de actualización',
+        'Operaciones de eliminación'
+    ],
+    mongodb_aggregation: [
+        'Operadores de agregación',
+        'Operadores de proyección',
+        'Operadores de agrupación',
+        'Operador unwind'
+    ],
 }
