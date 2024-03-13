@@ -119,9 +119,8 @@ export const topics = {
         "Data LifeCycle Management",
         "Data Value Pyramid",
         "Sistema Distribuido, Particionamiento y Replicación",
-        "Teorema CAP",
-        "Teorema BASE",
-        "Teorema ACID"
+        "Teorema CAP (Consistency, Availability, Partition Tolerance)",
+        "ACID (Atomicidad, Consistencia, Aislamiento, Durabilidad)",
     ],
     json: [
         'Estructura de un documento JSON',

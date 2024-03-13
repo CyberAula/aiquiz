@@ -12,7 +12,7 @@ export const language = {
   ],
   BBDD: [
     { value: 'intro_nosql', label: 'Introducción a NoSQL' },
-    { value: 'json', label: 'JSON' },
+    { value: 'json', label: 'JSON y JSON Schema' },
     { value: 'schema_design', label: 'Schema Design en NoSQL y en MongoDB' },
     { value: 'mongosh', label: 'MongoDB Shell' },
     { value: 'mongodb_aggregation', label: 'MongoDB Aggregation Framework' },
