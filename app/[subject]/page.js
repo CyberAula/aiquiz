@@ -24,6 +24,7 @@ const HomePage = ({ params: { subject } }) => {
     if (!subjectLanguages.find(lang => lang.value === newLanguage)){
       newLanguage = language[subject][0].value;
       setLanguageSelected(newLanguage);
+      setLanguageText(language[subject][0].label);
     }
 
     // Asignar el primer tema del lenguaje automáticamente
@@ -114,7 +115,7 @@ const HomePage = ({ params: { subject } }) => {
                 htmlFor='language'
                 className='uppercase text-xs font-bold custom-gradient q-animate-gradient'
               >
-                Lenguaje
+                Tema
               </label>
               <select
                 value={languageSelected}
@@ -136,7 +137,7 @@ const HomePage = ({ params: { subject } }) => {
                 htmlFor='topic'
                 className='uppercase text-xs font-bold custom-gradient q-animate-gradient'
               >
-                Tema
+                Sub-tema
               </label>
               <select
                 value={topic}

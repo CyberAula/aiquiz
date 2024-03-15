@@ -154,14 +154,23 @@ const QuizPage = () => {
 
     useEffect(() => {
         //progreso
-        setProgress(numSubmitted / numQuestions)
+        setProgress(numSubmitted / numQuestions);
 
-        //si todas son enviadas ----> end-screen
+        //si todas son enviadas o reportadas ----> end-screen
         //check that quiz array has all elements either submitted or reported
         if( quiz.length > 0 && quiz.every((question) => question.submitted == true || question.reported == true ) ) {
-            const score = numCorrect / numSubmitted;
-            router.push(`/end-screen?score=${score}&subject=${subject}`);
-        }
+            let score = 0;
+            if(numSubmitted > 0) {
+                score = numCorrect / numSubmitted;
+            }
+            console.log('call END SCREEN in 6 seconds with score', score);
+            //do that in 6 seconds to give time for the last question to be reviewed in case the student failed it
+            const timer = setTimeout(() => {
+                    router.push(`/end-screen?score=${score}&subject=${subject}`);
+                }
+            , 6000);
+            return () => clearTimeout(timer);
+        }   
     }, [numSubmitted, numReported])
 
 

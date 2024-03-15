@@ -10,7 +10,7 @@ const HomePage = () => {
             ETSI(A)T
           </h1>
           <h2 className='text-center text-xl md:text-2xl mt-2 font-bold custom-gradient q-animate-gradient'>
-            ¡Entrena programación hasta que no puedas más! <br/>
+            ¡Entrena esta asignatura hasta que no puedas más! <br/>
             Elige la Asignatura
           </h2>
           <div className='flex flex-col items-center mt-10'>
