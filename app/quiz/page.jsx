@@ -154,7 +154,7 @@ const QuizPage = () => {
 
     useEffect(() => {
         //progreso
-        setProgress(numSubmitted / numQuestions);
+        setProgress((numSubmitted + numReported) / numQuestions);
 
         //si todas son enviadas o reportadas ----> end-screen
         //check that quiz array has all elements either submitted or reported
