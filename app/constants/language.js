@@ -34,4 +34,17 @@ export const language = {
   CDPS: [
     { value: 'python', label: 'Python' },
   ],
+  IBDN: [
+    { value: 'big_data', label: 'Introducción a Big Data' },
+    { value: 'programacion_funcional', label: 'Programación funcional' },
+    { value: 'lisp', label: 'Lisp' },
+    { value: 'scala', label: 'Scala' },
+    { value: 'sbt', label: 'SBT' },
+    { value: 'actores_akka', label: 'Actores y Akka' },
+    { value: 'hadoop', label: 'Hadoop' },
+    { value: 'spark', label: 'Spark' },
+    { value: 'despliegue_nube', label: 'Despliegue en la nube' },
+
+    
+  ],
 }

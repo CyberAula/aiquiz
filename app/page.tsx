@@ -15,6 +15,7 @@ const HomePage = () => {
           </h2>
           <div className='flex flex-col items-center mt-10'>
             <a href="/CORE" className="q-button fuente">Computación en Red (CORE)</a>
+            <a href="/IBDN" className="q-button fuente">Ingeniería de Big Data en la Nube (IBDN)</a>
             <a href="/TECW" className="q-button fuente">Tecnologías Web (TECW)</a>
             <a href="/BBDD" className="q-button fuente">Bases de Datos (BBDD)</a>
             <a href="/IWEB" className="q-button fuente">Ingeniería Web (IWEB)</a>
