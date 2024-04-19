@@ -29,7 +29,7 @@ async function dbConnect() {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
-    throw e;
+    console.log("Error connecting to DB", e);
   }
   return cached.conn;
 }

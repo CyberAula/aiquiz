@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node server.js",
     "forever:start": "npx forever start server.js",
     "forever:stop": "npx forever stop server.js",
     "lint": "next lint"
