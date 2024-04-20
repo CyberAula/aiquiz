@@ -13,6 +13,7 @@ services:
     restart: unless-stopped
   aiquiz-mongo:
     image: mongo:5.0.25
+    container_name: aiquiz-mongo
     volumes:
       - data:/data/db
     ports:
