@@ -1,21 +1,13 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+    basePath: '/aiquiz', //aiquiz is the context for using it with a reverse proxy.
     reactStrictMode: false,
     env: {
       OPENAI_API_KEY: "sk-2y...TODO_FILL_IN_YOUR_OPENAI_KEY_HERE",
       MONGODB_URI: "mongodb://localhost:27017/aiquiz",
       HOST_SERVER: "127.0.0.1",
       PORT_SERVER: "3000",
-    },
-    async redirects() {
-      return [
-        {
-          source: '/',
-          destination: '/aiquiz',
-          permanent: true,
-        }
-      ]
     }
 }
 

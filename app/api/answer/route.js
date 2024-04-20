@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 await dbConnect();
 
 //POST /API/ANSWER
-//api path to create a new answer or report "/aiquiz/api/answer" passing neccesary data (see POST in page.js)
+//api path to create a new answer or report "/api/answer" passing neccesary data (see POST in page.js)
 export async function POST(request) { 
     try {
         const { id, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, created_at, updated_at } = await request.json();

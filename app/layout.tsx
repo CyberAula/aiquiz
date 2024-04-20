@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
         <html lang='en'>
             <head>
                 <title>ETSI(A)T</title>
-                <link rel="icon" href="/aiquiz/my-favicon-32x32.png" type="image/x-icon"></link>
+                <link rel="icon" href="/my-favicon-32x32.png" type="image/x-icon"></link>
             </head>
             <body className={`${poppins.className} relative`}>
                 <div className='bg-grid'>

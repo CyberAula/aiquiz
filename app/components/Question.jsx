@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react'
 
 import { HiCheck, HiOutlineXMark } from 'react-icons/hi2'
 
+import nextConfig from '../../next.config';
+import urljoin from 'url-join';
+
+const basePath = nextConfig.basePath || '';
+
 const Question = ({ numQuestions, question, order, addSubmission, addReport, setNumCorrect, language, topic, difficulty }) => {
     //console.log('order:', order);
     //console.log('question:', question);
@@ -68,7 +73,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
       await saveQuestion(choiceIndex, false);
     };
 
-    // Post to /aiquiz/api/questions to save data
+    // Post to /api/questions to save data
     const saveQuestion = async (choiceIndex, report) => {
       
       /*example data
@@ -118,7 +123,8 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.updated_at = Date.now();
         console.log("data to save: ", data);
         //save to the database in server
-        const response = await fetch('/aiquiz/api/answer', {
+        const url = urljoin(basePath, '/api/answer');
+        const response = await fetch('url', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

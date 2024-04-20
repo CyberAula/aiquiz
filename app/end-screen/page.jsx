@@ -29,7 +29,7 @@ const EndScreen = () => {
     const { width, height } = useWindowSize()
 
     const handlePlayAgain = () => {
-        router.push(`/aiquiz/${subject}`);
+        router.push(`/${subject}`);
     }
 
     useEffect(() => {

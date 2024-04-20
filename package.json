@@ -35,7 +35,8 @@
     "react-slick": "^0.29.0",
     "react-use": "^17.4.0",
     "slick-carousel": "^1.8.1",
-    "sqlite3": "^5.1.6"
+    "sqlite3": "^5.1.6",
+    "url-join": "^5.0.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.6",
