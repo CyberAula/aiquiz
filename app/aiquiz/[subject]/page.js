@@ -90,7 +90,7 @@ const HomePage = ({ params: { subject } }) => {
   return (
     <div className='animated-bg min-h-screen grid place-items-center'>
       <div className='border rounded border-white/0 '>
-        <a href="/">
+        <a href="/aiquiz">
           <h1 className='text-center text-5xl md:text-7xl font-bold custom-gradient q-animate-gradient'>
             ETSI(A)T
           </h1>
@@ -212,7 +212,7 @@ const HomePage = ({ params: { subject } }) => {
               <Link
                 className="q-button fuente"
                 href={{
-                  pathname: '/quiz',
+                  pathname: '/aiquiz/quiz',
                   query: {
                     language: languageText,
                     difficulty: difficulty.toLowerCase(),

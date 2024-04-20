@@ -42,7 +42,7 @@ const QuizPage = () => {
     })
 
     const handlePlayAgain = () => {
-        router.push(`/${subject}`);
+        router.push(`/aiquiz/${subject}`);
     }
 
     const generateQuestions = async () => {
@@ -51,7 +51,7 @@ const QuizPage = () => {
 
         try {
             console.log('fetching questions for student: ', studentEmail)
-            const response = await fetch('/api/questions', {
+            const response = await fetch('/aiquiz/api/questions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ const QuizPage = () => {
             console.log('call END SCREEN in 6 seconds with score', score);
             //do that in 6 seconds to give time for the last question to be reviewed in case the student failed it
             const timer = setTimeout(() => {
-                    router.push(`/end-screen?score=${score}&subject=${subject}`);
+                    router.push(`/aiquiz/end-screen?score=${score}&subject=${subject}`);
                 }
             , 6000);
             return () => clearTimeout(timer);

@@ -14,13 +14,13 @@ const HomePage = () => {
             Elige la Asignatura
           </h2>
           <div className='flex flex-col items-center mt-10'>
-            <a href="/CORE" className="q-button fuente">Computación en Red (CORE)</a>
-            <a href="/IBDN" className="q-button fuente">Ingeniería de Big Data en la Nube (IBDN)</a>
-            <a href="/TECW" className="q-button fuente">Tecnologías Web (TECW)</a>
-            <a href="/BBDD" className="q-button fuente">Bases de Datos (BBDD)</a>
-            <a href="/IWEB" className="q-button fuente">Ingeniería Web (IWEB)</a>
-            <a href="/CDPS" className="q-button fuente">Centros de datos y provisión de servicios (CDPS)</a>
-            <a href="/PRG" className="q-button fuente">Programación (PRG)</a>
+            <a href="/aiquiz/CORE" className="q-button fuente">Computación en Red (CORE)</a>
+            <a href="/aiquiz/IBDN" className="q-button fuente">Ingeniería de Big Data en la Nube (IBDN)</a>
+            <a href="/aiquiz/TECW" className="q-button fuente">Tecnologías Web (TECW)</a>
+            <a href="/aiquiz/BBDD" className="q-button fuente">Bases de Datos (BBDD)</a>
+            <a href="/aiquiz/IWEB" className="q-button fuente">Ingeniería Web (IWEB)</a>
+            <a href="/aiquiz/CDPS" className="q-button fuente">Centros de datos y provisión de servicios (CDPS)</a>
+            <a href="/aiquiz/PRG" className="q-button fuente">Programación (PRG)</a>
           </div>
         </div>
       </div>      

@@ -31,7 +31,7 @@ body {
 /* grid svg */
 .bg-grid:after {
     content: '';
-    background-image: url('../public/grid.svg');
+    background-image: url('../../public/grid.svg');
     z-index: 1;
     position: absolute;
     width: 100%;

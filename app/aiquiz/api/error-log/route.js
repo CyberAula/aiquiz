@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 
 //POST /API/ERROR-LOG
-//api path to create a new error log "/api/error-log" passing neccesary data (see POST in page.js)
+//api path to create a new error log "/aiquiz/api/error-log" passing neccesary data (see POST in page.js)
 //and save it to a file
 export async function POST(request) { 
     try {

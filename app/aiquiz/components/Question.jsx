@@ -68,7 +68,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
       await saveQuestion(choiceIndex, false);
     };
 
-    // Post to /api/questions to save data
+    // Post to /aiquiz/api/questions to save data
     const saveQuestion = async (choiceIndex, report) => {
       
       /*example data
@@ -118,7 +118,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.updated_at = Date.now();
         console.log("data to save: ", data);
         //save to the database in server
-        const response = await fetch('/api/answer', {
+        const response = await fetch('/aiquiz/api/answer', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
