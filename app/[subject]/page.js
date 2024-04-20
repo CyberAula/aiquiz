@@ -5,6 +5,10 @@ import { language } from '../constants/language';
 import Link from 'next/link';
 import Image from 'next/image';
 
+import nextConfig from '../../next.config';
+import urljoin from 'url-join';
+const basePath = nextConfig.basePath || '/';
+
 const HomePage = ({ params: { subject } }) => {
   const [languageSelected, setLanguageSelected] = useState('java');
   const [topic, setTopic] = useState('');
@@ -16,6 +20,7 @@ const HomePage = ({ params: { subject } }) => {
   const [myUserEmail, setMyUserEmail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [languageText, setLanguageText] = useState('');
+  const baseUrl = urljoin(basePath)
 
   useEffect(() => {
     // Actualizar el lenguaje seleccionado
@@ -90,7 +95,7 @@ const HomePage = ({ params: { subject } }) => {
   return (
     <div className='animated-bg min-h-screen grid place-items-center'>
       <div className='border rounded border-white/0 '>
-        <a href="/">
+        <a href={baseUrl}>
           <h1 className='text-center text-5xl md:text-7xl font-bold custom-gradient q-animate-gradient'>
             ETSI(A)T
           </h1>

@@ -124,7 +124,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         console.log("data to save: ", data);
         //save to the database in server
         const url = urljoin(basePath, '/api/answer');
-        const response = await fetch('url', {
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
