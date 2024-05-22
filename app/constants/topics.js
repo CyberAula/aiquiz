@@ -70,6 +70,7 @@ export const topics = {
     ],
     express: [
         'Características principales',
+        'Estructura del proyecto',
         'Rutas',
         'Middleware',
         'Manejo de errores',
@@ -260,5 +261,18 @@ export const topics = {
         'AWS',
         'OpenStack',
         'Seguridad en Cloud',
+    ],
+
+    git: [
+        'Historia y evolución',
+        'Características principales',
+        'Comandos básicos',
+        'Repositorios locales y remotos',
+        'Commits',
+        'Branches',
+        'Merge y rebase',
+        'Conflictos',
+        'Tags',
+        'GitHub',
     ],
 }

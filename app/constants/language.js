@@ -8,7 +8,12 @@ export const language = {
     { value: 'css', label: 'CSS' },
     { value: 'javascript_cliente', label: 'JavaScript Cliente' },
     { value: 'javascript', label: 'Lenguaje JavaScript' },
+    { value: 'git', label: 'Git' },
     { value: 'node', label: 'Node' },
+    { value: 'sequelize', label: 'ORM: Sequelize' },
+    { value: 'express', label: 'Express'},
+
+
   ],
   TECW: [
     { value: 'http', label: 'HTTP' },

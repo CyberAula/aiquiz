@@ -244,10 +244,10 @@ const HomePage = ({ params: { subject } }) => {
 
       <a
         className='fixed bottom-0 flex items-center gap-2 pb-2 font-mono text-sm text-white/70 transition hover:text-emerald-300 sm:m-0'
-        href='https://nextjs.org/'
+        href='https://ging.github.io/'
         target='_blank'
       >
-        TFG - Hecho con Next.js / Tailwind / OpenAI
+        Universidad Politécnica de Madrid - Grupo de Internet de Nueva Generación
       </a>
     </div>
   );
