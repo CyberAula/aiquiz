@@ -8,6 +8,8 @@ const nextConfig = {
       MONGODB_URI: "mongodb://localhost:27017/aiquiz",
       HOST_SERVER: "127.0.0.1",
       PORT_SERVER: "3000",
+      BASIC_AUTH_USER: "admin",
+      BASIC_AUTH_PASSWORD: "admin1234"
     }
 }
 
