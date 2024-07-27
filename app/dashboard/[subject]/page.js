@@ -42,13 +42,17 @@ const SubjectPage = ({ params: { subject } }) => {
         <div>Loading...</div>
       ) : (
         <div>
-          <h1>Asignatura {subject}</h1>
-          <h2>Información sobre las preguntas respondidas:</h2>
+          <h1><b>Asignatura {subject}</b></h1>
+          <h2><b>Información sobre las preguntas respondidas:</b></h2>
           <p>Total de preguntas: {dashboardData.numQuestionsTotal}</p>
           <p>Preguntas reportadas: {dashboardData.numQuestionsReported}. ({100*dashboardData.numQuestionsReported/dashboardData.numQuestionsTotal}%)</p> 
           <p>Preguntas correctas: {dashboardData.numQuestionsRight}. ({100*dashboardData.numQuestionsRight/dashboardData.numQuestionsTotal}%)</p>
           <p>Preguntas incorrectas: {dashboardData.numQuestionsWrong}. ({100*dashboardData.numQuestionsWrong/dashboardData.numQuestionsTotal}%)</p>
 
+          <h2><b>Insights generados por el modelo sobre los conocimientos de los alumnos:</b></h2>
+          <p>{dashboardData.response1}</p>
+          <h2><b>Insights generados por el modelo sobre los reportes realizados por los estudiantes:</b></h2>
+          <p>{dashboardData.response2 ? dashboardData.response2: "No hay información de reportes."}</p>
         </div>
       )}
       

@@ -53,3 +53,13 @@ export const language = {
     
   ],
 }
+
+export const subjectNames = {
+  PRG: 'Programación',
+  CORE: 'Computación en Red',
+  TECW: 'Tecnologías Web',
+  BBDD: 'Bases de Datos No Relacionales',
+  IWEB: 'Ingeniería Web',
+  CDPS: 'Centros de Datos y Provisión de Servicios',
+  IBDN: 'Ingeniería de Big Data en la Nube',
+}

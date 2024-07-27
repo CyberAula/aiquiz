@@ -66,3 +66,18 @@ const decoder = new TextDecoder()
 
 }
 
+
+export async function OpenAIResponse(payload, apiKey) {
+    // Solicitud a la API de OpenAI
+    const stream = await OpenAIStream(payload, apiKey);
+    //transform stream to text
+    const reader = stream.getReader();
+    let { value, done } = await reader.read();
+    let textResponse1 = '';
+    while (!done) {
+        textResponse1 += new TextDecoder().decode(value);
+        ({ value, done } = await reader.read());
+    }
+    console.log("text response to prompt: ", textResponse1);
+    return textResponse1;
+}
