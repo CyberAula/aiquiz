@@ -67,7 +67,7 @@ export async function POST(request) {
         console.log("newPrompt: ", newPrompt);
         // Configurar parámetros de la solicitud a la API de OpenAI.
         const payload = {
-            model: 'gpt-3.5-turbo',
+            model: 'gpt-4o-2024-08-06',
             messages: [{ role: 'user', content: newPrompt }],
             temperature: 1.0,
             frequency_penalty: 0,
@@ -94,7 +94,7 @@ export async function POST(request) {
             console.log("newPrompt2: ", newPrompt2);
             // Configurar parámetros de la solicitud a la API de OpenAI.
             const payload2 = {
-                model: 'gpt-3.5-turbo',
+                model: 'gpt-4o-2024-08-06',
                 messages: [{ role: 'user', content: newPrompt2 }],
                 temperature: 1.0,
                 frequency_penalty: 0,

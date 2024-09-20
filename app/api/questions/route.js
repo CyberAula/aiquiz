@@ -66,7 +66,7 @@ export async function POST(request) {
 
         // Configurar parámetros de la solicitud a la API de OpenAI.
         const payload = {
-            model: 'gpt-3.5-turbo',
+            model: 'gpt-4o-2024-08-06',
             messages: [{ role: 'user', content: previousQuestionsPrompt }],
             temperature: 1.0,
             frequency_penalty: 0,
