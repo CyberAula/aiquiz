@@ -7,7 +7,7 @@ import urljoin from 'url-join';
 
 const basePath = nextConfig.basePath || '';
 
-const Question = ({ numQuestions, question, order, addSubmission, addReport, setNumCorrect, language, topic, difficulty }) => {
+const Question = ({ numQuestions, question, order, addSubmission, addReport, setNumCorrect, language, subject, topic, difficulty }) => {
     //console.log('order:', order);
     //console.log('question:', question);
 
@@ -80,6 +80,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
       {
         "_id": ObjectId("5f3f8e3e3e3e3e3e3e3e3e3e"),
         "id": 394823782738,
+        "subject": "CORE",
         "language": "JavaScript",
         "difficulty": "intermedio",
         "topic": "asincronía",
@@ -104,6 +105,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
 
       const data = {};
         data.id = id;
+        data.subject = subject;
         data.language = language;
         data.difficulty = difficulty;
         data.topic = topic;

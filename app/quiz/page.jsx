@@ -240,6 +240,7 @@ const QuizPage = () => {
                     addReport={addReport}
                     setNumCorrect={setNumCorrect}   
                     language={language}
+                    subject={subject}
                     topic={topic}
                     difficulty={difficulty}                 
                   />

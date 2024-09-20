@@ -8,8 +8,8 @@ await dbConnect();
 //api path to create a new answer or report "/api/answer" passing neccesary data (see POST in page.js)
 export async function POST(request) { 
     try {
-        const { id, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, created_at, updated_at } = await request.json();
-        console.log("received params: ",id, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, created_at, updated_at);
+        const { id, subject, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, created_at, updated_at } = await request.json();
+        console.log("received params: ",id, subject, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, created_at, updated_at);
         //check if question exists in database by id
         const questions = await Question.find({id: id});
         if(questions.length>0){
@@ -19,7 +19,7 @@ export async function POST(request) {
                 {studentEmail: studentEmail, studentAnswer: studentAnswer, studentReport: studentReport, updated_at: Date.now()});
             console.log("question updated: ",questionUpdate);
         } else {
-            const newQuestion = new Question({ id, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, created_at, updated_at });
+            const newQuestion = new Question({ id, subject, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, created_at, updated_at });
             const savedQuestion = await newQuestion.save();
             console.log("Question created: ", savedQuestion);
         }

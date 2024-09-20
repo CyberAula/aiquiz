@@ -7,6 +7,10 @@ const questionSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    subject: {
+        type: String,
+        required: true,
+    },
     language: {
         type: String,
         required: true,
