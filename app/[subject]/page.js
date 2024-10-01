@@ -26,7 +26,7 @@ const HomePage = ({ params: { subject } }) => {
     // Actualizar el lenguaje seleccionado
     let newLanguage = languageSelected;
     const subjectLanguages = language[subject] || []
-    if (!subjectLanguages.find(lang => lang.value === newLanguage)){
+    if (!subjectLanguages.find(lang => lang.value === newLanguage)) {
       newLanguage = language[subject][0].value;
       setLanguageSelected(newLanguage);
       setLanguageText(language[subject][0].label);
@@ -60,7 +60,7 @@ const HomePage = ({ params: { subject } }) => {
 
   const saveStudentEmail = () => {
     console.log("Saving email to localstorage: ", inputEmail);
-    if(inputEmail.endsWith("@alumnos.upm.es") == false) {
+    if (inputEmail.endsWith("@alumnos.upm.es") == false) {
       alert("El email debe ser de alumno de la UPM");
       return;
     } else {
@@ -103,16 +103,16 @@ const HomePage = ({ params: { subject } }) => {
         <h2 className='text-center text-xl md:text-2xl mt-2 font-bold custom-gradient q-animate-gradient'>
           ¡Haz cuestionarios sobre temas de la asignatura hasta que no puedas más!
         </h2>
-        {loading && <div className="flex items-center justify-center w-screen bg-myBg"><Image src="/spinner.gif" height={250} width={250} alt="loading"/></div>}
+        {loading && <div className="flex items-center justify-center w-screen bg-myBg"><Image src="/spinner.gif" height={250} width={250} alt="loading" /></div>}
 
-        {loading==false && myUserEmail==null && <div className="flex flex-col items-center justify-center mt-5">
+        {loading == false && myUserEmail == null && <div className="flex flex-col items-center justify-center mt-5">
           <p className="text-center text-red-600 fuente">⚠️ Debes introducir tu email de alumno para empezar ⚠️</p>
           <input type="email" value={inputEmail} className="q-input" placeholder="emailalumno@alumnos.upm.es" onChange={(e) => setInputEmail(e.target.value)} />
           <button type="button" onClick={() => saveStudentEmail()} className="q-button fuente">
             Guardar email
           </button>
         </div>}
-        {loading==false && myUserEmail!=null && <form onSubmit={handleSubmit} className='mt-5 flex flex-col gap-6 w-[80%] mx-auto'>
+        {loading == false && myUserEmail != null && <form onSubmit={handleSubmit} className='mt-5 flex flex-col gap-6 w-[80%] mx-auto'>
           <div className='grid grid-cols-4 gap-x-8 gap-y-6'>
             {/* LENGUAJE */}
             <div className='flex flex-col'>
@@ -149,6 +149,7 @@ const HomePage = ({ params: { subject } }) => {
                 onChange={(e) => {
                   setTopic(e.target.value);
                   setIsTopicSelected(!!e.target.value); // Actualizar el estado de isTopicSelected
+                  console.log(e.target.value);
                 }}
                 name='topic'
                 className='quiz-select'
@@ -161,11 +162,14 @@ const HomePage = ({ params: { subject } }) => {
                     {option}
                   </option>
                 ))}
+                <option value={"(" + topics[languageSelected].join("),(") + ")"} style={{ color: '#86efac', backgroundColor: 'black' }} className='font-bold'>
+                  Todos los temas
+                </option>
               </select>
             </div>
 
             {/* DIFICULTAD, quitado para BBDD */}
-            {subject!=="BBDD" && <div className='flex flex-col'>
+            {subject !== "BBDD" && <div className='flex flex-col'>
               <label
                 htmlFor='difficult'
                 className='uppercase text-xs font-bold custom-gradient q-animate-gradient'
@@ -188,7 +192,7 @@ const HomePage = ({ params: { subject } }) => {
             </div>}
 
             {/* NUMERO DE PREGUNTAS, quitado para BBDD, siempre 5 */}
-            {subject!=="BBDD" && <div className='flex flex-col'>
+            {subject !== "BBDD" && <div className='flex flex-col'>
               <label
                 htmlFor='numQuestions'
                 className='uppercase text-xs font-bold custom-gradient q-animate-gradient'

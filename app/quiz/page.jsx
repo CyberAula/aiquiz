@@ -50,6 +50,7 @@ const QuizPage = () => {
 
         try {
             console.log('fetching questions for student: ', studentEmail)
+            console.log(topic);
             const response = await fetch('api/questions', {
                 method: 'POST',
                 headers: {

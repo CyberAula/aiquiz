@@ -16,6 +16,8 @@ export async function POST(request) {
     try {
         const { language, difficulty, topic, numQuestions, studentEmail, subject } = await request.json();
 
+        console.log(topic);
+
         let previousQuestionsPrompt = "";
         if(subject === 'BBDD'){
             previousQuestionsPrompt = `Soy un estudiante de una asignatura de nombre "bases de datos no relacionales" en la universidad. En esta asignatura vemos temas de bases de datos no relacionales, big data, nosql, json, json schema, modelos de datos nosql, mongodb shell y mongodb aggregation framework.`;
