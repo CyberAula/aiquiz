@@ -19,7 +19,7 @@ const QuizPage = () => {
     const subject = params.get('subject')
     let studentEmail = '';
 
-    const [quiz, setQuiz] = useState([]) 
+    const [quiz, setQuiz] = useState([])
     const [isLoading, setIsLoading] = useState(true);
 
     const [numSubmitted, setNumSubmitted] = useState(0)
@@ -31,7 +31,7 @@ const QuizPage = () => {
     const [responseStream, setResponseStream] = useState('')
 
     const [showInstructionsModal, setShowInstructionsModal] = useState(true);
- 
+
 
     //barra del progreso
     const scaleX = useSpring(progress, {
@@ -49,8 +49,6 @@ const QuizPage = () => {
         let cleanedResponse = '';
 
         try {
-            console.log('fetching questions for student: ', studentEmail)
-            console.log(topic);
             const response = await fetch('api/questions', {
                 method: 'POST',
                 headers: {
@@ -70,7 +68,8 @@ const QuizPage = () => {
                 throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
             }
 
-            console.log('Respuesta del servidor:', response);
+            console.log("--------------------------------------------------");
+            console.log('SERVER ANSWER', response);
 
             const data = response.body
             // console.log('data', data)
@@ -104,9 +103,11 @@ const QuizPage = () => {
             //replace ```json and ``` with nothing (Sometimes the response is wrapped in ```json and ``` which is not valid JSON)
             cleanedResponse = cleanedResponse.replace(/```json/g, '').replace(/```/g, '');
             let jsonResponse = JSON.parse(cleanedResponse);
-            const allQuestions = jsonResponse.questions; 
-            console.log('allQuestions', allQuestions);
-        
+            const allQuestions = jsonResponse.questions;
+            console.log('All Questions ->', allQuestions);
+            console.log("--------------------------------------------------");
+
+
             // Ajustar el número de preguntas mostradas en el cuestionario
             const questionsToShow = allQuestions.slice(0, numQuestions);
             setQuiz(questionsToShow); // Establecer el estado de quiz con las preguntas a mostrar                
@@ -137,20 +138,23 @@ const QuizPage = () => {
     }
 
     useEffect(() => {
-        console.log('useEffect called. Getting student email and generating questions...');       
+        console.log("--------------------------------------------------");
+        console.log('useEffect called. Getting student email and generating questions...');
         console.log('loading...');
-        setIsLoading(true); 
+        setIsLoading(true);
 
         studentEmail = window.localStorage.getItem('student_email');
-        if(studentEmail == null || studentEmail == "" || studentEmail == "undefined" || studentEmail == "null") {
+        if (studentEmail == null || studentEmail == "" || studentEmail == "undefined" || studentEmail == "null") {
             console.log("NO EMAIL IN LOCALSTORAGE, WE ADD ANONYMOUS@EXAMPLE.COM");
             studentEmail = "anonymous@example.com";
         }
         console.log('studentEmail: ', studentEmail);
+        console.log("--------------------------------------------------");
+
 
         generateQuestions();
     }, [])
-    
+
 
     useEffect(() => {
         //progreso
@@ -158,19 +162,19 @@ const QuizPage = () => {
 
         //si todas son enviadas o reportadas ----> end-screen
         //check that quiz array has all elements either submitted or reported
-        if( quiz.length > 0 && quiz.every((question) => question.submitted == true || question.reported == true ) ) {
+        if (quiz.length > 0 && quiz.every((question) => question.submitted == true || question.reported == true)) {
             let score = 0;
-            if(numSubmitted > 0) {
+            if (numSubmitted > 0) {
                 score = numCorrect / numSubmitted;
             }
             console.log('call END SCREEN in 6 seconds with score', score);
             //do that in 6 seconds to give time for the last question to be reviewed in case the student failed it
             const timer = setTimeout(() => {
-                    router.push(`/end-screen?score=${score}&subject=${subject}`);
-                }
-            , 6000);
+                router.push(`/end-screen?score=${score}&subject=${subject}`);
+            }
+                , 6000);
             return () => clearTimeout(timer);
-        }   
+        }
     }, [numSubmitted, numReported])
 
 
@@ -193,68 +197,68 @@ const QuizPage = () => {
         const newquiz = [...quiz];
         newquiz[order].reported = true;
         setQuiz(newquiz);
-        setNumReported((prev) => prev + 1);        
+        setNumReported((prev) => prev + 1);
     }
 
     return (
         <div>
-          {/* renderiza barra de progreso */}
-          <motion.div className='progress-bar' style={{ scaleX }} />
-    
-          {isLoading ? <><LoadingScreen responseStream={responseStream} /></>:<div className='pt-12'>
+            {/* renderiza barra de progreso */}
+            <motion.div className='progress-bar' style={{ scaleX }} />
+
+            {isLoading ? <><LoadingScreen responseStream={responseStream} /></> : <div className='pt-12'>
                 <div className='flex-col-mobile'>
-                    <button  className='inline-block border-2 border-purple-400 rounded text-purple-400 text-center uppercase text-lg font-semibold mx-auto mt-8 px-6 py-2 hover:bg-red-400/40 hover:border-red-400 hover:text-white duration-75 active:bg-red-600 fuente'
+                    <button className='inline-block border-2 border-purple-400 rounded text-purple-400 text-center uppercase text-lg font-semibold mx-auto mt-8 px-6 py-2 hover:bg-red-400/40 hover:border-red-400 hover:text-white duration-75 active:bg-red-600 fuente'
                         onClick={handlePlayAgain}>
-                        « Volver  
+                        « Volver
                     </button>
                     <button className='inline-block border-2 border-purple-400 rounded text-purple-400 text-center uppercase text-lg font-semibold mx-auto mt-8 ml-4 px-6 py-2 hover:bg-yellow-400/40 hover:border-yellow-400 hover:text-white duration-75 active:bg-yellow-600 fuente'
                         onClick={() => setShowInstructionsModal(true)}>
                         🛈 Instrucciones
                     </button>
-                    </div>
+                </div>
                 <motion.h1
-                className='text-4xl font-bold mb-8 text-center border rounded mx-auto p-4 fuente'
-                style={{
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    color: 'transparent', 
-                    borderColor: '#86efac', 
-                    borderWidth: '2px', 
-                    backgroundImage: `linear-gradient(45deg, #86efac, #86efac)`, 
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.5)', 
-                }}
-                initial={{ opacity: 0, y: -100 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
+                    className='text-4xl font-bold mb-8 text-center border rounded mx-auto p-4 fuente'
+                    style={{
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        color: 'transparent',
+                        borderColor: '#86efac',
+                        borderWidth: '2px',
+                        backgroundImage: `linear-gradient(45deg, #86efac, #86efac)`,
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.5)',
+                    }}
+                    initial={{ opacity: 0, y: -100 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
                 >
-                ¡Test de {language} sobre {topic}!
+                    ¡Test de {language} sobre {topic}!
                 </motion.h1>
-              {/* recorre la pregunta*/}
-              {quiz?.map((question, index) => (
-                <div className='mb-12' key={index}>                    
-                  <Question
-                    numQuestions={numQuestions}
-                    question={question}
-                    order={index}
-                    key={index}
-                    addSubmission={addSubmission}
-                    addReport={addReport}
-                    setNumCorrect={setNumCorrect}   
-                    language={language}
-                    subject={subject}
-                    topic={topic}
-                    difficulty={difficulty}                 
-                  />
-                </div>                   
-              ))}
+                {/* recorre la pregunta*/}
+                {quiz?.map((question, index) => (
+                    <div className='mb-12' key={index}>
+                        <Question
+                            numQuestions={numQuestions}
+                            question={question}
+                            order={index}
+                            key={index}
+                            addSubmission={addSubmission}
+                            addReport={addReport}
+                            setNumCorrect={setNumCorrect}
+                            language={language}
+                            subject={subject}
+                            topic={topic}
+                            difficulty={difficulty}
+                        />
+                    </div>
+                ))}
 
-            {/* Renderiza la caja de instrucciones solo cuando isLoading es false */}
-            {!isLoading && showInstructionsModal && (
-            <Instructions onClose={() => setShowInstructionsModal(false)} />
-          )}
+                {/* Renderiza la caja de instrucciones solo cuando isLoading es false */}
+                {!isLoading && showInstructionsModal && (
+                    <Instructions onClose={() => setShowInstructionsModal(false)} />
+                )}
+            </div>
+            }
         </div>
-          }
-        </div>
-      )
+    )
 }
 export default QuizPage

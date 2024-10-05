@@ -49,9 +49,8 @@ const HomePage = ({ params: { subject } }) => {
   const setEmailFromLocalStorage = () => {
     let studentEmail = window.localStorage.getItem('student_email');
     if (studentEmail != null && studentEmail != "" && studentEmail != "undefined" && studentEmail != "null") {
-      console.log("GETTING EMAIL FROM LOCALSTORAGE", studentEmail);
+      console.log("USER EMAIL FROM LOCALSTORAGE", studentEmail);
       setMyUserEmail(studentEmail);
-      console.log("setMyUserEmail was set  : ", studentEmail);
     } else {
       console.log("NO EMAIL IN LOCALSTORAGE, WE WILL ASK FOR IT");
     }
@@ -149,7 +148,7 @@ const HomePage = ({ params: { subject } }) => {
                 onChange={(e) => {
                   setTopic(e.target.value);
                   setIsTopicSelected(!!e.target.value); // Actualizar el estado de isTopicSelected
-                  console.log(e.target.value);
+                  console.log('Topic selected: ',e.target.value);
                 }}
                 name='topic'
                 className='quiz-select'
