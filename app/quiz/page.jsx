@@ -46,7 +46,7 @@ const QuizPage = () => {
 
     const generateQuestions = async () => {
         let responseText = '';
-        let cleanedResponse = '';
+        // let cleanedResponse = '';
 
         try {
             const response = await fetch('api/questions', {
@@ -98,11 +98,13 @@ const QuizPage = () => {
                 setResponseStream((prev) => prev + chunkValue)
             }
 
-            // streaming way
-            cleanedResponse = responseText.replace(/\n/g, '');
-            //replace ```json and ``` with nothing (Sometimes the response is wrapped in ```json and ``` which is not valid JSON)
-            cleanedResponse = cleanedResponse.replace(/```json/g, '').replace(/```/g, '');
-            let jsonResponse = JSON.parse(cleanedResponse);
+            // // streaming way
+            // cleanedResponse = responseText.replace(/\n/g, '');
+            // //replace ```json and ``` with nothing (Sometimes the response is wrapped in ```json and ``` which is not valid JSON)
+            // cleanedResponse = cleanedResponse.replace(/```json/g, '').replace(/```/g, '');
+            // let jsonResponse = JSON.parse(cleanedResponse);
+
+            let jsonResponse = JSON.parse(responseText);
             const allQuestions = jsonResponse.questions;
             console.log('All Questions ->', allQuestions);
             console.log("--------------------------------------------------");
@@ -122,7 +124,7 @@ const QuizPage = () => {
                 topic: topic,
                 numQuestions: numQuestions,
                 error: err.message,
-                cleanedResponse: cleanedResponse
+                // cleanedResponse: cleanedResponse
             }
             const response = await fetch('/api/error-log', {
                 method: 'POST',
@@ -231,7 +233,7 @@ const QuizPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    ¡Test de {language} sobre {topic}!
+                    ¡Test de {language} sobre {topic.length > 70 ? "todos los temas" : topic}! {/* En caso de seleccionar todos los temas, no se imprimen en pantalla todos los temas, sino que se imprime "todos los temas" */}
                 </motion.h1>
                 {/* recorre la pregunta*/}
                 {quiz?.map((question, index) => (

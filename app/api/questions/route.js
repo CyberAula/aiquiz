@@ -1,4 +1,4 @@
-import { OpenAIResponse } from '../../utils/OpenAIApi';
+import { openAIResponse } from '../../utils/openAIApi';
 import dbConnect from "../../utils/dbconnect.js";
 import Question from '../../models/Question.js';
 
@@ -77,7 +77,7 @@ export async function POST(request) {
         // Log del payload que estamos por enviar
         console.log("Payload (questions) to send to OpenAI: ", payload);
         // Solicitud a la API de OpenAI
-        const responseOpenAI = await OpenAIResponse(payload);
+        const responseOpenAI = await openAIResponse(payload);
         // Log de la respuesta final
         console.log("Response (questions) from OpenAI: ", responseOpenAI);
 

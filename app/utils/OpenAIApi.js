@@ -11,8 +11,61 @@ const openai = new OpenAI({
     organization: process.env.OPENAI_ORGANIZATION_ID,
 });
 
+const jsonResponseFormat = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "quiz",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "questions": {
+                    "type": "array",
+                    "description": "A list of quiz questions.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "query": {
+                                "type": "string",
+                                "description": "The quiz question."
+                            },
+                            "choices": {
+                                "type": "array",
+                                "description": "A list of possible answers for the question.",
+                                "items": {
+                                    "type": "string",
+                                    "description": "An answer choice."
+                                }
+                            },
+                            "answer": {
+                                "type": "integer",
+                                "description": "Index of the correct answer in the choices array."
+                            },
+                            "explanation": {
+                                "type": "string",
+                                "description": "A brief explanation of why the answer is correct."
+                            }
+                        },
+                        "required": [
+                            "query",
+                            "choices",
+                            "answer",
+                            "explanation"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "required": [
+                "questions"
+            ],
+            "additionalProperties": false
+        },
+        "strict": true
+    }
+};
+
 // Función para hacer la solicitud a OpenAI y devolver la respuesta completa en JSON
-export async function OpenAIResponse(payload) {
+export async function openAIResponse(payload) {
 
     try {
         console.log("--------------------------------------------------");
@@ -23,6 +76,7 @@ export async function OpenAIResponse(payload) {
         const response = await openai.chat.completions.create({
             model: payload.model,
             messages: payload.messages,
+            response_format: jsonResponseFormat,
             temperature: payload.temperature,
             frequency_penalty: payload.frequency_penalty,
             presence_penalty: payload.presence_penalty,
@@ -35,7 +89,7 @@ export async function OpenAIResponse(payload) {
         // Log de la respuesta recibida
         console.log("text response to prompt: ", textResponse);
         console.log("--------------------------------------------------");
-        
+
         return textResponse;
 
     } catch (error) {
