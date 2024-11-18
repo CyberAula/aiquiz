@@ -35,6 +35,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 next.config.js
-model.json
+models.json
 
 errors.log
