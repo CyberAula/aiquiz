@@ -25,9 +25,7 @@ const QuizPage = () => {
     const [numSubmitted, setNumSubmitted] = useState(0)
     const [numReported, setNumReported] = useState(0)
     const [numCorrect, setNumCorrect] = useState(0)
-
     const [progress, setProgress] = useState(0)
-
     const [responseStream, setResponseStream] = useState('')
 
     const [showInstructionsModal, setShowInstructionsModal] = useState(true);
@@ -46,7 +44,6 @@ const QuizPage = () => {
 
     const generateQuestions = async () => {
         let responseText = '';
-        // let cleanedResponse = '';
 
         try {
             const response = await fetch('api/questions', {
@@ -97,14 +94,9 @@ const QuizPage = () => {
 
                 setResponseStream((prev) => prev + chunkValue)
             }
-
-            // // streaming way
-            // cleanedResponse = responseText.replace(/\n/g, '');
-            // //replace ```json and ``` with nothing (Sometimes the response is wrapped in ```json and ``` which is not valid JSON)
-            // cleanedResponse = cleanedResponse.replace(/```json/g, '').replace(/```/g, '');
-            // let jsonResponse = JSON.parse(cleanedResponse);
-
-            let jsonResponse = JSON.parse(responseText);
+            
+            // Ajusta el texto de la respuesta para que sea un JSON válido
+            let jsonResponse = JSON.parse(responseText.replace(/^\[|\]$/g, '').trim());
             const allQuestions = jsonResponse.questions;
             console.log('All Questions ->', allQuestions);
             console.log("--------------------------------------------------");
