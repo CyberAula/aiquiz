@@ -1,7 +1,7 @@
 import fs from 'fs';
 import OpenAI from "openai";
 import Anthropic from '@anthropic-ai/sdk';
-import LlamaAI from 'llamaai';
+import Groq from "groq-sdk";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 const models = JSON.parse(fs.readFileSync('models.json'));
@@ -13,23 +13,73 @@ export async function fetchResponse(modelName, payload) {
         throw new Error(`Modelo ${modelName} no encontrado.`);
     }
 
-    switch (config.name) {
-        case "OpenAI_GPT":
-            return await OpenAI_API_Request(config, payload);
-        case "Anthropic_Claude":
+    switch (true) {
+        case config.name.startsWith("OpenAI_GPT"):
+            const responseFormat = config.name.startsWith("OpenAI_GPT_4o")
+                ? {
+                    type: "json_schema",
+                    json_schema: {
+                        name: "quiz",
+                        schema: {
+                            type: "object",
+                            properties: {
+                                questions: {
+                                    type: "array",
+                                    description: "A list of quiz questions.",
+                                    items: {
+                                        type: "object",
+                                        properties: {
+                                            query: {
+                                                type: "string",
+                                                description: "The quiz question."
+                                            },
+                                            choices: {
+                                                type: "array",
+                                                description: "A list of possible answers for the question.",
+                                                items: {
+                                                    type: "string",
+                                                    description: "An answer choice."
+                                                }
+                                            },
+                                            answer: {
+                                                type: "integer",
+                                                description: "Index of the correct answer in the choices array."
+                                            },
+                                            explanation: {
+                                                type: "string",
+                                                description: "A brief explanation of why the answer is correct."
+                                            }
+                                        },
+                                        required: ["query", "choices", "answer", "explanation"],
+                                        additionalProperties: false
+                                    }
+                                }
+                            },
+                            required: ["questions"],
+                            additionalProperties: false
+                        },
+                        strict: true
+                    }
+                }
+                : { type: "json_object" };
+            return await OpenAI_API_Request(config, payload, responseFormat);
+
+        case config.name.startsWith("Anthropic"):
             return await Anthropic_API_Request(config, payload);
-        case "Google_Generative":
+
+        case config.name.startsWith("Google_Generative"):
             return await Google_API_Request(config, payload);
-        case "Facebook_Llama":
-            return await Llama_API_Request(config, payload);
+
+        case config.name.startsWith("Groq"):
+            return await Groq_API_Request(config, payload);
+
         default:
-            throw new Error(`No se ha configurado el JSON para ${modelName}.`);
+            throw new Error(`No se ha configurado el JSON para ${config.name}.`);
     }
 }
 
 
-
-async function OpenAI_API_Request(config, payload) {
+async function OpenAI_API_Request(config, payload, responseFormat) {
     if (!config.api_key) {
         throw new Error(`Falta la ${config.name} API Key`);
     }
@@ -44,6 +94,45 @@ async function OpenAI_API_Request(config, payload) {
         console.log("Payload being sent to OpenAI: ", JSON.stringify(payload, null, 2));
 
         const response = await openai.chat.completions.create({
+            model: config.model,
+            messages: [{ role: 'user', content: payload.message }],
+            response_format: responseFormat,
+            temperature: config.config.temperature,
+            frequency_penalty: config.config.frequency_penalty,
+            presence_penalty: config.config.presence_penalty,
+            max_tokens: config.config.max_tokens,
+            n: config.config.n,
+        });
+
+        const textResponse = response.choices[0].message.content;
+
+        console.log("text response to prompt: ", textResponse);
+        console.log("--------------------------------------------------");
+
+        return textResponse;
+
+    } catch (error) {
+        console.error("Error during OpenAI request: ", error);
+        console.log("--------------------------------------------------");
+        throw error;
+    }
+
+}
+
+async function Anthropic_API_Request(config, payload) {
+    if (!config.api_key) {
+        throw new Error(`Falta la ${config.name} API Key`);
+    }
+
+    const anthropic = new Anthropic({
+        apiKey: config.api_key,
+    });
+
+    try {
+        console.log("--------------------------------------------------");
+        console.log("Payload being sent to Anthropic: ", JSON.stringify(payload, null, 2));
+
+        const response = await anthropic.messages.create({
             model: config.model,
             messages: [{ role: 'user', content: payload.message }],
             response_format: {
@@ -98,46 +187,6 @@ async function OpenAI_API_Request(config, payload) {
                     "strict": true
                 }
             },
-            temperature: config.config.temperature,
-            frequency_penalty: config.config.frequency_penalty,
-            presence_penalty: config.config.presence_penalty,
-            max_tokens: config.config.max_tokens,
-            n: config.config.n,
-        });
-
-        const textResponse = response.choices[0].message.content;
-
-        console.log("text response to prompt: ", textResponse);
-        console.log("--------------------------------------------------");
-
-        return textResponse;
-
-    } catch (error) {
-        console.error("Error during OpenAI request: ", error);
-        console.log("--------------------------------------------------");
-        throw error;
-    }
-
-}
-
-async function Anthropic_API_Request(config, payload) {
-    if (!config.api_key) {
-        throw new Error(`Falta la ${config.name} API Key`);
-    }
-
-    const anthropic = new Anthropic({
-        apiKey: config.api_key,
-        organization: config.organization_id,
-    });
-
-    try {
-        console.log("--------------------------------------------------");
-        console.log("Payload being sent to Anthropic: ", JSON.stringify(payload, null, 2));
-
-        const response = await anthropic.messages.create({
-            model: config.model,
-            messages: [{ role: 'user', content: payload.message }],
-            response_format: jsonResponseFormat,
             temperature: config.config.temperature,
             frequency_penalty: config.config.frequency_penalty,
             presence_penalty: config.config.presence_penalty,
@@ -240,84 +289,38 @@ async function Google_API_Request(config, payload) {
     }
 }
 
-async function Llama_API_Request(config, payload) {
+async function Groq_API_Request(config, payload) {
     if (!config.api_key) {
         throw new Error(`Falta la ${config.name} API Key`);
     }
 
-    const llamaAPI = new LlamaAI(config.api_key);
-
-    const apiRequestJson = {
-        model: config.model,
-        messages: [{ role: "user", content: payload.message }],
-        functions: [
-            {
-                name: "get_questions",
-                description: "Get a list of quiz questions.",
-                parameters: {
-                    type: "object",
-                    properties: {
-                        questions: {
-                            type: "array",
-                            description: "A list of quiz questions.",
-                            items: {
-                                type: "object",
-                                properties: {
-                                    query: {
-                                        type: "string",
-                                        description: "The quiz question."
-                                    },
-                                    choices: {
-                                        type: "array",
-                                        description: "A list of possible answers for the question.",
-                                        items: {
-                                            type: "string",
-                                            description: "An answer choice."
-                                        }
-                                    },
-                                    answer: {
-                                        type: "integer",
-                                        description: "Index of the correct answer in the choices array."
-                                    },
-                                    explanation: {
-                                        type: "string",
-                                        description: "A brief explanation of why the answer is correct."
-                                    }
-                                },
-                                required: ["query", "choices", "answer", "explanation"]
-                            }
-                        }
-                    },
-                    required: ["questions"]
-                }
-            }
-        ],
-        function_call: { name: "get_questions" },
-        stream: false
-    };
+    const groq = new Groq({ apiKey: config.api_key });
 
     try {
         console.log("--------------------------------------------------");
-        console.log("Payload being sent to Llama:", JSON.stringify(apiRequestJson, null, 2));
-        console.log("ApiKey:", config.api_key);
+        console.log(`Payload being sent to ${config.name}:`, JSON.stringify(payload, null, 2));
 
         // Llama a la API y procesa la respuesta
-        const response = await llamaAPI.run(apiRequestJson);
+        const response = await groq.chat.completions.create({
+            messages: [ 
+                { role: "user", content: payload.message, }, 
+            ],
+            model: config.model,
+            response_format: {"type": "json_object"},
+            temperature: config.config.temperature,
+            max_tokens: config.config.max_tokens,
+        });
 
         // Procesa el contenido de la respuesta
-        const output = response?.choices?.[0]?.message;
-        if (output?.function_call) {
-            console.log("Function call returned:", output.function_call);
-            return output.function_call.arguments; // Devuelve los argumentos de la llamada a función
-        }
+        const textResponse = response.choices[0]?.message?.content;
 
-        console.log("Text response to prompt:", output?.content || "No content returned");
+        console.log("text response to prompt: ", textResponse);
         console.log("--------------------------------------------------");
 
-        return output?.content || null;
+        return textResponse;
 
     } catch (error) {
-        console.error("Error during Llama request:", error);
+        console.error(`Error during ${config.name} request: `, error);
         console.log("--------------------------------------------------");
         throw error;
     }
