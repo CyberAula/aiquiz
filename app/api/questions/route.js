@@ -77,11 +77,6 @@ export async function POST(request) {
         // Solicitud a la API del LLM seleccionado para el alumno
         const responseLlmManager = await fetchResponse(assignedModel, payload);
 
-        // const responseLlmManager = await fetchResponse("OpenAI_GPT", payload);
-        // const responseLlmManager = await fetchResponse("Anthropic_Claude", payload);
-        // const responseLlmManager = await fetchResponse("Google_Generative", payload);
-        // const responseLlmManager = await fetchResponse("Facebook_Llama", payload);
-
 
         // Log de la respuesta final de la API
         const formattedResponse = responseLlmManager.replace(/^\[|\]$/g, '').trim();
