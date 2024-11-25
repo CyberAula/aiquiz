@@ -10,7 +10,7 @@ import urljoin from 'url-join';
 const basePath = nextConfig.basePath || '/';
 
 const HomePage = ({ params: { subject } }) => {
-  const [languageSelected, setLanguageSelected] = useState('java');
+  const [languageSelected, setLanguageSelected] = useState('');
   const [topic, setTopic] = useState('');
   const [difficulty, setDifficulty] = useState('intermedio');
   const [numQuestions, setNumQuestions] = useState('5');
