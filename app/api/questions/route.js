@@ -107,43 +107,80 @@ export async function POST(request) {
 // Asignar modelo LLM al Alumno
 const assignAIModel = async (studentEmail, subject) => {
     try {
-        // Obtener configuración ABCTesting para la asignatura
-        const abTestingConfig = ABC_Testing[subject];
+        // Obtenemos la configuración ABC_Testing de la asignatura
+        const abcTestingConfig = ABC_Testing[subject];
 
-        // Verificar si existe el alumno
+        // Leemos los modelos disponibles desde el archivo models.json
+        const allModels = await getAvailableModels();
+        const modelNames = allModels.map(m => m.name);
+
+        // Verificamos si el alumno existe y si tiene esa asignatura definida en su subjects
         const existingStudent = await Student.findOne({ studentEmail });
+        const existingSubjectInStudent = await existingStudent?.subjects?.find(s => s.subjectName === subject);
 
-        if (existingStudent) {
-            // Buscamos la posición en el array de asignaturas del alumno donde se encuentra la asignatura en cuestión
+        // VALIDAR LOS MODELOS DEFINIDOS EN ABC_Testing
+        // Comprobamos si existe un ABC_Testing y este está dentro de fecha
+        if (abcTestingConfig && isABCTestingActive(abcTestingConfig)) {
+            // Comprobamos si hay algun modelo en el ABC_Testing que no esté en models.json
+            const invalidModels = abcTestingConfig.models.filter(model => !modelNames.includes(model));
+            if (invalidModels.length > 0) {
+                console.log("--------------------------------------------------------");
+                console.log(`Modelos inválidos en ABCTesting para ${subject}: ${invalidModels.join(", ")}. Asegurese de tener este modelo configurado y con el mismo nombre en el archivo models.json.`)
+                console.log("--------------------------------------------------------");
+                return;
+            }
+        }
+
+        if (existingStudent && existingSubjectInStudent) {
+            /* Buscamos el índice de la asignatura en la lista de asignaturas del alumno y el modelo asignado en
+            caso de existir */
             const subjectIndex = existingStudent.subjects.findIndex(s => s.subjectName === subject);
-            console.log(`---------------------${isABCTestingActive(abTestingConfig)}--------------------`);
+            const assignedModel = existingStudent.subjects[subjectIndex].subjectModel;
 
-            // Comprobamos si hay un ABCTesting activo y si esta en fecha para seguir activo
-            if (abTestingConfig && isABCTestingActive(abTestingConfig)) {
-                // Comprobamos si el modelo previo asignado a esa asignatura pertenece a los modelos de ABCTesting definidos
-                // Si el modelo no pertenece a la lista de los del ABCTesting, se entra dentro para cambiarlo por uno de la lista
-                if (!abTestingConfig.models.includes(existingStudent.subjects.find(s => s.subjectName === subject)?.subjectModel)) {
-                    // Cambiar el modelo al primer modelo disponible en ABCTesting
-                    const newModel = await getEquitableModel(abTestingConfig.models, subject);
+            // COMPROBAR SI EL MODELO ASIGNADO EXISTE EN models.js
+            // Comprobamos si el modelo no está en models.json
+            if (!modelNames.includes(assignedModel)) {
+                console.log("-------------------------------------------");
+                console.log(`Modelo asignado ${assignedModel} no se encuentra en models.json. Reasignando modelo...`);
+                console.log("-------------------------------------------");
+                /* Comprobamos si existe un ABC_Testing y este está dentro de fecha
+                True -> Obtenemos un modelo del array del ABC_Testing
+                False -> Obtenemos un modelo del models.json
+                */
+                const ABCTesting = abcTestingConfig && isABCTestingActive(abcTestingConfig);
+                const newModel = ABCTesting
+                    ? await getEquitableModel(abcTestingConfig.models, subject)
+                    : await getEquitableModel(modelNames, subject);
+
+                existingStudent.subjects[subjectIndex].subjectModel = newModel;
+                existingStudent.subjects[subjectIndex].ABC_Testing = ABCTesting;
+                await existingStudent.save();
+                return newModel;
+            }
+
+            // ASIGNAMOS UN MODELO DE LOS DEFINIDOS EN ABC_Testing SI ESTA ACTIVO O EN FECHA
+            // Comprobamos si existe un ABC_Testing y este está dentro de fecha
+            if (abcTestingConfig && isABCTestingActive(abcTestingConfig)) {
+                // Cambiamos el modelo si el actual no pertenece al ABCTesting
+                if (!abcTestingConfig.models.includes(assignedModel)) {
+                    const newModel = await getEquitableModel(abcTestingConfig.models, subject);
                     await updateStudentModel(existingStudent, subject, newModel, true); // ABC_Testing = true
                     return newModel;
                 }
-                // Activamos ABC_Testing por si acaso el modelo asignado a la asignatura del alumno, coincide con uno de los 
-                // modelos del ABCTesting de casualidad
+
+                // Activar ABC_Testing si el modelo asignado es válido
                 existingStudent.subjects[subjectIndex].ABC_Testing = true;
                 await existingStudent.save();
 
             } else {
-                // Si el ABCTesting ya terminó
-                if (subjectIndex !== -1 && existingStudent.subjects[subjectIndex].ABC_Testing) {
-                    // Desactivar ABC_Testing y reasignar modelo
+                // Si ABCTesting ha terminado o no es válido
+                /* Comprobamos si ABC_Testing = true, lo que significa que el modelo asignado portenecia a un 
+                ABCTesting anterior que ya no está activo */
+                if (existingStudent.subjects[subjectIndex].ABC_Testing) {
                     existingStudent.subjects[subjectIndex].ABC_Testing = false;
 
-                    // Reasignar el modelo de forma equitativa entre todos los disponibles
-                    const allModels = await getAvailableModels();
-                    const modelNames = allModels.map(m => m.name);
+                    // Reasignamos un modelo de forma equitativa
                     const newModel = await getEquitableModel(modelNames, subject);
-
                     existingStudent.subjects[subjectIndex].subjectModel = newModel;
                     await existingStudent.save();
 
@@ -151,20 +188,38 @@ const assignAIModel = async (studentEmail, subject) => {
                 }
             }
 
-            // Si no hay ABCTesting o el modelo asignado es válido, devolver el modelo asignado
-            return existingStudent.subjects.find(s => s.subjectName === subject)?.subjectModel;
+            // Devolver el modelo asignado si es válido
+            return assignedModel;
+
+        } else if (existingStudent && !existingSubjectInStudent) {
+            // Existe el alumno pero no tiene esta asignatura definida
+            let assignedModel;
+            const ABCTesting = abcTestingConfig && isABCTestingActive(abcTestingConfig);
+            if (ABCTesting) {
+                // ABCTesting activo: asignar modelo equitativo
+                assignedModel = await getEquitableModel(abcTestingConfig.models, subject);
+            } else {
+                // ABCTesting no activo: asignar modelo equitativo de todos los disponibles
+                assignedModel = await getEquitableModel(modelNames, subject);
+            }
+
+            const newSubject = {
+                subjectName: subject,
+                subjectModel: assignedModel,
+                ABC_Testing: ABCTesting,
+            };
+            await addSubjectToStudent(studentEmail, newSubject);
+            return assignedModel;
         }
 
-        // Si el alumno no existe, asignar modelo
+        // Si el alumno no existe, asignamos un modelo
         let assignedModel;
-
-        if (abTestingConfig && isABCTestingActive(abTestingConfig)) {
+        const ABCTesting = abcTestingConfig && isABCTestingActive(abcTestingConfig);
+        if (ABCTesting) {
             // ABCTesting activo: asignar modelo equitativo
-            assignedModel = await getEquitableModel(abTestingConfig.models, subject);
+            assignedModel = await getEquitableModel(abcTestingConfig.models, subject);
         } else {
             // ABCTesting no activo: asignar modelo equitativo de todos los disponibles
-            const allModels = await getAvailableModels();
-            const modelNames = allModels.map(m => m.name);
             assignedModel = await getEquitableModel(modelNames, subject);
         }
 
@@ -175,7 +230,7 @@ const assignAIModel = async (studentEmail, subject) => {
                 {
                     subjectName: subject,
                     subjectModel: assignedModel,
-                    ABC_Testing: !!abTestingConfig,
+                    ABC_Testing: ABCTesting,
                 },
             ],
         });
@@ -188,7 +243,24 @@ const assignAIModel = async (studentEmail, subject) => {
     }
 };
 
-// Verificar si el ABCTesting está activo según las fechas
+// Añade una nueva asignatura a un alumno
+const addSubjectToStudent = async (studentEmail, newSubject) => {
+    try {
+        await Student.updateOne(
+            { studentEmail }, // Filtro para encontrar el estudiante
+            {
+                $push: {
+                    subjects: newSubject, // Agrega la nueva asignatura al array de subjects
+                },
+            }
+        );
+        console.log(`Subject ${newSubject.subjectName} added successfully to ${studentEmail}`);
+    } catch (error) {
+        console.error("Error adding subject to student:", error);
+    }
+};
+
+// Verificamos si el ABCTesting está activo según las fechas
 const isABCTestingActive = (config) => {
     const currentDate = new Date();
     const fromDate = new Date(config.from_date);
@@ -196,7 +268,7 @@ const isABCTestingActive = (config) => {
     return currentDate >= fromDate && currentDate <= toDate;
 };
 
-// Obtener el modelo más equitativo de una lista de modelos que se pasan como parametro
+// Obtenemos el modelo más equitativo de una lista de modelos que se pasan como parametro
 const getEquitableModel = async (modelNames, subject) => {
     const studentCount = await getStudentCountByModel(subject);
     let selectedModel = modelNames[0];
@@ -211,7 +283,7 @@ const getEquitableModel = async (modelNames, subject) => {
     return selectedModel;
 };
 
-// Actualizar el modelo asignado a una asignatura de un alumno
+// Actualizamos el modelo asignado a una asignatura de un alumno
 const updateStudentModel = async (student, subject, newModel, isABCTesting) => {
     const subjectIndex = student.subjects.findIndex(s => s.subjectName === subject);
     if (subjectIndex !== -1) {
@@ -227,7 +299,7 @@ const updateStudentModel = async (student, subject, newModel, isABCTesting) => {
     await student.save();
 };
 
-// Contar estudiantes por modelo para una asignatura específica
+// Contar estudiantes por cada modelo distinto asignado a una misma asignatura
 const getStudentCountByModel = async (subject) => {
     const counts = {};
     const students = await Student.find({ "subjects.subjectName": subject });
