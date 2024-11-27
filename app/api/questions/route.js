@@ -3,6 +3,9 @@ import { ABC_Testing } from '../../constants/abctesting.js';
 import dbConnect from "../../utils/dbconnect.js";
 import Question from '../../models/Question.js';
 import Student from '../../models/Student.js';
+
+import modelsJSON from '../../../models.json';
+
 import path from 'path';
 import fs from 'fs';
 
@@ -65,15 +68,12 @@ export async function POST(request) {
         previousQuestionsPrompt += `Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
         previousQuestionsPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente. Intenta no colocar siempre la respuesta correcta en la misma posición, vete intercalando entre las 4 o 5 opciones.`;
 
-        console.log("previousQuestionsPrompt: ", previousQuestionsPrompt);
+        // console.log("previousQuestionsPrompt: ", previousQuestionsPrompt);
 
         // Configurar parámetros de la solicitud a la API del LLM seleccionado para el alumno
         const payload = {
             message: previousQuestionsPrompt,
         };
-
-
-
 
         // Asignar modelo LLM al Alumno
         const assignedModel = await assignAIModel(studentEmail, subject);
@@ -82,7 +82,9 @@ export async function POST(request) {
         const studentRecord = await Student.findOne({ studentEmail });
         const subjectData = studentRecord?.subjects.find(s => s.subjectName === subject);
         const abTestingStatus = subjectData?.ABC_Testing ? "true" : "false";
+        console.log("--------------------------------------------------");
         console.log(`Assigned Model to ${studentEmail}: ${assignedModel} - Subject: ${subject} - ABCTesting: ${abTestingStatus}`);
+        console.log("--------------------------------------------------");
 
 
         // Solicitud a la API del LLM seleccionado para el alumno
@@ -91,7 +93,7 @@ export async function POST(request) {
 
         // Log de la respuesta final de la API
         const formattedResponse = responseLlmManager.replace(/^\[|\]$/g, '').replace(/```json/g, '').replace(/```/g, '').trim();
-        console.log("Response (questions) from LLM Manager: ", formattedResponse);
+        // console.log("Response (questions) from LLM Manager: ", formattedResponse);
 
 
 
@@ -107,6 +109,9 @@ export async function POST(request) {
 // Asignar modelo LLM al Alumno
 const assignAIModel = async (studentEmail, subject) => {
     try {
+        // Cargamos el archivo de configuración next.config.js
+        const config = require('../../../next.config.js');
+
         // Obtenemos la configuración ABC_Testing de la asignatura
         const abcTestingConfig = ABC_Testing[subject];
 
@@ -129,15 +134,19 @@ const assignAIModel = async (studentEmail, subject) => {
                 console.log("--------------------------------------------------------");
                 return;
             }
+        } 
+        if (abcTestingConfig && !isABCTestingActive(abcTestingConfig)) {
+            console.log("--------------------------------------------------------");
+            console.log(`ABCTesting para ${subject} fuera de fecha. Modificar o eliminar del archivo de configuración abctesting.js`);
+            console.log("--------------------------------------------------------");
+
         }
 
         if (existingStudent && existingSubjectInStudent) {
-            /**
-            * Buscamos el índice de la asignatura en la lista de asignaturas del alumno y el modelo asignado en
-            * caso de existir 
-            */
+
+            // Buscamos el índice de la asignatura en la lista de asignaturas del alumno y el modelo asignado en caso de existir 
             const subjectIndex = existingStudent.subjects.findIndex(s => s.subjectName === subject);
-            const assignedModel = existingStudent.subjects[subjectIndex].subjectModel;
+            let assignedModel = existingStudent.subjects[subjectIndex].subjectModel;
 
             // COMPROBAR SI EL MODELO ASIGNADO EXISTE EN models.js
             // Comprobamos si el modelo no está en models.json
@@ -147,12 +156,23 @@ const assignAIModel = async (studentEmail, subject) => {
                 console.log("-------------------------------------------");
                 /* Comprobamos si existe un ABC_Testing y este está dentro de fecha
                 True -> Obtenemos un modelo del array del ABC_Testing
-                False -> Obtenemos un modelo del models.json
+                False -> Obtenemos un modelo del models.json 
                 */
                 const ABCTesting = abcTestingConfig && isABCTestingActive(abcTestingConfig);
-                const newModel = ABCTesting
-                    ? await getEquitableModel(abcTestingConfig.models, subject)
-                    : await getEquitableModel(modelNames, subject);
+                let newModel;
+                if (ABCTesting) {
+                    // ABCTesting activo: asignar modelo equitativo
+                    newModel = await getEquitableModel(abcTestingConfig.models, subject);
+                } else {
+                    // ABCTesting no activo: asignar modelo teniendo en cuenta la prioridad de asignación de next.config.js
+                    if (config.costPriority === true) {
+                        newModel = await getLowerCostModel();
+                    } else if (config.fewerReportedPriority === true) {
+                        newModel = await getFewerReportedModel(subject);
+                    } else {
+                        newModel = await getEquitableModel(modelNames, subject);
+                    }
+                }
 
                 existingStudent.subjects[subjectIndex].subjectModel = newModel;
                 existingStudent.subjects[subjectIndex].ABC_Testing = ABCTesting;
@@ -184,28 +204,52 @@ const assignAIModel = async (studentEmail, subject) => {
                 if (existingStudent.subjects[subjectIndex].ABC_Testing) {
                     existingStudent.subjects[subjectIndex].ABC_Testing = false;
 
-                    // Reasignamos un modelo de forma equitativa
-                    const newModel = await getEquitableModel(modelNames, subject);
+                    // Reasignamos un modelo teniendo en cuenta la prioridad de asignación de next.config.js
+                    let newModel;
+                    if (config.costPriority === true) {
+                        newModel = await getLowerCostModel();
+                    } else if (config.fewerReportedPriority === true) {
+                        newModel = await getFewerReportedModel(subject);
+                    } else {
+                        newModel = await getEquitableModel(modelNames, subject);
+                    }
+
                     existingStudent.subjects[subjectIndex].subjectModel = newModel;
                     await existingStudent.save();
 
                     return newModel;
                 }
             }
+            // Si el modelo ya asignado es válido,
+            // comprobamos si ha habido algun cambio en la prioridad de asignación de next.config.js
+            if (config.costPriority === true) {
+                assignedModel = await getLowerCostModel();
+                existingStudent.subjects[subjectIndex].subjectModel = assignedModel;
+            } else if (config.fewerReportedPriority === true) {
+                assignedModel = await getFewerReportedModel(subject);
+                existingStudent.subjects[subjectIndex].subjectModel = assignedModel;
+            }
 
-            // Devolver el modelo asignado si es válido
+            await existingStudent.save();
             return assignedModel;
+
 
         } else if (existingStudent && !existingSubjectInStudent) {
             // Existe el alumno pero no tiene esta asignatura definida
-            let assignedModel;
             const ABCTesting = abcTestingConfig && isABCTestingActive(abcTestingConfig);
+            let assignedModel;
             if (ABCTesting) {
                 // ABCTesting activo: asignar modelo equitativo
                 assignedModel = await getEquitableModel(abcTestingConfig.models, subject);
             } else {
-                // ABCTesting no activo: asignar modelo equitativo de todos los disponibles
-                assignedModel = await getEquitableModel(modelNames, subject);
+                // ABCTesting no activo: asignar modelo teniendo en cuenta la prioridad de asignación de next.config.js
+                if (config.costPriority === true) {
+                    assignedModel = await getLowerCostModel();
+                } else if (config.fewerReportedPriority === true) {
+                    assignedModel = await getFewerReportedModel(subject);
+                } else {
+                    assignedModel = await getEquitableModel(modelNames, subject);
+                }
             }
 
             const newSubject = {
@@ -218,14 +262,20 @@ const assignAIModel = async (studentEmail, subject) => {
         }
 
         // Si el alumno no existe, asignamos un modelo
-        let assignedModel;
         const ABCTesting = abcTestingConfig && isABCTestingActive(abcTestingConfig);
+        let assignedModel;
         if (ABCTesting) {
             // ABCTesting activo: asignar modelo equitativo
             assignedModel = await getEquitableModel(abcTestingConfig.models, subject);
         } else {
-            // ABCTesting no activo: asignar modelo equitativo de todos los disponibles
-            assignedModel = await getEquitableModel(modelNames, subject);
+            // ABCTesting no activo: asignar modelo teniendo en cuenta la prioridad de asignación de next.config.js
+            if (config.costPriority === true) {
+                assignedModel = await getLowerCostModel();
+            } else if (config.fewerReportedPriority === true) {
+                assignedModel = await getFewerReportedModel(subject);
+            } else {
+                assignedModel = await getEquitableModel(modelNames, subject);
+            }
         }
 
         // Crear el nuevo alumno con el modelo asignado
@@ -288,6 +338,46 @@ const getEquitableModel = async (modelNames, subject) => {
     return selectedModel;
 };
 
+// Obtenemos el modelo con menor coste
+const getLowerCostModel = async () => {
+    // Obtener todos los modelos disponibles desde models.json
+    const models = modelsJSON.models;
+
+    let lowerCostModelName = null;
+    let lowestTokenPrice = Infinity;
+
+    models.forEach((model) => {
+        if (model.tokenPrice < lowestTokenPrice) {
+            lowestTokenPrice = model.tokenPrice;
+            lowerCostModelName = model.name;
+        }
+    });
+
+    return lowerCostModelName;
+};
+
+// Obtenemos el modelo con menos fallos reportados
+const getFewerReportedModel = async (subject) => {
+    const models = await getAvailableModels();
+    let fewerReportsModel = null;
+    let minReports = Infinity;
+
+    for (const model of models) {
+        const reports = await Question.countDocuments({ 
+            subject, 
+            llmModel: model.name, 
+            studentReport: true 
+        });
+        if (reports < minReports) {
+            minReports = reports;
+            fewerReportsModel = model.name;
+        }
+    }
+    console.log("Fewer reported model for", subject, "is", fewerReportsModel);
+
+    return fewerReportsModel;
+};
+
 // Actualizamos el modelo asignado a una asignatura de un alumno
 const updateStudentModel = async (student, subject, newModel, isABCTesting) => {
     const subjectIndex = student.subjects.findIndex(s => s.subjectName === subject);
@@ -333,11 +423,6 @@ const getAvailableModels = async () => {
         return [];
     }
 };
-
-
-
-
-
 
 
 

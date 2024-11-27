@@ -4,13 +4,20 @@ const nextConfig = {
     basePath: '/aiquiz', //aiquiz is the context for using it with a reverse proxy.
     reactStrictMode: false,
     env: {
-      OPENAI_API_KEY: "sk-2y...TODO_FILL_IN_YOUR_OPENAI_KEY_HERE",
       MONGODB_URI: "mongodb://localhost:27017/aiquiz",
       HOST_SERVER: "127.0.0.1",
       PORT_SERVER: "3000",
       BASIC_AUTH_USER: "admin",
       BASIC_AUTH_PASSWORD: "admin1234"
     }
+    /*
+    * Give priority to one model or another in case ABCTesting is not active,
+    * we can give priority to the lowest cost model or the model with fewer reported failures.
+    *
+    * Cost has priority over fewerReported if both are active.
+    */
+    costPriority: false,
+    fewerReportedPriority: false
 }
 
 module.exports = nextConfig

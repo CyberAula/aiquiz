@@ -90,8 +90,8 @@ async function OpenAI_API_Request(config, payload, responseFormat) {
     });
 
     try {
-        console.log("--------------------------------------------------");
-        console.log("Payload being sent to OpenAI: ", JSON.stringify(payload, null, 2));
+        // console.log("--------------------------------------------------");
+        // console.log("Payload being sent to OpenAI: ", JSON.stringify(payload, null, 2));
 
         const response = await openai.chat.completions.create({
             model: config.model,
@@ -106,8 +106,8 @@ async function OpenAI_API_Request(config, payload, responseFormat) {
 
         const textResponse = response.choices[0].message.content;
 
-        console.log("text response to prompt: ", textResponse);
-        console.log("--------------------------------------------------");
+        // console.log("text response to prompt: ", textResponse);
+        // console.log("--------------------------------------------------");
 
         return textResponse;
 
@@ -129,8 +129,8 @@ async function Anthropic_API_Request(config, payload) {
     });
 
     try {
-        console.log("--------------------------------------------------");
-        console.log("Payload being sent to Anthropic: ", JSON.stringify(payload, null, 2));
+        // console.log("--------------------------------------------------");
+        // console.log("Payload being sent to Anthropic: ", JSON.stringify(payload, null, 2));
 
         const response = await anthropic.messages.create({
             model: config.model,
@@ -141,8 +141,8 @@ async function Anthropic_API_Request(config, payload) {
 
         const textResponse = response.content[0].text;
 
-        console.log("text response to prompt: ", textResponse);
-        console.log("--------------------------------------------------");
+        // console.log("text response to prompt: ", textResponse);
+        // console.log("--------------------------------------------------");
 
         return textResponse;
 
@@ -219,13 +219,13 @@ async function Google_API_Request(config, payload) {
     });
 
     try {
-        console.log("--------------------------------------------------");
-        console.log("Payload being sent to Google: ", JSON.stringify(payload, null, 2));
+        // console.log("--------------------------------------------------");
+        // console.log("Payload being sent to Google: ", JSON.stringify(payload, null, 2));
 
         const result = await model.generateContent(`${payload.message}`,);
 
-        console.log("text response to prompt: ", result.response.text());
-        console.log("--------------------------------------------------");
+        // console.log("text response to prompt: ", result.response.text());
+        // console.log("--------------------------------------------------");
 
         return result.response.text();
 
@@ -244,8 +244,8 @@ async function Groq_API_Request(config, payload) {
     const groq = new Groq({ apiKey: config.api_key });
 
     try {
-        console.log("--------------------------------------------------");
-        console.log(`Payload being sent to ${config.name}:`, JSON.stringify(payload, null, 2));
+        // console.log("--------------------------------------------------");
+        // console.log(`Payload being sent to ${config.name}:`, JSON.stringify(payload, null, 2));
 
         // Llama a la API y procesa la respuesta
         const response = await groq.chat.completions.create({
@@ -261,8 +261,8 @@ async function Groq_API_Request(config, payload) {
         // Procesa el contenido de la respuesta
         const textResponse = response.choices[0]?.message?.content;
 
-        console.log("text response to prompt: ", textResponse);
-        console.log("--------------------------------------------------");
+        // console.log("text response to prompt: ", textResponse);
+        // console.log("--------------------------------------------------");
 
         return textResponse;
 
