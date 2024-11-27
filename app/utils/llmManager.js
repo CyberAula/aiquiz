@@ -134,63 +134,9 @@ async function Anthropic_API_Request(config, payload) {
 
         const response = await anthropic.messages.create({
             model: config.model,
-            messages: [{ role: 'user', content: payload.message }],
-            // tools: [
-            //     {
-            //         "name": "Quiz questions",
-            //         "description": "A list of quiz questions.",
-            //         "input_schema": {
-            //             "name": "Quiz structured",
-            //             "properties": {
-            //                 "type": "object",
-            //                 "properties": {
-            //                     "questions": {
-            //                         "type": "array",
-            //                         "description": "A list of quiz questions.",
-            //                         "properties": {
-            //                             "type": "object",
-            //                             "properties": {
-            //                                 "query": {
-            //                                     "type": "string",
-            //                                     "description": "The quiz question."
-            //                                 },
-            //                                 "choices": {
-            //                                     "type": "array",
-            //                                     "description": "A list of possible answers for the question.",
-            //                                     "items": {
-            //                                         "type": "string",
-            //                                         "description": "An answer choice."
-            //                                     }
-            //                                 },
-            //                                 "answer": {
-            //                                     "type": "integer",
-            //                                     "description": "Index of the correct answer in the choices array."
-            //                                 },
-            //                                 "explanation": {
-            //                                     "type": "string",
-            //                                     "description": "A brief explanation of why the answer is correct."
-            //                                 }
-            //                             },
-            //                             "required": [
-            //                                 "query",
-            //                                 "choices",
-            //                                 "answer",
-            //                                 "explanation"
-            //                             ],
-            //                         }
-            //                     }
-            //                 },
-            //                 "required": [
-            //                     "questions"
-            //                 ],
-            //             },
-            //         }
-            //     }
-            // ],
-            // temperature: config.config.temperature,
-            // frequency_penalty: config.config.frequency_penalty,
-            // presence_penalty: config.config.presence_penalty,
             max_tokens: config.config.max_tokens,
+            messages: [{ role: 'user', content: payload.message }],
+            temperature: config.config.temperature,
         });
 
         const textResponse = response.content[0].text;
@@ -267,6 +213,8 @@ async function Google_API_Request(config, payload) {
         generationConfig: {
             responseMimeType: "application/json",
             responseSchema: schema,
+            maxOutputTokens: config.config.max_tokens,
+            temperature: config.config.temperature,
         },
     });
 

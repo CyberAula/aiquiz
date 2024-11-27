@@ -63,7 +63,7 @@ export async function POST(request) {
             previousQuestionsPrompt += `Dame ${numQuestions} preguntas que tengan 4 o 5 opciones, siendo solo una de ellas la respuesta correcta, sobre "${topic}" en el lenguaje de programación ${language}.`;
         }
         previousQuestionsPrompt += `Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
-        previousQuestionsPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente.`;
+        previousQuestionsPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente. Intenta no colocar siempre la respuesta correcta en la misma posición, vete intercalando entre las 4 o 5 opciones.`;
 
         console.log("previousQuestionsPrompt: ", previousQuestionsPrompt);
 
@@ -91,7 +91,7 @@ export async function POST(request) {
 
         // Log de la respuesta final de la API
         const formattedResponse = responseLlmManager.replace(/^\[|\]$/g, '').replace(/```json/g, '').replace(/```/g, '').trim();
-        console.log("Response (questions) from LLM Manager: ", JSON.stringify(formattedResponse, null, 2));
+        console.log("Response (questions) from LLM Manager: ", formattedResponse);
 
 
 
@@ -132,8 +132,10 @@ const assignAIModel = async (studentEmail, subject) => {
         }
 
         if (existingStudent && existingSubjectInStudent) {
-            /* Buscamos el índice de la asignatura en la lista de asignaturas del alumno y el modelo asignado en
-            caso de existir */
+            /**
+            * Buscamos el índice de la asignatura en la lista de asignaturas del alumno y el modelo asignado en
+            * caso de existir 
+            */
             const subjectIndex = existingStudent.subjects.findIndex(s => s.subjectName === subject);
             const assignedModel = existingStudent.subjects[subjectIndex].subjectModel;
 
@@ -174,8 +176,11 @@ const assignAIModel = async (studentEmail, subject) => {
 
             } else {
                 // Si ABCTesting ha terminado o no es válido
-                /* Comprobamos si ABC_Testing = true, lo que significa que el modelo asignado portenecia a un 
-                ABCTesting anterior que ya no está activo */
+                /**
+                 * Comprobamos si ABC_Testing = true, lo que significa que el modelo asignado pertenecia a un 
+                 * ABCTesting anterior que ya no está activo. En este caso, desactivamos el ABC_Testing y 
+                 * reasignamos un modelo equitativo.
+                 */
                 if (existingStudent.subjects[subjectIndex].ABC_Testing) {
                     existingStudent.subjects[subjectIndex].ABC_Testing = false;
 
