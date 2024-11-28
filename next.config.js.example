@@ -18,6 +18,7 @@ const nextConfig = {
     */
     costPriority: false,
     fewerReportedPriority: false
+    keepmodel: false
 }
 
 module.exports = nextConfig
