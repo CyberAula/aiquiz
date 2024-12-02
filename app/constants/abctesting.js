@@ -1,4 +1,4 @@
-export const ABC_Testing = {
+export const ABC_Testing_List = {
     // PRG: {
     //     from_date: "2024-01-01",
     //     to_date: "2024-12-31",        
@@ -6,8 +6,8 @@ export const ABC_Testing = {
     // },
     // CORE: {
     //     from_date: "2022-01-01",
-    //     to_date: "2022-12-31",        
-    //     models:  ["OpenAI_GPT_4o_Mini", "Google_Generative_Flash"]
+    //     to_date: "2025-12-31",        
+    //     models:  ["Google_Generative_Flash"]
     // },
 
     /*

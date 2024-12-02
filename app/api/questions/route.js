@@ -1,5 +1,5 @@
 import { fetchResponse } from '../../utils/llmManager.js';
-import { ABC_Testing } from '../../constants/abctesting.js';
+import { ABC_Testing_List } from '../../constants/abctesting.js';
 import dbConnect from "../../utils/dbconnect.js";
 import Question from '../../models/Question.js';
 import Student from '../../models/Student.js';
@@ -9,7 +9,6 @@ import modelsJSON from '../../../models.json';
 import path from 'path';
 import fs from 'fs';
 import config from '../../../next.config.js';
-import { get } from 'http';
 
 
 console.log("--------------------------------------------------");
@@ -111,8 +110,8 @@ export async function POST(request) {
 // Asignar modelo LLM al Alumno
 const assignAIModel = async (studentEmail, subject) => {
     try {
-        // Obtenemos la configuración ABC_Testing de la asignatura
-        const abcTestingConfig = ABC_Testing[subject];
+        // Obtenemos la configuración ABC_Testing_List de la asignatura
+        let abcTestingConfig = ABC_Testing_List[subject];
 
         // Leemos los modelos disponibles desde el archivo models.json
         const allModels = await getAvailableModels();
@@ -121,19 +120,20 @@ const assignAIModel = async (studentEmail, subject) => {
         // Verificamos si el alumno existe y si tiene esa asignatura definida en su subjects
         let existingStudent = await Student.findOne({ studentEmail });
         const existingSubjectInStudent = await existingStudent?.subjects?.find(s => s.subjectName === subject);
-        const has_abctesting = abcTestingConfig && isABCTestingActive(abcTestingConfig);
+        let has_abctesting = (abcTestingConfig && isABCTestingActive(abcTestingConfig)) ?? false;
+        console.log("ABCTesting for", subject, ":", has_abctesting);
 
-        // VALIDAR LOS MODELOS DEFINIDOS EN ABC_Testing, por si hay alguno invalido porque haya sido eliminado de models.json o  mal configurado
+        // VALIDAR LOS MODELOS DEFINIDOS EN ABC_Testing_List, por si hay alguno invalido porque haya sido eliminado de models.json o  mal configurado
         if (has_abctesting) {
-            // Comprobamos si hay algun modelo en el ABC_Testing que no esté en models.json
+            // Comprobamos si hay algun modelo en el ABC_Testing_List que no esté en models.json
             const invalidModels = abcTestingConfig.models.filter(model => !modelNames.includes(model));
             if (invalidModels.length > 0) {
                 console.log("--------------------------------------------------------");
                 console.log(`Modelos inválidos en ABCTesting para ${subject}: ${invalidModels.join(", ")}. Asegurese de tener este modelo configurado y con el mismo nombre en el archivo models.json.`)
                 console.log("--------------------------------------------------------");
-                has_abctesting = false;                
+                has_abctesting = false;
             }
-        }         
+        }
 
         let assignedModel;
         let subjectIndex = 0;
@@ -141,32 +141,40 @@ const assignAIModel = async (studentEmail, subject) => {
         if (existingStudent && existingSubjectInStudent) {
             // Buscamos el índice de la asignatura en la lista de asignaturas del alumno y el modelo asignado en caso de existir 
             subjectIndex = existingStudent.subjects.findIndex(s => s.subjectName === subject);
-            assignedModel = existingStudent.subjects[subjectIndex].subjectModel;           
-                // Le reasignamos modelo:
-                // si el modelo asignado no está en models.json
-                // o la asignatura tiene abtesting y el estudiante tiene otro modelo anterior que no está incluido
-                // o abctesting es false y  el estudiante tiene true porque está en la configuración anterior
-                if (!modelNames.includes(assignedModel) || (has_abctesting && !abcTestingConfig.models.includes(assignedModel)) || (!has_abctesting && existingStudent.subjects[subjectIndex].ABC_Testing)) {
-                    console.log("-------------------------------------------");
-                    console.log(`Modelo asignado ${assignedModel} no se encuentra en models.json o no está entre los del abtesting. Reasignando modelo...`);
-                    console.log("-------------------------------------------");
-                    assignedModel = getProperModel(modelNames, subject, has_abctesting);                   
-                } else if(!has_abctesting) {
-                    // Si el modelo ya asignado es válido,
-                    // comprobamos si ha habido algun cambio en la prioridad de asignación de next.config.js, si keepmodel es false
-                    if(config.keepmodel === false){
-                        assignedModel = getProperModel(modelNames, subject, false);
-                    }
+            assignedModel = existingStudent.subjects[subjectIndex].subjectModel;
+            // Le reasignamos modelo:
+            // si el modelo asignado no está en models.json
+            // o la asignatura tiene abtesting y el estudiante tiene otro modelo anterior que no está incluido
+            // o abctesting es false y el estudiante tiene true porque está en la configuración anterior
+            if (!modelNames.includes(assignedModel) || (has_abctesting && !abcTestingConfig.models.includes(assignedModel)) || (!has_abctesting && existingStudent.subjects[subjectIndex].ABC_Testing)) {
+                console.log("-------------------------------------------");
+                console.log(`Modelo asignado ${assignedModel} no se encuentra en models.json, no está entre los del abtesting o abtesting desactivado. Reasignando modelo...`);
+                console.log("-------------------------------------------");
+                assignedModel = await getProperModel(modelNames, subject, has_abctesting);
+            } else if (!has_abctesting) {
+                // Si el modelo ya asignado es válido,
+                // comprobamos si ha habido algun cambio en la prioridad de asignación de next.config.js, si keepmodel es false
+                if (config.keepmodel === false) {
+                    console.log("Reasignando modelo, propiedad (keepmodel: false)");
+                    assignedModel = await getProperModel(modelNames, subject, false);
                 }
+                console.log("No hay cambios en la prioridad de asignación de modelos (keepmodel: true), se mantiene modelo asignado:", assignedModel);
+            }
         } else if (existingStudent && !existingSubjectInStudent) {
             //SEGUNDO CASO: EL ALUMNO YA EXISTE PERO NO TIENE LA ASIGNATURA DEFINIDA
             // Existe el alumno pero no tiene esta asignatura definida
-            assignedModel = getProperModel(modelNames, subject, has_abctesting);
+            assignedModel = await getProperModel(modelNames, subject, has_abctesting);
+
+            existingStudent.subjects.push({
+                subjectName: subject,
+                subjectModel: assignedModel,
+                ABC_Testing: has_abctesting,
+            });
         } else {
             //TERCER CASO: EL ALUMNO NO EXISTE
             // El alumno no existe
             // Si el alumno no existe, asignamos un modelo
-            assignedModel = getProperModel(modelNames, subject, has_abctesting);
+            assignedModel = await getProperModel(modelNames, subject, has_abctesting);
 
             // Crear el nuevo alumno con el modelo asignado
             existingStudent = new Student({
@@ -181,19 +189,14 @@ const assignAIModel = async (studentEmail, subject) => {
             });
         }
 
-        if(existingSubjectInStudent){
+        if (existingSubjectInStudent) {
             existingStudent.subjects[subjectIndex].subjectModel = assignedModel;
             existingStudent.subjects[subjectIndex].ABC_Testing = has_abctesting;
-        } else {
-            existingStudent.subjects.push({
-                subjectName: subject,
-                subjectModel: assignedModel,
-                ABC_Testing: has_abctesting,
-            });
-        }        
+        }
+
         await existingStudent.save();
         return assignedModel;
-                
+
     } catch (error) {
         console.error("Error assigning the model:", error);
         throw new Error('Could not assign the model');
@@ -203,18 +206,22 @@ const assignAIModel = async (studentEmail, subject) => {
 
 const getProperModel = async (modelNames, subject, has_abctesting) => {
     let assignedModel;
-    const abcTestingConfig = ABC_Testing[subject];
+    const abcTestingConfig = ABC_Testing_List[subject];
     if (has_abctesting) {
         // ABCTesting activo: asignar modelo equitativo
         assignedModel = await getEquitableModel(abcTestingConfig.models, subject);
+        console.log("Asignando modelo equitativo con ABCTesting activo:", assignedModel);
     } else {
         // ABCTesting no activo: asignar modelo teniendo en cuenta la prioridad de asignación de next.config.js
         if (config.costPriority === true) {
             assignedModel = await getLowerCostModel();
+            console.log("Asignando modelo con menor coste:", assignedModel);
         } else if (config.fewerReportedPriority === true) {
             assignedModel = await getFewerReportedModel(subject);
+            console.log("Asignando modelo con menos fallos reportados:", assignedModel);
         } else {
             assignedModel = await getEquitableModel(modelNames, subject);
+            console.log("Asignando modelo equitativo:", assignedModel);
         }
     }
     return assignedModel;
@@ -227,12 +234,12 @@ const isABCTestingActive = (config) => {
     const fromDate = new Date(config.from_date);
     const toDate = new Date(config.to_date);
     const isactive = currentDate >= fromDate && currentDate <= toDate;
-    if(!isactive) {
+    if (!isactive) {
         console.log("--------------------------------------------------------");
-        console.log(`ABCTesting para ${subject} fuera de fecha. Modificar o eliminar del archivo de configuración abctesting.js`);
+        console.log(`ABCTesting fuera de fecha. Modificar o eliminar del archivo de configuración abctesting.js`);
         console.log("--------------------------------------------------------");
-    }        
-    return 
+    }
+    return isactive;
 };
 
 // Obtenemos el modelo más equitativo de una lista de modelos que se pasan como parametro
@@ -275,10 +282,10 @@ const getFewerReportedModel = async (subject) => {
     let minReports = Infinity;
 
     for (const model of models) {
-        const reports = await Question.countDocuments({ 
-            subject, 
-            llmModel: model.name, 
-            studentReport: true 
+        const reports = await Question.countDocuments({
+            subject,
+            llmModel: model.name,
+            studentReport: true
         });
         if (reports < minReports) {
             minReports = reports;
@@ -288,22 +295,6 @@ const getFewerReportedModel = async (subject) => {
     console.log("Fewer reported model for", subject, "is", fewerReportsModel);
 
     return fewerReportsModel;
-};
-
-// Actualizamos el modelo asignado a una asignatura de un alumno
-const updateStudentModel = async (student, subject, newModel, isABCTesting) => {
-    const subjectIndex = student.subjects.findIndex(s => s.subjectName === subject);
-    if (subjectIndex !== -1) {
-        student.subjects[subjectIndex].subjectModel = newModel;
-        student.subjects[subjectIndex].ABC_Testing = isABCTesting;
-    } else {
-        student.subjects.push({
-            subjectName: subject,
-            subjectModel: newModel,
-            ABC_Testing: isABCTesting,
-        });
-    }
-    await student.save();
 };
 
 // Contar estudiantes por cada modelo distinto asignado a una misma asignatura
@@ -318,7 +309,6 @@ const getStudentCountByModel = async (subject) => {
             }
         });
     });
-
     return counts;
 };
 
