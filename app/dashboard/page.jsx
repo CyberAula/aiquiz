@@ -9,7 +9,7 @@ const DashboardPage = () => {
         <div className='animated-bg min-h-screen grid place-items-center'>
         <div className='border rounded border-white/0 '>
           <h1 className='text-center text-5xl md:text-7xl font-bold custom-gradient q-animate-gradient'>
-            ETSI(A)T
+            AIQUIZ
           </h1>
           <h2 className='text-center text-xl md:text-2xl mt-2 font-bold custom-gradient q-animate-gradient'>
             Elige la Asignatura para ver el dashboard:

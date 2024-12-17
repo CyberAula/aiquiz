@@ -97,11 +97,11 @@ const HomePage = ({ params: { subject } }) => {
       <div className='border rounded border-white/0 '>
         <a href={baseUrl}>
           <h1 className='text-center text-5xl md:text-7xl font-bold custom-gradient q-animate-gradient'>
-            ETSI(A)T
+            AIQUIZ
           </h1>
         </a>
         <h2 className='text-center text-xl md:text-2xl mt-2 font-bold custom-gradient q-animate-gradient'>
-          ¡Haz cuestionarios sobre temas de la asignatura hasta que no puedas más!
+          ¡Haz todos los cuestionarios que quieras sobre temas de la asignatura!
         </h2>
         {loading && <div className="flex items-center justify-center w-screen bg-myBg"><Image src="/spinner.gif" height={250} width={250} alt="loading"/></div>}
 

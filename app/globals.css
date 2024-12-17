@@ -308,3 +308,19 @@ option {
 .question-buttons {
     @apply flex justify-center;
 }
+
+.dashboard h2 {
+    @apply text-xl font-semibold;
+}
+
+.dashboard p {
+    @apply text-lg;
+}
+
+.dashboard h1 {
+    @apply text-2xl font-bold;
+}
+
+.dashboard .bigger {
+    @apply text-3xl;
+}

@@ -8,13 +8,13 @@ const HomePage = () => {
       <div className='animated-bg min-h-screen grid place-items-center'>
         <div className='border rounded border-white/0 '>
           <h1 className='text-center text-5xl md:text-7xl font-bold custom-gradient q-animate-gradient'>
-            ETSI(A)T
+            AIQUIZ
           </h1>
           <h2 className='text-center text-xl md:text-2xl mt-2 font-bold custom-gradient q-animate-gradient'>
-            ¡Entrena esta asignatura hasta que no puedas más! <br/>
-            Elige la Asignatura
+            ¡Entrena la asignatura hasta que no puedas más! <br/><br/>
+            Elige la Asignatura:
           </h2>
-          <div className='flex flex-col items-center mt-10'>
+          <div className='flex flex-col items-center'>
             <Link className="q-button fuente"href={{pathname: '/CORE'}}>Computación en Red (CORE)</Link>
             <Link className="q-button fuente"href={{pathname: '/IBDN'}}>Ingeniería de Big Data en la Nube (IBDN)</Link>
             <Link className="q-button fuente"href={{pathname: '/TECW'}}>Tecnologías Web (TECW)</Link>
