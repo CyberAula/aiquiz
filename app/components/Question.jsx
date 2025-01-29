@@ -142,18 +142,18 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
             let style = ''
 
             style = choice.isSelected
-                ? 'border-2 border-white-600/75 bg-cyan-600/20'
-                : 'border-purple-500 hover:bg-cyan-600/10'
+                ? 'border-2 border-blue-500 bg-cyan-600/20'
+                : 'border-gray-400 hover:bg-cyan-600/10'
 
             let checkOrX = null
 
             if (isSubmitted) {
                 if (index === selectedChoiceIndex) {
                     if (isCorrect()) {
-                        style = 'border-2 border-emerald-300 bg-emerald-300/10'
+                        style = ' border-2 border-emerald-500 bg-emerald-300/30  '
                         checkOrX = (
                             <div>
-                                <HiCheck size={30} color='#6ee7b7' />
+                                <HiCheck size={30} className='text-emerald-500'/>
                             </div>
                         )
                     } else {
@@ -169,10 +169,10 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
 
             if (isExplained) {
                 if (index === Number(answer)) {
-                    style = 'border-emerald-300 bg-emerald-300/10'
+                    style = 'border-2 border-emerald-500 bg-emerald-300/30'
                     checkOrX = (
                         <div>
-                            <HiCheck size={30} color='#6ee7b7' />
+                            <HiCheck size={30} className='text-emerald-500' />
                         </div>
                     )
                 }
@@ -181,7 +181,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
             return (
                 <div
                     key={index}
-                    className={`w-full p-4 text-left border rounded cursor-pointer ${style} flex items-center justify-between`}
+                    className={`w-full px-4 py-3 text-left border rounded cursor-pointer ${style} flex items-center justify-between`}
                     onClick={() => handleChoiceSelect(index)}
                 >
                     <pre className=' whitespace-pre-wrap'>
@@ -218,60 +218,61 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
 
     const submitButtonReportStyles = () => {
       let style = isSubmittedReport
-          ? 'pointer-events-none bg-black'
-          : 'pointer-events-auto bg-black bg-opacity-50 text-pink-500 border-2 border-pink-700 font-bold hover:bg-pink-400/40';
+          ? 'pointer-events-none font-bold text-green-800'
+          : 'pointer-events-auto bg-opacity-50 btn-report font-bold';
       return style;
     };
 
     const submitButtonStyles = () => {
       let style = isSelected
-          ? 'pointer-events-auto bg-blue text-white-500 border-2 border-white-700 font-bold hover:bg-blue-400/40'
-          : 'pointer-events-auto bg-black bg-opacity-50 text-blue-500 border-2 border-blue-700 font-bold hover:bg-blue-400/40';
+          ? 'pointer-events-auto bg-blue text-white-500 font-bold btn-quizz'
+          : 'pointer-events-auto btn-quizz';
         style = isSubmitted
-          ? 'pointer-events-none bg-black'
+          ? 'pointer-events-none bg-blue-950 text-white'
           : style
       return style
   };
 
     return (
         <div className='max-w-3xl mx-auto'>
-        <h2 className='text-sm font-semibold text-pink-300/80' style={{ color: '#86efac'}}>
+        <h2 className='text-sm font-semibold bg-blue-100 rounded px-1.5 py-0.5 inline-block text-blue-600'>
           Pregunta {order + 1}/{numQuestions} 
         </h2>
-        <div className='border border-gray-500/0 rounded'>
-          <div className='py-2 mt-2 text-xl'>{query}</div>
-          <div className='grid gap-2 mt-4'>{renderChoices()}</div>
-          <div className='flex flex-col items-center mt-2 items'>
+        <div className='border border-gray-500/0 rounded w-4/5'>
+          <div className='py-2 text-lg font-medium'>{query}</div>
+          <div className='grid gap-2 mt-1'>{renderChoices()}</div>
+          <div className='flex flex-col items-start mt-2 items'>
       
-          <div className='flex-col-mobile'>
+          <div className=' flex gap-3 mt-3'>
               {/* botón de enviar */}
-              <button onClick={() => { handleAnswerSubmit(); }} className={`mt-2 px-6 py-3 rounded ${submitButtonStyles()} fuente`}            >
+              <button onClick={() => { handleAnswerSubmit(); }} className={`btn-md  rounded ${submitButtonStyles()} fuente`}            >
                 {isSubmitted ? '¡Contestada! ✔️' : 'Responder'}
               </button>            
               
               {/* botón de reporte */}                               
-              <button onClick={() => {handleReport()}}   className={`mt-2 px-6 py-3 rounded ${submitButtonReportStyles()} fuente`}   >
+              <button onClick={() => {handleReport()}}   className={`btn-md rounded ${submitButtonReportStyles()} fuente`}   >
                   {!isSubmittedReport ? "Reportar pregunta incorrecta": "Pregunta Reportada! ✔️" }
               </button>
           </div>                
            
               {/* Nuevo botón de explicar */}
               {((isSubmitted && isCorrect()) ) && (
-              <div className='mt-2 p-4 rounded bg-stone-700/50'>
-                <h3 className='text-emerald-300/60 text-sm font-bold fuente'>
+              <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
+                <h3 className='text-gray-800 text-sm uppercase  font-bold fuente'>
                   Explicación
                 </h3>
-                <p className='mt-2 text-sm font-light'>{explanation}</p>
+                <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
               </div>
              )}
 
           </div>
           {(isSubmitted && !(isCorrect())) && (
-            <div className='mt-2 p-4 rounded bg-stone-700/50'>
-              <h3 className='text-emerald-300/60 text-sm font-bold fuente'>
-                Explicación
-              </h3>
-              <p className='mt-2 text-sm font-light'>{explanation}</p>
+            <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
+               <h3 className='text-blue-950 text-sm uppercase  font-bold fuente'>
+                  Explicación
+                </h3>
+                <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
+             
             </div>
           )}
         </div>

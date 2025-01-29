@@ -56,7 +56,7 @@ const SubjectPage = ({ params: { subject } }) => {
 
           <h1><b>Insights generados por el modelo sobre los conocimientos de los alumnos:</b></h1>
           <p><Markdown>{dashboardData.response1}</Markdown></p>
-          <button  className='inline-block border-2 border-purple-400 rounded text-purple-400 text-center uppercase text-lg font-semibold mx-auto mt-8 px-6 py-2 hover:bg-red-400/40 hover:border-red-400 hover:text-white duration-75 active:bg-red-600 fuente'
+          <button  className='bg-outline  active:bg-red-600'
                         onClick={() => window.history.back()}>
               « Volver  
           </button>

@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
                 <title>AIQUIZ</title>
                 <link rel="icon" href="/my-favicon-32x32.png" type="image/x-icon"></link>
             </head>
-            <body className={`${poppins.className} relative`}>
+            <body className={`${inter.className} relative`}>
                 <div className='bg-grid'>
                     <div className='gradient' />
                 </div>
