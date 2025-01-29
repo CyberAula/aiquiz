@@ -2,12 +2,16 @@ export const ABC_Testing_List = {
     // PRG: {
     //     from_date: "2024-01-01",
     //     to_date: "2024-12-31",        
-    //     models:  ["Google_Generative_Pro", "Anthropic_Claude"]
+    //     models:  ["Google_Generative_Pro", "Anthropic_Claude"],
+    //     prompt1: "I am a higher education student enrolled in the subject {subject}. Generate {number} multiple-choice questions on the topic {topic} in the knowledge domain {domain}. I have previously answered {number2} questions, which are provided here with their corresponding answers: {questions}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {rest}.",
+    //     prompt2: "You are a teacher and expert in the field on the topic {topic} in the knowledge domain {domain}, you can generate very good multiple choice questions on the topic.I am a higher education student enrolled in the subject {subject}. Generate {number} multiple-choice questions on the topic {topic} in the knowledge domain {domain}. I have previously answered {number2} questions, which are provided here with their corresponding answers: {questions}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {rest}.",
     // },
     // CORE: {
     //     from_date: "2022-01-01",
     //     to_date: "2025-12-31",        
-    //     models:  ["Google_Generative_Flash"]
+    //     models:  ["Google_Generative_Flash"],
+    //     prompt1: "I am a higher education student enrolled in the subject {subject}. Generate {number} multiple-choice questions on the topic {topic} in the knowledge domain {domain}. I have previously answered {number2} questions, which are provided here with their corresponding answers: {questions}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {rest}.",
+    //     prompt2: "You are a teacher and expert in the field on the topic {topic} in the knowledge domain {domain}, you can generate very good multiple choice questions on the topic.I am a higher education student enrolled in the subject {subject}. Generate {number} multiple-choice questions on the topic {topic} in the knowledge domain {domain}. I have previously answered {number2} questions, which are provided here with their corresponding answers: {questions}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {rest}.",
     // },
 
     /*
