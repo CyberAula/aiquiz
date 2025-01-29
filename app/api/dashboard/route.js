@@ -54,8 +54,8 @@ export async function POST(request) {
 
         //get 20 questions right randomly chosen from the array
         let samplequestionsRight = [];
-        if(questionsRight.length > 20){
-            for (let i = 0; i < 20; i++) {
+        if(questionsRight.length > 3){
+            for (let i = 0; i < 3; i++) {
                 let randomIndex = Math.floor(Math.random() * questionsRight.length);
                 samplequestionsRight.push(questionsRight[randomIndex]);
             }
@@ -67,10 +67,10 @@ export async function POST(request) {
         let questionsWrong = await Question.find({ language: { $in: languagesArray }, studentReport: false, $expr: { $ne: ["$answer", "$studentAnswer"] }});
         console.log("numQuestionsWrong: ", questionsWrong.length);
 
-        //get 20 questions wrong randomly chosen from the array
+        //get 5 questions wrong randomly chosen from the array
         let samplequestionsWrong = [];
-        if(questionsWrong.length > 20){
-            for (let i = 0; i < 20; i++) {
+        if(questionsWrong.length > 5){
+            for (let i = 0; i < 5; i++) {
                 let randomIndex = Math.floor(Math.random() * questionsWrong.length);
                 samplequestionsWrong.push(questionsWrong[randomIndex]);
             }
