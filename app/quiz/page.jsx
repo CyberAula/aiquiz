@@ -6,9 +6,11 @@ import { motion, useSpring } from 'framer-motion'
 import LoadingScreen from '../components/LoadingScreen'
 import Question from '../components/Question'
 import Instructions from '../components/Instructions';
-import 'highlight.js/styles/atom-one-dark.css'
+import 'highlight.js/styles/atom-one-dark.css';
+import { Suspense } from 'react'
 
-const QuizPage = () => {
+
+function QuizPageFun() {
     const params = useSearchParams()
     const router = useRouter()
 
@@ -17,7 +19,6 @@ const QuizPage = () => {
     const topic = params.get('topic')
     const numQuestions = Number(params.get('numQuestions'))
     const subject = params.get('subject')
-    let studentEmail = '';
 
     const [quiz, setQuiz] = useState([])
     const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +47,7 @@ const QuizPage = () => {
         router.push(`/${subject}`);
     }
 
-    const generateQuestions = async () => {
+    const generateQuestions = async (studentEmail) => {
         let responseText = '';
         let cleanedResponse = '';
 
@@ -142,7 +143,7 @@ const QuizPage = () => {
         console.log('loading...');
         setIsLoading(true);
 
-        studentEmail = window.localStorage.getItem('student_email');
+        let studentEmail = window.localStorage.getItem('student_email');
         if (studentEmail == null || studentEmail == "" || studentEmail == "undefined" || studentEmail == "null") {
             console.log("NO EMAIL IN LOCALSTORAGE, WE ADD ANONYMOUS@EXAMPLE.COM");
             studentEmail = "anonymous@example.com";
@@ -261,4 +262,8 @@ const QuizPage = () => {
 
     )
 }
-export default QuizPage
+export default function QuizPage(){
+    return <Suspense>
+        <QuizPageFun />
+    </Suspense>
+}

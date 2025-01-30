@@ -8,16 +8,16 @@ import { pickRandom } from '../utils'
 
 import { endMessages } from '../constants/endMessages'
 
-import { useSpeech } from 'react-use'
-
 import useWindowSize from 'react-use/lib/useWindowSize'
 import Confetti from 'react-confetti'
 
 import Link from "next/link"
 import { gifs } from '../constants/gifs'
+import { Suspense } from 'react'
 
-const EndScreen = () => {
 
+
+function EndScreenFun() {
     const router = useRouter()
     const params = useSearchParams()
 
@@ -108,6 +108,15 @@ const EndScreen = () => {
         </div>
     )
 }
-export default EndScreen
+
+
+export default function EndScreen() {
+    return (
+        // You could have a loading skeleton as the `fallback` too
+        <Suspense>
+          <EndScreenFun />
+        </Suspense>
+      )
+}
 
 

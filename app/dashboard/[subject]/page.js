@@ -47,7 +47,7 @@ const SubjectPage = ({ params: { subject } }) => {
       ) : (
         <div class="dashboard">
           <h1 class="bigger"><b>Dashboard del profesor:</b></h1>
-          <h1><b>Asignatura <u>"{subjectName}"</u></b></h1>
+          <h1><b>Asignatura <u>&quot;{subjectName}&quot;</u></b></h1>
           <h1><b>Información sobre las preguntas respondidas:</b></h1>
           <p>Total de preguntas: {dashboardData.numQuestionsTotal}</p>
           <p>Preguntas reportadas: {dashboardData.numQuestionsReported}. ({100*dashboardData.numQuestionsReported/dashboardData.numQuestionsTotal}%)</p> 
