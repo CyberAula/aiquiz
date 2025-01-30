@@ -93,8 +93,8 @@ export async function POST(request) {
         for (let i = 0; i < samplequestionsWrong.length; i++) {
             newPrompt += ` Pregunta ${i+1}: "${samplequestionsWrong[i].query}". `;
         }
-        newPrompt += ` Haz un pequeño reporte en formato markdown con un párrafo indicando los "Conocimientos de los estudiantes" y otro las "Lagunas de conocimiento", es decir los temas donde más fallan. `;
-        newPrompt += ` Añade un tercer párrafo con las "Recomendaciones para el profesor" de la asignatura con consejos e ideas para ayudar a los estudiantes a mejorar sus conocimientos. `;
+        newPrompt += ` Haz un pequeño reporte en inglés en formato markdown con un párrafo indicando los "Conocimientos de los estudiantes" y otro las "Lagunas de conocimiento", es decir los temas donde más fallan. `;
+        newPrompt += ` Añade un tercer párrafo con las "Recomendaciones para el profesor" de la asignatura con consejos e ideas para ayudar a los estudiantes a mejorar sus conocimientos.`;
         
         console.log("newPrompt: ", newPrompt);
         // Configurar parámetros de la solicitud a la API de OpenAI.

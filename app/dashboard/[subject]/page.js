@@ -53,9 +53,9 @@ const SubjectPage = ({ params: { subject } }) => {
           <h1><b>{t('dashboard.subject')} <u>&quot;{subjectName}&quot;</u></b></h1>
           <h1><b>{t('dashboard.infoQuestions')}</b></h1>
           <p>{t('dashboard.totalQuestions')} {dashboardData.numQuestionsTotal}</p>
-          <p>{t('dashboard.questionsReported')} {dashboardData.numQuestionsReported}. ({100*dashboardData.numQuestionsReported/dashboardData.numQuestionsTotal}%)</p> 
-          <p>{t('dashboard.questionsRight')} {dashboardData.numQuestionsRight}. ({100*dashboardData.numQuestionsRight/dashboardData.numQuestionsTotal}%)</p>
-          <p>{t('dashboard.questionsWrong')} {dashboardData.numQuestionsWrong}. ({100*dashboardData.numQuestionsWrong/dashboardData.numQuestionsTotal}%)</p>
+          <p>{t('dashboard.questionsReported')} {dashboardData.numQuestionsReported}. ({(100*dashboardData.numQuestionsReported/dashboardData.numQuestionsTotal).toFixed(2)}%)</p> 
+          <p>{t('dashboard.questionsRight')} {dashboardData.numQuestionsRight}. ({(100*dashboardData.numQuestionsRight/dashboardData.numQuestionsTotal).toFixed(2)}%)</p>
+          <p>{t('dashboard.questionsWrong')} {dashboardData.numQuestionsWrong}. ({(100*dashboardData.numQuestionsWrong/dashboardData.numQuestionsTotal).toFixed(2)}%)</p>
 
           <h1><b>{t('dashboard.totalQuestions')}</b></h1>
           <p><Markdown>{dashboardData.response1}</Markdown></p>
