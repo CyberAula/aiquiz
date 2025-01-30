@@ -56,5 +56,17 @@ export const es = {
         title: "Nota:",
         back: "Voler al inicio",
         repeat: "Repetir test"
+    },
+    dashboard: {
+        title: "Dashboard del profesor",
+        subject: "Asignatura",
+        infoQuestions: "Información sobre las preguntas respondidas",
+        totalQuestions: "Total de preguntas",
+        questionsReported: "Preguntas reportadas",
+        questionsRight: "Preguntas correctas",
+        questionsWrong: "Preguntas incorrectas",
+        insights: "Insights generados por el modelo sobre los conocimientos de los alumnos",
+        back: "Volver",
+        choose: "Elige la Asignatura para ver el dashboard:"
     }
 };
