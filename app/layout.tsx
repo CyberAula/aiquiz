@@ -1,13 +1,17 @@
 'use client'
 
 import './globals.css'
+// import i18n (needs to be bundled ;))
+import "./i18n";
 
 import { Inter, Poppins, Lato } from 'next/font/google'
+import { useTranslation } from "react-i18next";
 
 const poppins = Poppins({ subsets: ['latin'], weight: '400' })
 
 const inter = Inter({ subsets: ['latin'] })
 const lato = Lato({ subsets: ['latin'], weight: '400' })
+
 
 // can only do this if it's a server component
 // export const metadata = {
@@ -18,10 +22,12 @@ const lato = Lato({ subsets: ['latin'], weight: '400' })
 import Script from 'next/script'
 
 export default function RootLayout({ children }) {
+    const { t, i18n } = useTranslation();
+
     return (
         <html lang='en'>
             <head>
-                <title>AIQUIZ</title>
+                <title>{t("front.title")}</title>
                 <link rel="icon" href="/my-favicon-32x32.png" type="image/x-icon"></link>
             </head>
             <body className={`${inter.className} relative`}>

@@ -1,4 +1,5 @@
 import React from 'react';
+import LangSwitcher from '../LangSwitcher';
 
 const Footer = () => {
     return (
@@ -10,6 +11,7 @@ const Footer = () => {
         Universidad Politécnica de Madrid - Grupo de Internet de Nueva
         Generación
       </a>
+      <LangSwitcher />
       </div>
     );
 }

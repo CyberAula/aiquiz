@@ -14,10 +14,13 @@ import Confetti from 'react-confetti'
 import Link from "next/link"
 import { gifs } from '../constants/gifs'
 import { Suspense } from 'react'
+import { useTranslation } from "react-i18next";
 
 
 
 function EndScreenFun() {
+    const { t, i18n } = useTranslation();
+
     const router = useRouter()
     const params = useSearchParams()
 
@@ -77,7 +80,7 @@ function EndScreenFun() {
 
             <div className='max-w-3xl flex flex-col items-center z-10'>
                 <div className='flex items-center'>
-                <h2 className='mr-3'>Nota:</h2>
+                <h2 className='mr-3'>{t('endscreen.title')}</h2>
                 <h2 className={`score-box ${getScoreColorClass()} text-7xl text-center fuente`}> {score * 100}%</h2>
                 </div>
                 <div className='gifs-container flex justify-center space-x-8 mt-8'>
@@ -94,13 +97,13 @@ function EndScreenFun() {
 
                 <div className='flex gap-4 mt-8'>
                     <button >
-                        <Link className='btn-md btn-outline ' href="/"> Volver a inicio </Link>
+                        <Link className='btn-md btn-outline ' href="/"> {t('endscreen.back')} </Link>
                     </button>
                     <button
                         className='btn-md btn-quizz inline-block text-center  text-lg font-semibold mx-auto'
                         onClick={handlePlayAgain}
                     >
-                        Nuevo test
+                        {t('endscreen.repeat')}
                     </button>
 
                 </div>

@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 
 import { HiOutlineXMark } from 'react-icons/hi2'
 import { HiInformationCircle } from 'react-icons/hi'
+import { useTranslation } from "react-i18next";
+
 
 const InstructionsModal = ({ onClose }) => {
+  const { t, i18n } = useTranslation();
+
   const [showInstructions, setShowInstructions] = useState(true);
 
   const handleClose = () => {
@@ -19,16 +23,16 @@ const InstructionsModal = ({ onClose }) => {
             <h2 className="text-2xl font-semibold mb-8">
 
               <HiInformationCircle size={24} className="inline-block mr-2 text-text" />
-              <span className="text-text font-bold fuente " >Instrucciones</span>
+              <span className="text-text font-bold fuente " >{t('instructions.title')}</span>
             </h2>
             <button className="text-text flex justify-start" onClick={handleClose}>
               <HiOutlineXMark size={24} />
             </button>
 
           </div>
-          <p className="text-text mb-4 mr-8 text-pretty">Para enviar tu respuesta, presiona <span className="btn-quizz btn-xs">Responder</span> </p>
-          <p className="text-text mb-4 mr-8 text-pretty">Si alguna pregunta crees que no está bien redactada o es incorrecta, presiona <span className="text-red-600 btn-xs font-bold border border-red-400">Reportar pregunta incorrecta</span> </p>
-          <p className="text-text mb-4 mr-8 text-pretty">¡Para obtener tu nota final deberás responder a <b>todas las preguntas! </b></p>
+          <p className="text-text mb-4 mr-8 text-pretty">{t('instructions.line1')} <span className="btn-quizz btn-xs">{t('instructions.respond')}</span> </p>
+          <p className="text-text mb-4 mr-8 text-pretty">{t('instructions.line2')} <span className="text-red-600 btn-xs font-bold border border-red-400">{t('instructions.report')}</span> </p>
+          <p className="text-text mb-4 mr-8 text-pretty">{t('instructions.line3')} <b>{t('instructions.line4')} </b></p>
 
           <div className="text-center">
             <button

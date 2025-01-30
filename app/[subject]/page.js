@@ -10,9 +10,11 @@ import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 
 import nextConfig from "../../next.config";
 import urljoin from "url-join";
+import { useTranslation } from "react-i18next";
 const basePath = nextConfig.basePath || "/";
 
 const HomePage = ({ params: { subject } }) => {
+  const { t, i18n } = useTranslation();
   const [languageSelected, setLanguageSelected] = useState("");
   const [topic, setTopic] = useState("");
   const [isTopicSelected, setIsTopicSelected] = useState(false);
@@ -36,10 +38,10 @@ const HomePage = ({ params: { subject } }) => {
   console.log(showAlert + " showAlert");
 
 //alerts
-  let alertEmptyMail = "Debes introducir tu email de alumno para empezar "
-  let alertUPMMail = "El email debe ser de alumno de la UPM"
-  let alertPickLang = "Debes elegir tema para empezar"
-  let alertPickTopic = "Debes elegir sub-tema para empezar"
+  let alertEmptyMail = t("subject.alertEmptyMail")
+  let alertUPMMail = t("subject.alertUPMMail")
+  let alertPickLang = t("subject.alertPickLang")
+  let alertPickTopic = t("subject.alertPickTopic")
 
 
   useEffect(() => {
@@ -153,7 +155,7 @@ const HomePage = ({ params: { subject } }) => {
           <Logo />
         </a>
         <h2 className="text-center text-xl md:text-xl mt-2 font-normal leading-4">
-          ¡Haz todos los cuestionarios que quieras sobre temas de la asignatura!
+          {t("subject.description")}
         </h2>
         {/* {loading && (
           <div className="flex items-center justify-center w-screen bg-myBg">
@@ -179,8 +181,7 @@ const HomePage = ({ params: { subject } }) => {
               onClick={() => { saveStudentEmail();} }
               className="btn-quizz btn-md mt-4"
             >
-            
-              Guardar email
+              {t("subject.saveemail")}              
             </button>
     
           </div>
@@ -193,14 +194,14 @@ const HomePage = ({ params: { subject } }) => {
             <div className="grid grid-cols-2 gap-x-4 gap-y-6">
               <div className={`container-settings-quiz`}  >
               {/* LENGUAJE /TEMA */}
-              <h2 className={`mb-1 text-lg font-bold `}>Asignatura: <b > {subject} </b></h2>
-              <p className="mb-6 text-base">Elige el tema que quieres repasar</p>
+              <h2 className={`mb-1 text-lg font-bold `}>{t("subject.title")} <b > {subject} </b></h2>
+              <p className="mb-6 text-base">{t("subject.choose2")}</p>
               <div className="flex flex-col parameters">
                 <label
                   htmlFor="language"
                   className="label-parameters-quiz"
                 >
-                  Tema
+                  {t("subject.topic")}
                 </label>
            
                 <select
@@ -210,7 +211,7 @@ const HomePage = ({ params: { subject } }) => {
                   className="quiz-select"
                 >
                      <option value="" disabled hidden className="italic-option">
-                    ¡Elige tema!
+                     {t("subject.choose")}
                   </option>
                   {language[subject].map((option) => (
                     <option
@@ -232,7 +233,7 @@ const HomePage = ({ params: { subject } }) => {
                   htmlFor="topic"
                   className="label-parameters-quiz"
                 >
-                  Sub-tema
+                  {t("subject.subtopic")}
                 </label>
                 <select
                   value={topic}
@@ -246,7 +247,7 @@ const HomePage = ({ params: { subject } }) => {
                   className="quiz-select"
                 >
                   <option value="" disabled hidden className="italic-option">
-                    ¡Elige tema!
+                    {t("subject.choose")}
                   </option>
                   {topics[languageSelected]?.map((option, index) => (
                     <option
@@ -265,15 +266,15 @@ const HomePage = ({ params: { subject } }) => {
               </div>
               <div className="container-settings-quiz">
               {/* DIFICULTAD, quitado para BBDD */}
-              <h2 className="mb-1 text-lg font-bold">Ajustes del quiz </h2>
-              <p className="mb-6">Elige el nivel de dificultad y el número de preguntas</p>
+              <h2 className="mb-1 text-lg font-bold">{t("subject.settings")}</h2>
+              <p className="mb-6">{t("subject.choosedif")}</p>
               {subject !== "BBDD" && (
                 <div className="flex flex-col parameters ">
                   <label
                     htmlFor="difficult"
                     className="label-parameters-quiz"
                   >
-                    Dificultad
+                    {t("subject.difficulty")}
                   </label>
                   <div className="grid grid-cols-3 gap-2 items-stretch justify-stretch">
                   <label for="radio-card-facil" className="radio-card-difficulty grow">
@@ -287,7 +288,7 @@ const HomePage = ({ params: { subject } }) => {
                       checked={difficulty === "facil"} // Controla si debe estar marcado
                     />
                     <div class="card-content-wrapper">
-                      <h4 className="text-xs uppercase">Fácil 🙂</h4>
+                      <h4 className="text-xs uppercase">{t("subject.easy")} 🙂</h4>
                     </div>
                   </label>
                   <label for="radio-card-intermedio" className="radio-card-difficulty grow">
@@ -301,7 +302,7 @@ const HomePage = ({ params: { subject } }) => {
                       checked={difficulty === "intermedio"} // Controla si debe estar marcado
                     />
                     <div class="card-content-wrapper">
-                      <h4 className="text-xs uppercase">Intermedio 🧐</h4>
+                      <h4 className="text-xs uppercase">{t("subject.medium")} 🧐</h4>
                     </div>
                   </label>
                   <label for="radio-card-avanzado" className="radio-card-difficulty grow">
@@ -314,7 +315,7 @@ const HomePage = ({ params: { subject } }) => {
                       checked={difficulty === "avanzado"} // Controla si debe estar marcado
                     />
                     <div class="card-content-wrapper">
-                      <h4 className="text-xs uppercase">Avanzado 🥵</h4>
+                      <h4 className="text-xs uppercase">{t("subject.advanced")} 🥵</h4>
                     </div>
                   </label>
                 </div>
@@ -329,7 +330,7 @@ const HomePage = ({ params: { subject } }) => {
                     htmlFor="numQuestions"
                     className="label-parameters-quiz"
                   >
-                    Nº de preguntas
+                    {t("subject.nquestions")}
                   </label>
                   <div className="flex flex-row gap-2 ">
                   <label for="radio-card-five" class="radio-card">
@@ -406,7 +407,7 @@ const HomePage = ({ params: { subject } }) => {
                     },
                   }}
                 >
-                  Crear test
+                  {t("subject.createtest")}
                 </Link>
               ) : (
                 <div className="flex flex-col items-center justify-center">
@@ -416,7 +417,7 @@ const HomePage = ({ params: { subject } }) => {
                     onClick={() => setShowAlertTopic(alertPickTopic)}
                     className="btn-quizz-disabled btn-lg opacity-50 cursor-not-allowed"
                   >
-                    Crear test
+                    {t("subject.createtest")}
                   </button>
                 </div>
               )}

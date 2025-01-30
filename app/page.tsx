@@ -2,14 +2,17 @@
 import Link from "next/link";
 import Logo from "./components/ui/Logo";
 import Footer from "./components/ui/Footer";
+import { useTranslation } from "react-i18next";
 
 const HomePage = () => {
+  const { t, i18n } = useTranslation();
+
   return (
     <div className="min-h-screen grid px-12">
       <div className="border rounded border-white/0 ">
         <Logo />
         <h2 className="text-center mb-6 text-xl">
-          ¡Entrena la asignatura hasta que no puedas más!
+          {t("front.description")}          
         </h2>
         <div className="">
           <div className="text-left text-base md:text-base  font-normal leading-2">

@@ -4,10 +4,14 @@ import { HiCheck, HiOutlineXMark } from 'react-icons/hi2'
 
 import nextConfig from '../../next.config';
 import urljoin from 'url-join';
+import { useTranslation } from "react-i18next";
+
 
 const basePath = nextConfig.basePath || '';
 
 const Question = ({ numQuestions, question, order, addSubmission, addReport, setNumCorrect, language, subject, topic, difficulty }) => {
+    const { t, i18n } = useTranslation();
+
     //console.log('order:', order);
     //console.log('question:', question);
 
@@ -236,7 +240,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
     return (
         <div className='max-w-3xl mx-auto'>
         <h2 className='text-sm font-semibold bg-blue-100 rounded px-1.5 py-0.5 inline-block text-blue-600'>
-          Pregunta {order + 1}/{numQuestions} 
+          {t('question.question')} {order + 1}/{numQuestions} 
         </h2>
         <div className='border border-gray-500/0 rounded w-4/5'>
           <div className='py-2 text-lg font-medium'>{query}</div>
@@ -246,12 +250,12 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
           <div className=' flex gap-3 mt-3'>
               {/* botón de enviar */}
               <button onClick={() => { handleAnswerSubmit(); }} className={`btn-md  rounded ${submitButtonStyles()} fuente`}            >
-                {isSubmitted ? '¡Contestada! ✔️' : 'Responder'}
+                {isSubmitted ? t("question.answered")+ '✔️' : t('question.answer')}
               </button>            
               
               {/* botón de reporte */}                               
               <button onClick={() => {handleReport()}}   className={`btn-md rounded ${submitButtonReportStyles()} fuente`}   >
-                  {!isSubmittedReport ? "Reportar pregunta incorrecta": "Pregunta Reportada! ✔️" }
+                  {!isSubmittedReport ? t('question.report'): t('question.reported') + "✔️" }
               </button>
           </div>                
            
@@ -259,7 +263,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
               {((isSubmitted && isCorrect()) ) && (
               <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
                 <h3 className='text-gray-800 text-sm uppercase  font-bold fuente'>
-                  Explicación
+                {t('question.explanation')}
                 </h3>
                 <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
               </div>
@@ -269,7 +273,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
           {(isSubmitted && !(isCorrect())) && (
             <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
                <h3 className='text-blue-950 text-sm uppercase  font-bold fuente'>
-                  Explicación
+               {t('question.explanation')}
                 </h3>
                 <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
              

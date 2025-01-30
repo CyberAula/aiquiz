@@ -8,9 +8,11 @@ import Question from '../components/Question'
 import Instructions from '../components/Instructions';
 import 'highlight.js/styles/atom-one-dark.css';
 import { Suspense } from 'react'
+import { useTranslation } from "react-i18next";
 
 
 function QuizPageFun() {
+    const { t, i18n } = useTranslation();
     const params = useSearchParams()
     const router = useRouter()
 
@@ -208,11 +210,11 @@ function QuizPageFun() {
                 <div className='flex justify-start gap-3 border-b border-gray-400 pb-5'>
                     <button className='btn-sm btn-outline'
                         onClick={handlePlayAgain}>
-                        « Volver
+                        « {t('quizpage.back')}
                     </button>
                     <button className='btn-sm bg-gray-600 text-white hover:bg-slate-900'
                         onClick={() => setShowInstructionsModal(true)}>
-                        🛈 Instrucciones
+                        🛈 {t('quizpage.instructions')}
                     </button>
                 </div>
              <div className='pb-6'>
@@ -226,10 +228,10 @@ function QuizPageFun() {
                     // animate={{ opacity: 1, y: 0 }}
                     // transition={{ duration: 0.8 }}
                 >
-                    Test de {language} sobre {topic}
+                    {t('quizpage.testof')} {language} {t('quizpage.about')} {topic}
                 </h1>
               
-                <p>Asignatura de <span className={`${textSubjectId} font-bold`}> {subject} </span></p>
+                <p>{t('quizpage.subjectof')} <span className={`${textSubjectId} font-bold`}> {subject} </span></p>
                 {/* recorre la pregunta*/}
                 </div>
                 {quiz?.map((question, index) => (
