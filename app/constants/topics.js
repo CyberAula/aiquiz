@@ -88,13 +88,18 @@ export const topics = {
     ],
     react: [
         'Creación y uso de componentes',
-        'Props',
-        'State',
+        'Ciclo de vida de un componente',
+        'Props y State',
+        'PropTypes y DefaultProps',
+        'UseRef y UseState',
         'Sintaxis y uso de JSX',
-        'Métodos del ciclo de vida',
-        'Actualización de estado',
+        'Hook UseEffect',
         'Manejo de eventos',
         'React Router',
+        'Context API',
+        'Redux',
+        'React Native',        
+        'Componentes controlados y formularios'
     ],
     http: [
         'URLs',

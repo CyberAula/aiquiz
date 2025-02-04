@@ -1,29 +1,40 @@
 'use client'
 import Link from 'next/link';
 import 'highlight.js/styles/atom-one-dark.css';
+import Footer from "../components/ui/Footer";
+import Logo from "../components/ui/Logo";
+import { useTranslation } from "react-i18next";
+
 
 const DashboardPage = () => {
+  const { t, i18n } = useTranslation();
 
     
     return (
         <div className='animated-bg min-h-screen grid place-items-center'>
         <div className='border rounded border-white/0 '>
-          <h1 className='text-center text-5xl md:text-7xl font-bold custom-gradient q-animate-gradient'>
-            ETSI(A)T
-          </h1>
-          <h2 className='text-center text-xl md:text-2xl mt-2 font-bold custom-gradient q-animate-gradient'>
-            Elige la Asignatura para ver el dashboard:
+         <Logo/>
+          <h2 className='text-center text-xl md:text-2xl mt-2 font-bold custom-gradient q-animate-gradient mb-12'>
+          {t('dashboard.choose')}
           </h2>
-          <div className='flex flex-col items-center mt-10'>
-            <Link className="q-button fuente"href={{pathname: '/dashboard/CORE'}}>Computación en Red (CORE)</Link>
-            <Link className="q-button fuente"href={{pathname: '/dashboard/IBDN'}}>Ingeniería de Big Data en la Nube (IBDN)</Link>
-            <Link className="q-button fuente"href={{pathname: '/dashboard/TECW'}}>Tecnologías Web (TECW)</Link>
-            <Link className="q-button fuente"href={{pathname: '/dashboard/BBDD'}}>Bases de Datos (BBDD)</Link>
-            <Link className="q-button fuente"href={{pathname: '/dashboard/IWEB'}}>Ingeniería Web (IWEB)</Link>
-            <Link className="q-button fuente"href={{pathname: '/dashboard/CDPS'}}>Centros de datos y provisión de servicios (CDPS)</Link>
-            <Link className="q-button fuente"href={{pathname: '/dashboard/PRG'}}>Programación (PRG)</Link>
+          <div className='grid grid-cols-4 mt-3 gap-3'>
+            <Link  className="subject-button" id="core" href={{pathname: '/dashboard/CORE'}}> <p>Computación en Red </p>
+            <p className="subject-acronym ">CORE</p></Link>
+            <Link  className="subject-button" id="ibdn" href={{pathname: '/dashboard/IBDN'}}> <p> Ingeniería de Big Data en la Nube</p>
+            <p className="subject-acronym ">IBDN</p></Link>
+            <Link  className="subject-button" id="tecw" href={{pathname: '/dashboard/TECW'}}> <p> Tecnologías Web </p>
+            <p className="subject-acronym ">TECW</p></Link>
+            <Link  className="subject-button" id="bbdd" href={{pathname: '/dashboard/BBDD'}}><p> Bases de Datos </p>
+            <p className="subject-acronym ">BBDD</p></Link>
+            <Link  className="subject-button" id="iweb" href={{pathname: '/dashboard/IWEB'}}>  <p>Ingeniería Web</p>
+            <p className="subject-acronym ">IWEB</p></Link>
+            <Link  className="subject-button" id="cdps" href={{pathname: '/dashboard/CDPS'}}> <p> Centros de datos y provisión de servicios </p>
+            <p className="subject-acronym">CDPS</p></Link>
+            <Link  className="subject-button"  id="prg" href={{pathname: '/dashboard/PRG'}}> <p> Programación</p>
+            <p className="subject-acronym">PRG</p></Link>
           </div>
         </div>
+        <Footer/>
       </div>  
     )
 }

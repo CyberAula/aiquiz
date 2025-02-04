@@ -2,10 +2,20 @@ import { useEffect, useState } from 'react'
 import { HiCheck, HiOutlineXMark } from 'react-icons/hi2'
 import nextConfig from '../../next.config';
 import urljoin from 'url-join';
+import { useTranslation } from "react-i18next";
+
 
 const basePath = nextConfig.basePath || '';
 
 const Question = ({ numQuestions, question, order, addSubmission, addReport, setNumCorrect, language, subject, topic, difficulty }) => {
+<<<<<<< HEAD
+=======
+    const { t, i18n } = useTranslation();
+
+    //console.log('order:', order);
+    //console.log('question:', question);
+
+>>>>>>> origin/main
     //random id to identify the question in the db and not use the query
     const [id, setId] = useState(Math.floor(Math.random() * 1000000000));
 
@@ -169,18 +179,18 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
             let style = ''
 
             style = choice.isSelected
-                ? 'border-2 border-white-600/75 bg-cyan-600/20'
-                : 'border-purple-500 hover:bg-cyan-600/10'
+                ? 'border-2 border-blue-500 bg-cyan-600/20'
+                : 'border-gray-400 hover:bg-cyan-600/10'
 
             let checkOrX = null
 
             if (isSubmitted) {
                 if (index === selectedChoiceIndex) {
                     if (isCorrect()) {
-                        style = 'border-2 border-emerald-300 bg-emerald-300/10'
+                        style = ' border-2 border-emerald-500 bg-emerald-300/30  '
                         checkOrX = (
                             <div>
-                                <HiCheck size={30} color='#6ee7b7' />
+                                <HiCheck size={30} className='text-emerald-500'/>
                             </div>
                         )
                     } else {
@@ -196,10 +206,10 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
 
             if (isExplained) {
                 if (index === Number(answer)) {
-                    style = 'border-emerald-300 bg-emerald-300/10'
+                    style = 'border-2 border-emerald-500 bg-emerald-300/30'
                     checkOrX = (
                         <div>
-                            <HiCheck size={30} color='#6ee7b7' />
+                            <HiCheck size={30} className='text-emerald-500' />
                         </div>
                     )
                 }
@@ -208,7 +218,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
             return (
                 <div
                     key={index}
-                    className={`w-full p-4 text-left border rounded cursor-pointer ${style} flex items-center justify-between`}
+                    className={`w-full px-4 py-3 text-left border rounded cursor-pointer ${style} flex items-center justify-between`}
                     onClick={() => handleChoiceSelect(index)}
                 >
                     <pre className=' whitespace-pre-wrap'>
@@ -243,6 +253,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
     }
 
     const submitButtonReportStyles = () => {
+<<<<<<< HEAD
         let style = isSubmittedReport
             ? 'pointer-events-none bg-black'
             : 'pointer-events-auto bg-black bg-opacity-50 text-pink-500 border-2 border-pink-700 font-bold hover:bg-pink-400/40';
@@ -300,6 +311,64 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
                         <p className='mt-2 text-sm font-light'>{explanation}</p>
                     </div>
                 )}
+=======
+      let style = isSubmittedReport
+          ? 'pointer-events-none font-bold text-green-800'
+          : 'pointer-events-auto bg-opacity-50 btn-report font-bold';
+      return style;
+    };
+
+    const submitButtonStyles = () => {
+      let style = isSelected
+          ? 'pointer-events-auto bg-blue text-white-500 font-bold btn-quizz'
+          : 'pointer-events-auto btn-quizz';
+        style = isSubmitted
+          ? 'pointer-events-none bg-blue-950 text-white'
+          : style
+      return style
+  };
+
+    return (
+        <div className='max-w-3xl mx-auto'>
+        <h2 className='text-sm font-semibold bg-blue-100 rounded px-1.5 py-0.5 inline-block text-blue-600'>
+          {t('question.question')} {order + 1}/{numQuestions} 
+        </h2>
+        <div className='border border-gray-500/0 rounded w-4/5'>
+          <div className='py-2 text-lg font-medium'>{query}</div>
+          <div className='grid gap-2 mt-1'>{renderChoices()}</div>
+          <div className='flex flex-col items-start mt-2 items'>
+      
+          <div className=' flex gap-3 mt-3'>
+              {/* botón de enviar */}
+              <button onClick={() => { handleAnswerSubmit(); }} className={`btn-md  rounded ${submitButtonStyles()} fuente`}            >
+                {isSubmitted ? t("question.answered")+ '✔️' : t('question.answer')}
+              </button>            
+              
+              {/* botón de reporte */}                               
+              <button onClick={() => {handleReport()}}   className={`btn-md rounded ${submitButtonReportStyles()} fuente`}   >
+                  {!isSubmittedReport ? t('question.report'): t('question.reported') + "✔️" }
+              </button>
+          </div>                
+           
+              {/* Nuevo botón de explicar */}
+              {((isSubmitted && isCorrect()) ) && (
+              <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
+                <h3 className='text-gray-800 text-sm uppercase  font-bold fuente'>
+                {t('question.explanation')}
+                </h3>
+                <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
+              </div>
+             )}
+
+          </div>
+          {(isSubmitted && !(isCorrect())) && (
+            <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
+               <h3 className='text-blue-950 text-sm uppercase  font-bold fuente'>
+               {t('question.explanation')}
+                </h3>
+                <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
+             
+>>>>>>> origin/main
             </div>
         </div>
     )

@@ -6,9 +6,13 @@ import { motion, useSpring } from 'framer-motion'
 import LoadingScreen from '../components/LoadingScreen'
 import Question from '../components/Question'
 import Instructions from '../components/Instructions';
-import 'highlight.js/styles/atom-one-dark.css'
+import 'highlight.js/styles/atom-one-dark.css';
+import { Suspense } from 'react'
+import { useTranslation } from "react-i18next";
 
-const QuizPage = () => {
+
+function QuizPageFun() {
+    const { t, i18n } = useTranslation();
     const params = useSearchParams()
     const router = useRouter()
 
@@ -17,7 +21,6 @@ const QuizPage = () => {
     const topic = params.get('topic')
     const numQuestions = Number(params.get('numQuestions'))
     const subject = params.get('subject')
-    let studentEmail = '';
 
     const [quiz, setQuiz] = useState([])
     const [isLoading, setIsLoading] = useState(true);
@@ -30,6 +33,8 @@ const QuizPage = () => {
 
     const [showInstructionsModal, setShowInstructionsModal] = useState(true);
 
+    let subjectId = subject.toLowerCase();
+    let textSubjectId = `text-${subjectId}-400`
 
     //barra del progreso
     const scaleX = useSpring(progress, {
@@ -42,7 +47,7 @@ const QuizPage = () => {
         router.push(`/${subject}`);
     }
 
-    const generateQuestions = async () => {
+    const generateQuestions = async (studentEmail) => {
         let responseText = '';
 
         try {
@@ -137,7 +142,7 @@ const QuizPage = () => {
         console.log('loading...');
         setIsLoading(true);
 
-        studentEmail = window.localStorage.getItem('student_email');
+        let studentEmail = window.localStorage.getItem('student_email');
         if (studentEmail == null || studentEmail == "" || studentEmail == "undefined" || studentEmail == "null") {
             console.log("NO EMAIL IN LOCALSTORAGE, WE ADD ANONYMOUS@EXAMPLE.COM");
             studentEmail = "anonymous@example.com";
@@ -196,38 +201,38 @@ const QuizPage = () => {
 
     return (
         <div>
+               <div className='max-w-3xl mx-auto'>
             {/* renderiza barra de progreso */}
             <motion.div className='progress-bar' style={{ scaleX }} />
 
             {isLoading ? <><LoadingScreen responseStream={responseStream} /></> : <div className='pt-12'>
-                <div className='flex-col-mobile'>
-                    <button className='inline-block border-2 border-purple-400 rounded text-purple-400 text-center uppercase text-lg font-semibold mx-auto mt-8 px-6 py-2 hover:bg-red-400/40 hover:border-red-400 hover:text-white duration-75 active:bg-red-600 fuente'
+                <div className='flex justify-start gap-3 border-b border-gray-400 pb-5'>
+                    <button className='btn-sm btn-outline'
                         onClick={handlePlayAgain}>
-                        « Volver
+                        « {t('quizpage.back')}
                     </button>
-                    <button className='inline-block border-2 border-purple-400 rounded text-purple-400 text-center uppercase text-lg font-semibold mx-auto mt-8 ml-4 px-6 py-2 hover:bg-yellow-400/40 hover:border-yellow-400 hover:text-white duration-75 active:bg-yellow-600 fuente'
+                    <button className='btn-sm bg-gray-600 text-white hover:bg-slate-900'
                         onClick={() => setShowInstructionsModal(true)}>
-                        🛈 Instrucciones
+                        🛈 {t('quizpage.instructions')}
                     </button>
                 </div>
-                <motion.h1
-                    className='text-4xl font-bold mb-8 text-center border rounded mx-auto p-4 fuente'
+             <div className='pb-6'>
+                <h1
+                    className='text-3xl font-bold  text-left pt-3 pb-1.5 text-text'
                     style={{
                         backgroundClip: 'text',
                         WebkitBackgroundClip: 'text',
-                        color: 'transparent',
-                        borderColor: '#86efac',
-                        borderWidth: '2px',
-                        backgroundImage: `linear-gradient(45deg, #86efac, #86efac)`,
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.5)',
                     }}
-                    initial={{ opacity: 0, y: -100 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
+                    // initial={{ opacity: 0, y: -100 }}
+                    // animate={{ opacity: 1, y: 0 }}
+                    // transition={{ duration: 0.8 }}
                 >
-                    ¡Test de {language} sobre {topic.length > 70 ? "todos los temas" : topic}! {/* En caso de seleccionar todos los temas, no se imprimen en pantalla todos los temas, sino que se imprime "todos los temas" */}
-                </motion.h1>
+                    {t('quizpage.testof')} {language} {t('quizpage.about')} {topic}
+                </h1>
+              
+                <p>{t('quizpage.subjectof')} <span className={`${textSubjectId} font-bold`}> {subject} </span></p>
                 {/* recorre la pregunta*/}
+                </div>
                 {quiz?.map((question, index) => (
                     <div className='mb-12' key={index}>
                         <Question
@@ -245,7 +250,8 @@ const QuizPage = () => {
                         />
                     </div>
                 ))}
-
+                 
+            
                 {/* Renderiza la caja de instrucciones solo cuando isLoading es false */}
                 {!isLoading && showInstructionsModal && (
                     <Instructions onClose={() => setShowInstructionsModal(false)} />
@@ -253,6 +259,12 @@ const QuizPage = () => {
             </div>
             }
         </div>
+        </div>
+
     )
 }
-export default QuizPage
+export default function QuizPage(){
+    return <Suspense>
+        <QuizPageFun />
+    </Suspense>
+}

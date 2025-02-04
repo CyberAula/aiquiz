@@ -1,0 +1,72 @@
+export const es = {
+    front: {
+        title: "AIQUIZ",
+        description: "Desafíate a ti mismo: ¡sigue practicando hasta que seas imparable!"
+    },
+    subject: {
+        title: "Asignatura: ",
+        description: "¡Realiza tantos cuestionarios como desees sobre los temas del curso!",
+        topic: "Tema",
+        choose: "Elige un tema",
+        choose2: "Elige el tema que deseas repasar",
+        subtopic: "Subtema",
+        settings: "Ajustes del cuestionario",
+        difficulty: "Dificultad",
+        choosedif: "Elige la dificultad y el número de preguntas",
+        easy: "Fácil",
+        medium: "Medio",
+        advanced: "Avanzado",
+        nquestions: "Número de preguntas",
+        createtest: "Crear test",
+        saveemail: "Guardar email",
+        alertEmptyMail: "Debes introducir tu email de alumno para empezar ",
+        alertUPMMail: "El email debe ser de alumno de la UPM",
+        alertPickLang: "Debes elegir tema para empezar",
+        alertPickTopic: "Debes elegir sub-tema para empezar",
+    },
+    loading: {
+        title: "Generando Test...",
+        description: "(Puede tardar unos segundos...)"
+    },
+    instructions: {
+        title: "Instrucciones",
+        line1: "Para enviar tu respuesta, presiona",
+        respond: "Responder",
+        line2: "Si alguna pregunta crees que no está bien redactada o es incorrecta, presiona",
+        report: "Reportar pregunta incorrecta",
+        line3: "¡Para obtener tu nota final deberás responder a ",
+        line4: "todas las preguntas!"
+    },
+    quizpage: {
+        back: "Volver",
+        instructions: "Instrucciones",
+        testof: "Test de",
+        about: "sobre",
+        subjectof: "Nombre de la asignatura:",
+    },
+    question: {
+        answer: "Responder",
+        answered: "Respondida",
+        report: "Reportar pregunta incorrecta",
+        reported: "Reportada",
+        question: "Pregunta",
+        explanation: "Explicación",
+    },
+    endscreen: {
+        title: "Nota:",
+        back: "Voler al inicio",
+        repeat: "Repetir test"
+    },
+    dashboard: {
+        title: "Dashboard del profesor",
+        subject: "Asignatura",
+        infoQuestions: "Información sobre las preguntas respondidas",
+        totalQuestions: "Total de preguntas",
+        questionsReported: "Preguntas reportadas",
+        questionsRight: "Preguntas correctas",
+        questionsWrong: "Preguntas incorrectas",
+        insights: "Insights generados por el modelo sobre los conocimientos de los alumnos",
+        back: "Volver",
+        choose: "Elige la Asignatura para ver el dashboard:"
+    }
+};
