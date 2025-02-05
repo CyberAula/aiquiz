@@ -8,7 +8,6 @@ import modelsJSON from '../../../models.json';
 
 import path from 'path';
 import fs from 'fs';
-import config from '../../../next.config.js';
 import aiquizConfig from '../../../aiquiz.config.js';
 
 console.log("--------------------------------------------------");
@@ -83,9 +82,9 @@ export async function POST(request) {
         const studentRecord = await Student.findOne({ studentEmail });
         const subjectData = studentRecord?.subjects.find(s => s.subjectName === subject);
         const abTestingStatus = subjectData?.ABC_Testing ? "true" : "false";
-        console.log("--------------------------------------------------");
+        console.log("--------------------------------------------------------");
         console.log(`Assigned Model to ${studentEmail}: ${assignedModel} - Subject: ${subject} - ABCTesting: ${abTestingStatus}`);
-        console.log("--------------------------------------------------");
+        console.log("--------------------------------------------------------");
 
 
         // Solicitud a la API del LLM seleccionado para el alumno
@@ -121,7 +120,9 @@ const assignAIModel = async (studentEmail, subject) => {
         let existingStudent = await Student.findOne({ studentEmail });
         const existingSubjectInStudent = await existingStudent?.subjects?.find(s => s.subjectName === subject);
         let has_abctesting = (abcTestingConfig && isABCTestingActive(abcTestingConfig)) ?? false;
+        console.log("--------------------------------------------------------");
         console.log("ABCTesting for", subject, ":", has_abctesting);
+        console.log("--------------------------------------------------------");
 
         // VALIDAR LOS MODELOS DEFINIDOS EN ABC_Testing_List, por si hay alguno invalido porque haya sido eliminado de models.json o  mal configurado
         if (has_abctesting) {
@@ -147,18 +148,21 @@ const assignAIModel = async (studentEmail, subject) => {
             // o la asignatura tiene abtesting y el estudiante tiene otro modelo anterior que no está incluido
             // o abctesting es false y el estudiante tiene true porque está en la configuración anterior
             if (!modelNames.includes(assignedModel) || (has_abctesting && !abcTestingConfig.models.includes(assignedModel)) || (!has_abctesting && existingStudent.subjects[subjectIndex].ABC_Testing)) {
-                console.log("-------------------------------------------");
+                console.log("--------------------------------------------------------");
                 console.log(`Modelo asignado ${assignedModel} no se encuentra en models.json, no está entre los del abtesting o abtesting desactivado. Reasignando modelo...`);
-                console.log("-------------------------------------------");
+                console.log("--------------------------------------------------------");
                 assignedModel = await getProperModel(modelNames, subject, has_abctesting);
             } else if (!has_abctesting) {
                 // Si el modelo ya asignado es válido,
-                // comprobamos si ha habido algun cambio en la prioridad de asignación de next.config.js, si keepmodel es false
+                console.log("--------------------------------------------------------");
+                // comprobamos si ha habido algun cambio en la prioridad de asignación de aiquiz.config.js, si keepmodel es false
                 if (aiquizConfig.keepmodel === false) {
-                    console.log("Reasignando modelo, propiedad (keepmodel: false)");
+                    console.log("Reasignando modelo, propiedad (keepmodel: ", aiquizConfig.keepmodel, ")");
                     assignedModel = await getProperModel(modelNames, subject, false);
+                } else {
+                    console.log("Se mantiene el modelo asignado (keepmodel: ", aiquizConfig.keepmodel, ") :", assignedModel, ". No se tienen en cuenta el resto de propiedades de aiquiz.config.js.");
                 }
-                console.log("No hay cambios en la prioridad de asignación de modelos (keepmodel: true), se mantiene modelo asignado:", assignedModel);
+                console.log("--------------------------------------------------------");
             }
         } else if (existingStudent && !existingSubjectInStudent) {
             //SEGUNDO CASO: EL ALUMNO YA EXISTE PERO NO TIENE LA ASIGNATURA DEFINIDA
@@ -211,11 +215,11 @@ const getProperModel = async (modelNames, subject, has_abctesting) => {
         // ABCTesting activo: asignar modelo equitativo
         assignedModel = await getEquitableModel(abcTestingConfig.models, subject);
         console.log("Asignando modelo equitativo con ABCTesting activo:", assignedModel);
-        
+
     } else {
-        // ABCTesting no activo: asignar modelo teniendo en cuenta la prioridad de asignación de next.config.js
+        // ABCTesting no activo: asignar modelo teniendo en cuenta la prioridad de asignación de aiquiz.config.js
         if (aiquizConfig.costPriority === true) {
-            assignedModel = await getLowerCostModel();
+            assignedModel = await getLowerCostModel(subject);
             console.log("Asignando modelo con menor coste:", assignedModel);
         } else if (aiquizConfig.fewerReportedPriority === true) {
             assignedModel = await getFewerReportedModel(subject);
@@ -258,22 +262,32 @@ const getEquitableModel = async (modelNames, subject) => {
     return selectedModel;
 };
 
-// Obtenemos el modelo con menor coste
-const getLowerCostModel = async () => {
+// Obtenemos el modelo con menor coste y en caso de varios modelos
+// del mismo coste repartimos los alumnos entre los modelos de manera equitativa
+const getLowerCostModel = async (subject) => {
     // Obtener todos los modelos disponibles desde models.json
     const models = modelsJSON.models;
 
-    let lowerCostModelName = null;
     let lowestTokenPrice = Infinity;
+    let lowestCostModels = [];
 
+    // Encontrar los modelos con el menor precio de token
     models.forEach((model) => {
         if (model.tokenPrice < lowestTokenPrice) {
             lowestTokenPrice = model.tokenPrice;
-            lowerCostModelName = model.name;
+            lowestCostModels = [model.name];
+        } else if (model.tokenPrice === lowestTokenPrice) {
+            lowestCostModels.push(model.name);
         }
     });
 
-    return lowerCostModelName;
+    // Si solo hay un modelo con el menor precio, devolverlo directamente
+    if (lowestCostModels.length === 1) {
+        return lowestCostModels[0];
+    }
+
+    // Si hay varios modelos con el mismo costo, elegir el más equitativo
+    return await getEquitableModel(lowestCostModels, subject);
 };
 
 // Obtenemos el modelo con menos fallos reportados
