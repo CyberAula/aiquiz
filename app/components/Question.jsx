@@ -235,73 +235,81 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
                 </div>
             )
         })
-    }
+    }    
 
 
     const handleReport = async () => {
-        if (isSubmittedReport) {
-            console.log("Question already reported");
-            return;
-        }
-        setIsSubmittedReport(true);
-        addReport(order);
-        await saveQuestion(-1, true);
+      if (isSubmittedReport) 
+      {
+        console.log("Question already reported");
+        return;
+      }
+      setIsSubmittedReport(true);
+      addReport(order);
+      await saveQuestion(-1, true);
     }
 
     const submitButtonReportStyles = () => {
-        let style = isSelected
-        ? 'pointer-events-auto bg-blue text-white-500 font-bold btn-quizz'
-        : 'pointer-events-auto btn-quizz';
-      style = isSubmitted
-        ? 'pointer-events-none bg-blue-950 text-white'
-        : style
-    return style
-};
+      let style = isSubmittedReport
+          ? 'pointer-events-none font-bold text-green-800'
+          : 'pointer-events-auto bg-opacity-50 btn-report font-bold';
+      return style;
+    };
 
-  return (
-      <div className='max-w-3xl mx-auto'>
-      <h2 className='text-sm font-semibold bg-blue-100 rounded px-1.5 py-0.5 inline-block text-blue-600'>
-        {t('question.question')} {order + 1}/{numQuestions} 
-      </h2>
-      <div className='border border-gray-500/0 rounded w-4/5'>
-        <div className='py-2 text-lg font-medium'>{query}</div>
-        <div className='grid gap-2 mt-1'>{renderChoices()}</div>
-        <div className='flex flex-col items-start mt-2 items'>
-    
-        <div className=' flex gap-3 mt-3'>
-            {/* botón de enviar */}
-            <button onClick={() => { handleAnswerSubmit(); }} className={`btn-md  rounded ${submitButtonStyles()} fuente`}            >
-              {isSubmitted ? t("question.answered")+ '✔️' : t('question.answer')}
-            </button>            
-            
-            {/* botón de reporte */}                               
-            <button onClick={() => {handleReport()}}   className={`btn-md rounded ${submitButtonReportStyles()} fuente`}   >
-                {!isSubmittedReport ? t('question.report'): t('question.reported') + "✔️" }
-            </button>
-        </div>                
-         
-            {/* Nuevo botón de explicar */}
-            {((isSubmitted && isCorrect()) ) && (
-            <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
-              <h3 className='text-gray-800 text-sm uppercase  font-bold fuente'>
-              {t('question.explanation')}
-              </h3>
-              <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
-            </div>
-           )}
+    const submitButtonStyles = () => {
+      let style = isSelected
+          ? 'pointer-events-auto bg-blue text-white-500 font-bold btn-quizz'
+          : 'pointer-events-auto btn-quizz';
+        style = isSubmitted
+          ? 'pointer-events-none bg-blue-950 text-white'
+          : style
+      return style
+  };
 
-        </div>
-        {(isSubmitted && !(isCorrect())) && (
-          <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
-             <h3 className='text-blue-950 text-sm uppercase  font-bold fuente'>
-             {t('question.explanation')}
-              </h3>
-              <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
+    return (
+        <div className='max-w-3xl mx-auto'>
+        <h2 className='text-sm font-semibold bg-blue-100 rounded px-1.5 py-0.5 inline-block text-blue-600'>
+          {t('question.question')} {order + 1}/{numQuestions} 
+        </h2>
+        <div className='border border-gray-500/0 rounded w-4/5'>
+          <div className='py-2 text-lg font-medium'>{query}</div>
+          <div className='grid gap-2 mt-1'>{renderChoices()}</div>
+          <div className='flex flex-col items-start mt-2 items'>
+      
+          <div className=' flex gap-3 mt-3'>
+              {/* botón de enviar */}
+              <button onClick={() => { handleAnswerSubmit(); }} className={`btn-md  rounded ${submitButtonStyles()} fuente`}            >
+                {isSubmitted ? t("question.answered")+ '✔️' : t('question.answer')}
+              </button>            
+              
+              {/* botón de reporte */}                               
+              <button onClick={() => {handleReport()}}   className={`btn-md rounded ${submitButtonReportStyles()} fuente`}   >
+                  {!isSubmittedReport ? t('question.report'): t('question.reported') + "✔️" }
+              </button>
+          </div>                
            
+              {/* Nuevo botón de explicar */}
+              {((isSubmitted && isCorrect()) ) && (
+              <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
+                <h3 className='text-gray-800 text-sm uppercase  font-bold fuente'>
+                {t('question.explanation')}
+                </h3>
+                <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
+              </div>
+             )}
+
           </div>
-        )}
+          {(isSubmitted && !(isCorrect())) && (
+            <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
+               <h3 className='text-blue-950 text-sm uppercase  font-bold fuente'>
+               {t('question.explanation')}
+                </h3>
+                <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
+             
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  )
+    )
 }
 export default Question
