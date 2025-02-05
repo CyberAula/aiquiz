@@ -9,7 +9,8 @@ await dbConnect();
 export async function POST(request) { 
     try {
         const { id, subject, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, llmModel, ABC_Testing} = await request.json();
-        console.log("received params: ",id, subject, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, llmModel, ABC_Testing);
+        //console.log("received params: ",id, subject, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, llmModel, ABC_Testing);
+        
         //check if question exists in database by id
         const questions = await Question.find({id: id});
         if(questions.length>0){

@@ -151,7 +151,7 @@ function QuizPageFun() {
         console.log("--------------------------------------------------");
 
 
-        generateQuestions();
+        generateQuestions(studentEmail);
     }, [])
 
 

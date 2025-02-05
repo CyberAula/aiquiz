@@ -9,7 +9,7 @@ import modelsJSON from '../../../models.json';
 import path from 'path';
 import fs from 'fs';
 import config from '../../../next.config.js';
-
+import aiquizConfig from '../../../aiquiz.config.js';
 
 console.log("--------------------------------------------------");
 console.log('Connecting to database...');
@@ -154,7 +154,7 @@ const assignAIModel = async (studentEmail, subject) => {
             } else if (!has_abctesting) {
                 // Si el modelo ya asignado es válido,
                 // comprobamos si ha habido algun cambio en la prioridad de asignación de next.config.js, si keepmodel es false
-                if (config.keepmodel === false) {
+                if (aiquizConfig.keepmodel === false) {
                     console.log("Reasignando modelo, propiedad (keepmodel: false)");
                     assignedModel = await getProperModel(modelNames, subject, false);
                 }
@@ -211,12 +211,13 @@ const getProperModel = async (modelNames, subject, has_abctesting) => {
         // ABCTesting activo: asignar modelo equitativo
         assignedModel = await getEquitableModel(abcTestingConfig.models, subject);
         console.log("Asignando modelo equitativo con ABCTesting activo:", assignedModel);
+        
     } else {
         // ABCTesting no activo: asignar modelo teniendo en cuenta la prioridad de asignación de next.config.js
-        if (config.costPriority === true) {
+        if (aiquizConfig.costPriority === true) {
             assignedModel = await getLowerCostModel();
             console.log("Asignando modelo con menor coste:", assignedModel);
-        } else if (config.fewerReportedPriority === true) {
+        } else if (aiquizConfig.fewerReportedPriority === true) {
             assignedModel = await getFewerReportedModel(subject);
             console.log("Asignando modelo con menos fallos reportados:", assignedModel);
         } else {
