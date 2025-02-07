@@ -4,7 +4,7 @@ export const es = {
         description: "Desafíate a ti mismo: ¡sigue practicando hasta que seas imparable!"
     },
     subject: {
-        title: "Asignatura",
+        title: "Asignatura: ",
         description: "¡Realiza tantos cuestionarios como desees sobre los temas del curso!",
         topic: "Tema",
         choose: "Elige un tema",

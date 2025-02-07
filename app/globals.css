@@ -451,10 +451,10 @@ option {
   @apply flex justify-center;
 }
 .dashboard {
-  @apply px-8 bg-white m-8 rounded-md border border-gray-400 pb-4
+  @apply px-8 bg-white my-8 rounded-md border border-gray-400 pb-4
 }
 .bg-dashboard {
-  @apply bg-blue-200 px-24 py-2
+  @apply bg-blue-200 px-32 py-2
 }
 .dashboard h2 {
   @apply text-lg font-semibold pb-2;
@@ -494,7 +494,7 @@ option {
   @apply bg-red-200 border-2 border-red-400 p-4 rounded-md;
 }
 .recomendaciones {
-  @apply w-3/4 p-4 bg-blue-100 rounded-md col-span-2
+  @apply w-3/4 mt-3 p-4 bg-blue-100 rounded-md col-span-2
 }
 .respuestas-numericas {
   @apply font-medium;

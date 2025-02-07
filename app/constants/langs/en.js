@@ -4,7 +4,7 @@ export const en = {
         description: "Challenge yourself: keep practicing until you excel!"
     },
     subject: {
-        title: "Subject",
+        title: "Subject: ",
         description: "Take as many quizzes as you want on topics of the course!",
         topic: "Topic",
         choose: "Choose a topic",

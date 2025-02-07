@@ -152,7 +152,7 @@ function QuizPageFun() {
         }
         console.log('studentEmail: ', studentEmail);
 
-        generateQuestions();
+        generateQuestions(studentEmail);
     }, [])
 
 

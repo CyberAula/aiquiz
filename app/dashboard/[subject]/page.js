@@ -4,6 +4,7 @@ import Markdown from "react-markdown";
 import { subjectNames } from "../../constants/language";
 import { useTranslation } from "react-i18next";
 import parse from "html-react-parser";
+import Footer from "../../components/ui/Footer"
 
 const SubjectPage = ({ params: { subject } }) => {
   const { t, i18n } = useTranslation();
@@ -116,8 +117,11 @@ const SubjectPage = ({ params: { subject } }) => {
           {parse(dashboardData.response1)}
          
         </div>
+        <Footer/>
         </div>
+        
         </div>
+   
       )}
     </div>
 
