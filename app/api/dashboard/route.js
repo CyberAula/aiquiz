@@ -93,8 +93,8 @@ export async function POST(request) {
         for (let i = 0; i < samplequestionsWrong.length; i++) {
             newPrompt += ` Pregunta ${i+1}: "${samplequestionsWrong[i].query}". `;
         }
-        newPrompt += ` Haz un pequeño reporte en formato markdown con un párrafo indicando los "Conocimientos de los estudiantes" y otro las "Lagunas de conocimiento", es decir los temas donde más fallan. `;
-        newPrompt += ` Añade un tercer párrafo con las "Recomendaciones para el profesor" de la asignatura con consejos e ideas para ayudar a los estudiantes a mejorar sus conocimientos. `;
+        newPrompt += ` Haz un pequeño reporte con titulos en h1, subtitulos en h2, parrafos en <p className="pb-2"> por cada frase . Con el párrafo y el h2 dentro de un div con la clase de "conocimientos" indicando los "Conocimientos de los estudiantes" y otro div con la clase de "lagunas" con el h2 y p, de las "Lagunas de conocimiento", es decir los temas donde más fallan. Ambos divs de "conocimientos" y "lagunas" envueltos en un div con la clase "reporte". Sin comillas ni html, importante.`;
+        newPrompt += ` Añade el siguiente contenido a esta estructura de div: <div className="recomendaciones"> <h2>Recomendaciones para el profesor </h2> <p className="pb-2 max-w-[66ch]">(Aqui tienes que poner el contenido de los parrados)... </p> </div> . El contenido de los parrafos son consejos e ideas para ayudar a los estudiantes a mejorar sus conocimientos. `;
         
         console.log("newPrompt: ", newPrompt);
         // Configurar parámetros de la solicitud a la API de OpenAI.

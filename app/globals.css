@@ -80,6 +80,9 @@ body {
         }
     } 
 }
+#ibdn-bg {
+  @apply bg-blue-800
+}
 #tecw {
     @apply bg-tecw-100/60 hover:bg-emerald-500/30 ;
     .subject-acronym {
@@ -90,6 +93,9 @@ body {
             @apply  text-emerald-500/80 transition
         }
     } 
+}
+#tecw-bg {
+  @apply text-emerald-800/70  rounded-sm
 }
 #bbdd {
     @apply bg-bbdd-100/50 hover:bg-bbdd-100 ;
@@ -315,7 +321,7 @@ label.radio-card-difficulty {
 
 @media screen {
   h1 {
-    margin-top: 10px; /* Ajusta según sea necesario */
+    /*margin-top: 10px; /* Ajusta según sea necesario */
   }
 
   select[name="subject"] {
@@ -444,19 +450,55 @@ option {
 .question-buttons {
   @apply flex justify-center;
 }
-
+.dashboard {
+  @apply px-8 bg-white m-8 rounded-md border border-gray-400 pb-4
+}
+.bg-dashboard {
+  @apply bg-blue-200 px-24 py-2
+}
 .dashboard h2 {
-  @apply text-xl font-semibold;
+  @apply text-lg font-semibold pb-2;
 }
 
-.dashboard p {
-  @apply text-lg;
-}
+/* .dashboard p {
+  @apply text-base 
+} */
 
 .dashboard h1 {
-  @apply text-2xl font-bold;
+
 }
 
 .dashboard .bigger {
   @apply text-3xl;
+}
+.reporte {
+  @apply grid grid-cols-2 gap-6 w-11/12 pb-4
+}
+.reporte p {
+  @apply text-sm
+}
+.titulo-reporte {
+  @apply text-xl pb-4
+}
+.conocimientos {
+  @apply bg-green-200 border-2 border-green-600 p-4 rounded-md;
+  h2 {
+    @apply text-green-800
+  }
+}
+
+.lagunas {
+  h2 {
+    @apply text-red-800
+  }
+  @apply bg-red-200 border-2 border-red-400 p-4 rounded-md;
+}
+.recomendaciones {
+  @apply w-3/4 p-4 bg-blue-100 rounded-md col-span-2
+}
+.respuestas-numericas {
+  @apply font-medium;
+  p {
+    @apply text-lg
+  }
 }

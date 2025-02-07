@@ -18,7 +18,7 @@ const InstructionsModal = ({ onClose }) => {
   return (
     showInstructions && (
       <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-30">
-        <div className="bg-white py-6 px-8  w-2/3 rounded shadow-lg">
+        <div className="bg-white py-6 px-8  w-1/2 rounded shadow-lg">
           <div className='flex justify-between '>
             <h2 className="text-2xl font-semibold mb-8">
 

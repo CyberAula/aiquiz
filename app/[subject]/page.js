@@ -149,7 +149,7 @@ const HomePage = ({ params: { subject } }) => {
   };
 
   return (
-    <div className="min-h-screen grid ">
+    <div className="min-h-screen grid px-16 ">
       <div className="border rounded border-white/0 ">
         <a href={baseUrl}>
           <Logo />
