@@ -1,6 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import urljoin from 'url-join';
+
+import preguntasreportadas from './reports.js'
+
+
+
+import nextConfig from '../../next.config';
+const basePath = nextConfig.basePath || '';
 
 export default function ReportsPage() {
   const [data, setData] = useState(null);
@@ -10,7 +18,8 @@ export default function ReportsPage() {
   useEffect(() => {
     const fetchData = async () => {
         try {
-            const response = await fetch('/api/reports');
+          const url = urljoin(basePath,'/api/reports');
+            const response = await fetch(url);
             console.log(response)
 
             if (!response.ok) {
@@ -30,6 +39,8 @@ export default function ReportsPage() {
     fetchData();
 }, []);
 
+  let numreportadas = preguntasreportadas(data.data)
+
 
   if (loading) return <p className="text-center text-lg">Cargando datos...</p>;
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
@@ -42,7 +53,10 @@ export default function ReportsPage() {
       <section className="mb-6 p-4 border rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-2">Preguntas Reportadas</h2>
         <p className="text-lg">
-          Número de preguntas reportadas:{" "}
+          Número de preguntas reportadas: {numreportadas}
+        </p>  
+        <p className="text-lg">
+          Preguntas reportadas: {data.reportadastexto}
           <span className="font-bold"></span>
         </p>
       </section>
