@@ -15,12 +15,16 @@ const studentSchema = new mongoose.Schema({
                 },
                 subjectModel: {
                     type: String,
-                    required: true,
+                    required: false,
                 },
                 ABC_Testing: {
                     type: Boolean,
                     required: true,
                     default: false,
+                },
+                prompt: {
+                    type: String,
+                    required: false,
                 },
             },
         ],

@@ -59,6 +59,10 @@ const questionSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
     },
+    prompt: {
+        type: String,
+        required: true,
+    },
 
 }, { timestamps: true }); // Habilitamos `createdAt` y `updatedAt`
 

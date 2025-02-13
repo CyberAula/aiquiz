@@ -106,9 +106,10 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
 
 
 
-        // Obtenemos el llmModel y el ABC_Testing del estudiante
+        // Obtenemos el llmModel, el ABC_Testing y el prompt del estudiante
         let llmModel = 'undefined';
         let ABC_Testing = false;
+        let prompt = '';
 
         const urlStudent = urljoin(basePath, `/api/student`);
         const responseStudent = await fetch(urlStudent, {
@@ -130,7 +131,9 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         if (subjectData) {
             llmModel = subjectData.subjectModel;
             ABC_Testing = subjectData.ABC_Testing;
+            prompt = subjectData.prompt;
         }
+
         
         //estructura de datos a guardar
         const data = {};
@@ -146,6 +149,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.studentEmail = studentEmail;
         data.llmModel = llmModel;
         data.ABC_Testing = ABC_Testing;
+        data.prompt = prompt;
         if (report) {
             data.studentReport = true;
             data.studentAnswer = selectedChoiceIndex; //if reported, we can use the state to keep what the user selected or -1 if nothing selected

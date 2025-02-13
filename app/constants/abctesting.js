@@ -1,11 +1,22 @@
 export const ABC_Testing_List = {
-    // PRG: {
-    //     from_date: "2024-01-01",
-    //     to_date: "2024-12-31",        
-    //     models:  ["Google_Generative_Pro", "Anthropic_Claude"],
-    //     prompt1: "I am a higher education student enrolled in the subject {subject}. Generate {number} multiple-choice questions on the topic {topic} in the knowledge domain {domain}. I have previously answered {number2} questions, which are provided here with their corresponding answers: {questions}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {rest}.",
-    //     prompt2: "You are a teacher and expert in the field on the topic {topic} in the knowledge domain {domain}, you can generate very good multiple choice questions on the topic.I am a higher education student enrolled in the subject {subject}. Generate {number} multiple-choice questions on the topic {topic} in the knowledge domain {domain}. I have previously answered {number2} questions, which are provided here with their corresponding answers: {questions}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {rest}.",
-    // },
+    PRG: {
+        from_date: "2024-01-01",
+        to_date: "2026-12-31",
+        models: ["OpenAI_GPT_4o_Mini", "Google_Generative_Flash"],
+        prompt1: {
+            content: "I am a higher education student enrolled in the subject {subject}. Generate {number} multiple-choice questions on the topic {topic} in the knowledge domain {domain}. I have previously answered {number2} questions, which are provided here with their corresponding answers: {questions}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {rest}.",
+            // id: "adksjfaldskfj",
+            // coletilla: "ten en cuenta que en CSS3 solo cuento etiquetas y no variables"
+        },
+        prompt2: {
+            content: "You are a teacher and expert in the field on the topic {topic} in the knowledge domain {domain}, you can generate very good multiple choice questions on the topic.I am a higher education student enrolled in the subject {subject}. Generate {number} multiple-choice questions on the topic {topic} in the knowledge domain {domain}. I have previously answered {number2} questions, which are provided here with their corresponding answers: {questions}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {rest}.",
+            // id: "adksjfaldskfj",
+        },
+        // prompt3: {
+        //     content: "You are a teacher and expert in the field on the topic {topic} in the knowledge domain {domain}, you can generate very good multiple choice questions on the topic.I am a higher education student enrolled in the subject {subject}. Generate {number} multiple-choice questions on the topic {topic} in the knowledge domain {domain}. I have previously answered {number2} questions, which are provided here with their corresponding answers: {questions}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {rest}.",
+        //     // id: "adksjfaldskfj",
+        // }
+    },
     // CORE: {
     //     from_date: "2022-01-01",
     //     to_date: "2025-12-31",        

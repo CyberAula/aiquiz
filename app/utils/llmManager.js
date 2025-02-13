@@ -6,7 +6,7 @@ import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 const models = JSON.parse(fs.readFileSync('models.json'));
 
-export async function fetchResponse(modelName, payload) {
+export async function fetchResponse(modelName, prompt) {
     const config = models.models.find(m => m.name === modelName);
 
     if (!config) {
@@ -62,16 +62,16 @@ export async function fetchResponse(modelName, payload) {
                     }
                 }
                 : { type: "json_object" };
-            return await OpenAI_API_Request(config, payload, responseFormat);
+            return await OpenAI_API_Request(config, prompt, responseFormat);
 
         case config.name.startsWith("Anthropic"):
-            return await Anthropic_API_Request(config, payload);
+            return await Anthropic_API_Request(config, prompt);
 
         case config.name.startsWith("Google_Generative"):
-            return await Google_API_Request(config, payload);
+            return await Google_API_Request(config, prompt);
 
         case config.name.startsWith("Groq"):
-            return await Groq_API_Request(config, payload);
+            return await Groq_API_Request(config, prompt);
 
         default:
             throw new Error(`No se ha configurado el JSON para ${config.name}.`);
@@ -79,7 +79,7 @@ export async function fetchResponse(modelName, payload) {
 }
 
 
-async function OpenAI_API_Request(config, payload, responseFormat) {
+async function OpenAI_API_Request(config, prompt, responseFormat) {
     if (!config.api_key) {
         throw new Error(`Falta la ${config.name} API Key`);
     }
@@ -91,11 +91,11 @@ async function OpenAI_API_Request(config, payload, responseFormat) {
 
     try {
         // console.log("--------------------------------------------------");
-        // console.log("Payload being sent to OpenAI: ", JSON.stringify(payload, null, 2));
+        // console.log("prompt being sent to OpenAI: ", JSON.stringify(prompt, null, 2));
 
         const response = await openai.chat.completions.create({
             model: config.model,
-            messages: [{ role: 'user', content: payload.message }],
+            messages: [{ role: 'user', content: prompt }],
             response_format: responseFormat,
             temperature: config.config.temperature,
             frequency_penalty: config.config.frequency_penalty,
@@ -119,7 +119,7 @@ async function OpenAI_API_Request(config, payload, responseFormat) {
 
 }
 
-async function Anthropic_API_Request(config, payload) {
+async function Anthropic_API_Request(config, prompt) {
     if (!config.api_key) {
         throw new Error(`Falta la ${config.name} API Key`);
     }
@@ -130,12 +130,12 @@ async function Anthropic_API_Request(config, payload) {
 
     try {
         // console.log("--------------------------------------------------");
-        // console.log("Payload being sent to Anthropic: ", JSON.stringify(payload, null, 2));
+        // console.log("prompt being sent to Anthropic: ", JSON.stringify(prompt, null, 2));
 
         const response = await anthropic.messages.create({
             model: config.model,
             max_tokens: config.config.max_tokens,
-            messages: [{ role: 'user', content: payload.message }],
+            messages: [{ role: 'user', content: prompt }],
             temperature: config.config.temperature,
         });
 
@@ -155,7 +155,7 @@ async function Anthropic_API_Request(config, payload) {
 
 }
 
-async function Google_API_Request(config, payload) {
+async function Google_API_Request(config, prompt) {
     if (!config.api_key) {
         throw new Error(`Falta la ${config.name} API Key`);
     }
@@ -220,9 +220,9 @@ async function Google_API_Request(config, payload) {
 
     try {
         // console.log("--------------------------------------------------");
-        // console.log("Payload being sent to Google: ", JSON.stringify(payload, null, 2));
+        // console.log("prompt being sent to Google: ", JSON.stringify(prompt, null, 2));
 
-        const result = await model.generateContent(`${payload.message}`,);
+        const result = await model.generateContent(`${prompt}`,);
 
         // console.log("text response to prompt: ", result.response.text());
         // console.log("--------------------------------------------------");
@@ -236,7 +236,7 @@ async function Google_API_Request(config, payload) {
     }
 }
 
-async function Groq_API_Request(config, payload) {
+async function Groq_API_Request(config, prompt) {
     if (!config.api_key) {
         throw new Error(`Falta la ${config.name} API Key`);
     }
@@ -245,12 +245,12 @@ async function Groq_API_Request(config, payload) {
 
     try {
         // console.log("--------------------------------------------------");
-        // console.log(`Payload being sent to ${config.name}:`, JSON.stringify(payload, null, 2));
+        // console.log(`prompt being sent to ${config.name}:`, JSON.stringify(prompt, null, 2));
 
         // Llama a la API y procesa la respuesta
         const response = await groq.chat.completions.create({
             messages: [ 
-                { role: "user", content: payload.message, }, 
+                { role: "user", content: prompt, }, 
             ],
             model: config.model,
             response_format: {"type": "json_object"},
