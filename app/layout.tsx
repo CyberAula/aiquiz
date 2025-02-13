@@ -31,13 +31,11 @@ export default function RootLayout({ children }) {
                 <link rel="icon" href="/my-favicon-32x32.png" type="image/x-icon"></link>
             </head>
             <body className={`${inter.className} relative`}>
-                <div className='bg-grid'>
-                    <div className='gradient' />
-                </div>
+               
 
-                <main className='relative z-10 max-w-7xl mx-auto sm:px-16 px-6'>
+                {/* <main className='relative z-10 max-w-7xl mx-auto sm:px-16 px-6'> */}
                     {children}
-                </main>
+                {/* </main> */}
             </body>
         </html>
     )

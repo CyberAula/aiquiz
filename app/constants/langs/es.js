@@ -67,6 +67,10 @@ export const es = {
         questionsWrong: "Preguntas incorrectas",
         insights: "Insights generados por el modelo sobre los conocimientos de los alumnos",
         back: "Volver",
-        choose: "Elige la Asignatura para ver el dashboard:"
+        choose: "Elige la Asignatura para ver el dashboard:",
+        reportTitle: "Reporte sobre conocimientos de los alumnos"
+    },
+    footer: {
+        title: "Universidad Politécnica de Madrid - Grupo de Internet de Nueva Generación",
     }
 };

@@ -14,7 +14,7 @@ const DashboardPage = () => {
         <div className='animated-bg min-h-screen grid place-items-center'>
         <div className='border rounded border-white/0 '>
          <Logo/>
-          <h2 className='text-center text-xl md:text-2xl mt-2 font-bold custom-gradient q-animate-gradient mb-12'>
+          <h2 className='text-center text-lg md:text-xl mt-2  custom-gradient q-animate-gradient mb-12'>
           {t('dashboard.choose')}
           </h2>
           <div className='grid grid-cols-4 mt-3 gap-3'>

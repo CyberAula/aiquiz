@@ -8,6 +8,7 @@ const HomePage = () => {
   const { t, i18n } = useTranslation();
 
   return (
+    <main className='relative z-10 max-w-7xl mx-auto sm:px-16 px-6'> 
     <div className="min-h-screen grid px-12">
       <div className="border rounded border-white/0 ">
         <Logo />
@@ -80,6 +81,7 @@ const HomePage = () => {
       </div>
       <Footer />
     </div>
+    </main>
   );
 };
 

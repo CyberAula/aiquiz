@@ -150,7 +150,6 @@ function QuizPageFun() {
         console.log('studentEmail: ', studentEmail);
         console.log("--------------------------------------------------");
 
-
         generateQuestions(studentEmail);
     }, [])
 
@@ -201,7 +200,7 @@ function QuizPageFun() {
 
     return (
         <div>
-               <div className='max-w-3xl mx-auto'>
+               <div className='max-w-3xl mx-auto px-4'>
             {/* renderiza barra de progreso */}
             <motion.div className='progress-bar' style={{ scaleX }} />
 
@@ -218,7 +217,7 @@ function QuizPageFun() {
                 </div>
              <div className='pb-6'>
                 <h1
-                    className='text-3xl font-bold  text-left pt-3 pb-1.5 text-text'
+                    className='text-3xl font-bold  text-left pt-3 pb-1.5 text-text text-pretty'
                     style={{
                         backgroundClip: 'text',
                         WebkitBackgroundClip: 'text',
