@@ -1,4 +1,6 @@
-import { fetchResponse } from '../../utils/llmManager.js';
+import chalk from 'chalk';
+
+import { getModelResponse } from '../../utils/llmManager.js';
 import { fillPrompt } from '../../utils/promptManager.js';
 import { ABC_Testing_List } from '../../constants/abctesting.js';
 import { assignAIModel } from '../../utils/modelManager.js';
@@ -20,38 +22,40 @@ export async function POST(request) {
     try {
         const { language, difficulty, topic, numQuestions, studentEmail, subject } = await request.json();
 
+        // Cargamos variables y objetos de configuración
 
         // Comprobamos si el ABCTesting está activo para la asignatura
         let abcTestingConfig = ABC_Testing_List[subject];
         let has_abctesting = (abcTestingConfig && isABCTestingActive(abcTestingConfig)) ?? false;
-        console.log("--------------------------------------------------------");
-        console.log("ABCTesting for", subject, ":", has_abctesting);
-        console.log("--------------------------------------------------------");
 
         // Comprobaos si existe el alumno en la base de datos,
         // si existe pero no tiene la asignatura, la añadimos,
-        // si no existe, lo creamos.
-        await ensureStudentAndSubject(studentEmail, subject);
+        // si no existe, lo creamos y se devuelve el objeto del alumno
+        let existingStudent = await getAndEnsureStudentAndSubject(studentEmail, subject, has_abctesting);
+
+        let studentSubjectData = await existingStudent?.subjects?.find(s => s.subjectName === subject);
+        let subjectIndex = await existingStudent?.subjects?.findIndex(s => s.subjectName === subject);
+
+
 
 
         // SOLICITUD A LA API de promptManager para obtener el prompt final
-        let finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, subject);
+        let finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex);
 
 
         // SOLICITUD A LA API de modelManager para asignar un modelo de LLM al alumno
-        const assignedModel = await assignAIModel(abcTestingConfig, has_abctesting, studentEmail, subject);
-            // Imprimimos por pantalla todos los parametros necesarios para la asignacion de modelo para controlar que todo ha ido bien
-        const studentRecord = await Student.findOne({ studentEmail });
-        const subjectData = studentRecord?.subjects.find(s => s.subjectName === subject);
-        const abTestingStatus = subjectData?.ABC_Testing ? "true" : "false";
-        console.log("--------------------------------------------------------");
-        console.log(`Assigned Model to ${studentEmail}: ${assignedModel} - Subject: ${subject} - ABCTesting: ${abTestingStatus}`);
-        console.log("--------------------------------------------------------");
+        const assignedModel = await assignAIModel(abcTestingConfig, has_abctesting, existingStudent, studentSubjectData, subjectIndex);
+
+
+        // Imprimimos por pantalla todos los parametros necesarios para la asignacion de modelo para controlar que todo ha ido bien
+        console.log(chalk.bgGreen.black("--------------------------------------------------------------------------------------------------------------"));
+        console.log(chalk.bgGreen.black(`Assigned Model to ${studentEmail}: ${assignedModel} - Subject: ${subject} - ABCTesting: ${has_abctesting}    `));
+        console.log(chalk.bgGreen.black("--------------------------------------------------------------------------------------------------------------"));
 
 
         // SOLICITUD A LA API del LLM seleccionado para el alumno
-        const responseLlmManager = await fetchResponse(assignedModel, finalPrompt);
-            // Formatear la respuesta de la API
+        const responseLlmManager = await getModelResponse(assignedModel, finalPrompt);
+        // Formatear la respuesta de la API
         const formattedResponse = responseLlmManager.replace(/^\[|\]$/g, '').replace(/```json/g, '').replace(/```/g, '').trim();
 
 
@@ -80,7 +84,7 @@ const isABCTestingActive = (config) => {
 };
 
 // Comprobamos si el alumno existe, si no tiene la asignatura la añade, si no existe lo crea
-const ensureStudentAndSubject = async (studentEmail, subject) => {
+const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesting) => {
     try {
         let student = await Student.findOne({ studentEmail });
 
@@ -90,34 +94,37 @@ const ensureStudentAndSubject = async (studentEmail, subject) => {
                 studentEmail,
                 subjects: [{
                     subjectName: subject,
-                    subjectModel: null, 
-                    ABC_Testing: false, 
-                    prompt: null 
+                    subjectModel: "Nuevo estudiante",
+                    ABC_Testing: has_abctesting,
+                    md5Prompt: null,
+                    prompt: null
                 }]
             });
             await student.save();
             console.log("--------------------------------------------------------");
             console.log(`Nuevo estudiante creado: ${studentEmail} con la asignatura ${subject}`);
             console.log("--------------------------------------------------------");
-            return;
+            return student;
         }
 
         // Si el estudiante ya tiene la asignatura, salimos sin hacer nada ni mostrar logs
         if (student.subjects.some(s => s.subjectName === subject)) {
-            return;
+            return student;
         }
 
         // Si el estudiante existe pero no tiene la asignatura, la añadimos
         student.subjects.push({
             subjectName: subject,
-            subjectModel: null, 
-            ABC_Testing: false, 
-            prompt: null 
+            subjectModel: "Nuevo estudiante",
+            ABC_Testing: has_abctesting,
+            md5Prompt: null,
+            prompt: null
         });
         await student.save();
         console.log("--------------------------------------------------------");
         console.log(`Asignatura ${subject} añadida a ${studentEmail}`);
         console.log("--------------------------------------------------------");
+        return student;
 
     } catch (error) {
         console.error('Error asegurando la existencia del estudiante y su asignatura:', error.message);

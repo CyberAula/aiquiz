@@ -6,7 +6,7 @@ import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 const models = JSON.parse(fs.readFileSync('models.json'));
 
-export async function fetchResponse(modelName, prompt) {
+export async function getModelResponse(modelName, prompt) {
     const config = models.models.find(m => m.name === modelName);
 
     if (!config) {

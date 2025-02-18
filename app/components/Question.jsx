@@ -106,9 +106,10 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
 
 
 
-        // Obtenemos el llmModel, el ABC_Testing y el prompt del estudiante
+        // Obtenemos el llmModel, el ABC_Testing, el hash del prompt y el prompt del estudiante
         let llmModel = 'undefined';
         let ABC_Testing = false;
+        let md5Prompt = '';
         let prompt = '';
 
         const urlStudent = urljoin(basePath, `/api/student`);
@@ -131,6 +132,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         if (subjectData) {
             llmModel = subjectData.subjectModel;
             ABC_Testing = subjectData.ABC_Testing;
+            md5Prompt = subjectData.md5Prompt;
             prompt = subjectData.prompt;
         }
 
@@ -149,6 +151,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.studentEmail = studentEmail;
         data.llmModel = llmModel;
         data.ABC_Testing = ABC_Testing;
+        data.md5Prompt = md5Prompt;
         data.prompt = prompt;
         if (report) {
             data.studentReport = true;

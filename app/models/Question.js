@@ -59,6 +59,10 @@ const questionSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
     },
+    md5Prompt: {
+        type: String,
+        required: false,
+    },
     prompt: {
         type: String,
         required: true,

@@ -12,7 +12,7 @@
 const aiquizConfig = {
     costPriority: false,
     fewerReportedPriority: false,
-    keepmodel: false,
+    keepmodel: true,
 };
 
 export default aiquizConfig;
