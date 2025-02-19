@@ -3,8 +3,8 @@ import dbConnect from "../utils/dbconnect.js";
 import Question from '../models/Question.js';
 
 //const { executionAsyncId } = require('async_hooks');
-const fs = require('fs');
-const xlsx = require('xlsx');
+import fs from 'fs'
+import xlsx from 'xlsx'
 
 
 //import { MongoClient } from 'mongodb'
