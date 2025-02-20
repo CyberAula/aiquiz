@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
                 <title>{t("front.title")}</title>
                 <link rel="icon" href="/my-favicon-32x32.png" type="image/x-icon"></link>
             </head>
-            <body className={`${inter.className} relative`}>
+            <body className={`${inter.className} relative bg-blue-200`}>
                
 
                 {/* <main className='relative z-10 max-w-7xl mx-auto sm:px-16 px-6'> */}

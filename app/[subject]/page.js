@@ -7,6 +7,7 @@ import Image from "next/image";
 import Logo from "../components/ui/Logo";
 import Footer from "../components/ui/Footer";
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import Header from "../components/ui/Header";
 
 import nextConfig from "../../next.config";
 import urljoin from "url-join";
@@ -149,14 +150,16 @@ const HomePage = ({ params: { subject } }) => {
   };
 
   return (
-    <div className="min-h-screen grid px-16 ">
+    <main className='container-layout'> 
       <div className="border rounded border-white/0 ">
-        <a href={baseUrl}>
-          <Logo />
-        </a>
-        <h2 className="text-center text-xl md:text-xl mt-2 font-normal leading-4">
-          {t("subject.description")}
+          <Header />
+        <div className="container-content">
+        <h2 className="text-left text-2xl mb-2 font-normal ">
+        {t("front.title")}
         </h2>
+        <p>
+        {t("subject.description")}
+        </p>
         {/* {loading && (
           <div className="flex items-center justify-center w-screen bg-myBg">
             <Image src="/spinner.gif" height={250} width={250} alt="loading" />
@@ -189,13 +192,13 @@ const HomePage = ({ params: { subject } }) => {
         {loading == false && myUserEmail != null && (
           <form
             onSubmit={handleSubmit}
-            className="mt-5 flex flex-col gap-3 w-[80%] mx-auto"
+            className="mt-6 flex flex-col gap-3 lg:w-[80%] md:w-full mx-auto"
           >
-            <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+            <div className="flex flex-col md:grid md:grid-cols-2 gap-x-4 gap-y-6">
               <div className={`container-settings-quiz`}  >
               {/* LENGUAJE /TEMA */}
               <h2 className={`mb-1 text-lg font-bold `}>{t("subject.title")} <b > {subject} </b></h2>
-              <p className="mb-6 text-base">{t("subject.choose2")}</p>
+              <p className="mb-6 text-sm">{t("subject.choose2")}</p>
               <div className="flex flex-col parameters">
                 <label
                   htmlFor="language"
@@ -267,7 +270,7 @@ const HomePage = ({ params: { subject } }) => {
               <div className="container-settings-quiz">
               {/* DIFICULTAD, quitado para BBDD */}
               <h2 className="mb-1 text-lg font-bold">{t("subject.settings")}</h2>
-              <p className="mb-6">{t("subject.choosedif")}</p>
+              <p className="mb-6 text-sm">{t("subject.choosedif")}</p>
               {subject !== "BBDD" && (
                 <div className="flex flex-col parameters ">
                   <label
@@ -276,7 +279,7 @@ const HomePage = ({ params: { subject } }) => {
                   >
                     {t("subject.difficulty")}
                   </label>
-                  <div className="grid grid-cols-3 gap-2 items-stretch justify-stretch">
+                  <div className="grid md:grid-cols-3 mb-3 md:mb-0 gap-2 items-stretch justify-stretch">
                   <label for="radio-card-facil" className="radio-card-difficulty grow">
                    
                     <input
@@ -343,7 +346,7 @@ const HomePage = ({ params: { subject } }) => {
                       checked={numQuestions === "5"} // Controla si debe estar marcado
                     />
                     <div class="card-content-wrapper">
-                      <h4 className="text-base uppercase">5</h4>
+                      <h4 className="text-sm uppercase">5</h4>
                     </div>
                   </label>
                   <label for="radio-card-ten" class="radio-card">
@@ -356,7 +359,7 @@ const HomePage = ({ params: { subject } }) => {
                       checked={numQuestions === "10"} // Controla si debe estar marcado
                     />
                     <div class="card-content-wrapper">
-                      <h4 className="text-base uppercase">10</h4>
+                      <h4 className="text-sm uppercase">10</h4>
                     </div>
                   </label>
                   <label for="radio-card-fifteen" className="radio-card">
@@ -369,7 +372,7 @@ const HomePage = ({ params: { subject } }) => {
                       checked={numQuestions === "15"} // Controla si debe estar marcado
                     />
                     <div class="card-content-wrapper">
-                      <h4 className="text-base uppercase">15</h4>
+                      <h4 className="text-sm uppercase">15</h4>
                     </div>
                   </label>
                   <label for="radio-card-twenty" className="radio-card grow">
@@ -382,7 +385,7 @@ const HomePage = ({ params: { subject } }) => {
                       checked={numQuestions === "20"} // Controla si debe estar marcado
                     />
                     <div class="card-content-wrapper">
-                      <h4 className="text-base uppercase">20</h4>
+                      <h4 className="text-sm uppercase">20</h4>
                     </div>
                   </label>
                 </div>
@@ -415,7 +418,7 @@ const HomePage = ({ params: { subject } }) => {
                   <button
                     href="#"
                     onClick={() => setShowAlertTopic(alertPickTopic)}
-                    className="btn-quizz-disabled btn-lg opacity-50 cursor-not-allowed"
+                    className="btn-quizz-disabled btn-md opacity-50 cursor-not-allowed"
                   >
                     {t("subject.createtest")}
                   </button>
@@ -425,9 +428,10 @@ const HomePage = ({ params: { subject } }) => {
           </form>
         )}
       </div>
+      </div>
 
       <Footer/>
-    </div>
+    </main>
   );
 };
 

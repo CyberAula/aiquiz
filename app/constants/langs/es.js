@@ -1,7 +1,9 @@
 export const es = {
     front: {
-        title: "AIQUIZ",
-        description: "Desafíate a ti mismo: ¡sigue practicando hasta que seas imparable!"
+         
+        title: "Crea tu quiz personalizado",
+        //  description: "Desafíate a ti mismo: ¡sigue practicando hasta que seas imparable!",
+        description: "Escoge la asignatura que quieras repasar",
     },
     subject: {
         title: "Asignatura: ",
@@ -54,7 +56,7 @@ export const es = {
     },
     endscreen: {
         title: "Nota:",
-        back: "Voler al inicio",
+        back: "Volver al inicio",
         repeat: "Repetir test"
     },
     dashboard: {

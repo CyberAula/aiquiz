@@ -5,11 +5,19 @@
 
 
 
+
 body {
   @apply text-customColor;
   font-family: "inter";
 }
 
+.container-layout {
+ @apply relative z-10 max-w-7xl mx-auto sm:mx-16 sm:my-4 bg-white rounded-md min-h-[93vh] flex flex-col  
+}
+
+.container-content {
+  @apply my-3 px-4 md:my-6 md:px-12
+}
 /*icons*/
 
 
@@ -48,15 +56,15 @@ body {
 } */
 .subject-button {
     @apply inline-block relative
-    w-full min-h-[140px]  
+    w-full h-[100px] md:min-h-[140px]  
     border border-customColor/20 rounded-md
-    text-customColor/90 text-left text-[17px] leading-snug  font-medium 
-    px-3 py-3 hover:border-gray-500/70
+    text-customColor/70 text-left text-[16px] leading-snug  font-normal 
+    px-3 py-3 hover:border-gray-500/70 mix-blend-multiply
     hover:text-gray-800  duration-75 active:bg-gray-400
     shadow-md text-balance transition;
 }
 .subject-acronym {
-    @apply transition absolute right-2 bottom-0 text-6xl font-semibold tracking-tighter
+    @apply transition absolute right-2 bottom-0 text-5xl font-extrabold tracking-tighter
 }
 #core {
     @apply bg-core-100/60 hover:bg-core-100 ;
@@ -153,14 +161,14 @@ body {
   background: #f7f7f7;
 }
 .parameters {
-   @apply mb-8;
+   @apply mb-3;
    &:last-child {
     @apply mb-3
    }
 }
 
 .label-parameters-quiz {
-    @apply uppercase text-sm font-bold pb-2
+    @apply uppercase text-xs font-bold pb-2
 }
 
 label,
@@ -421,7 +429,7 @@ label.radio-card-difficulty {
 }
 
 .container-settings-quiz {
-  @apply flex flex-col bg-gray-200 p-6 rounded-md
+  @apply flex flex-col bg-gray-200/60 py-3 px-5 rounded-md
 }
 option {
   @apply text-sm;

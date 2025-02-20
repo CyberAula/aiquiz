@@ -1,25 +1,28 @@
 "use client";
 import Link from "next/link";
-import Logo from "./components/ui/Logo";
 import Footer from "./components/ui/Footer";
+import Header from "./components/ui/Header";
 import { useTranslation } from "react-i18next";
 
 const HomePage = () => {
   const { t, i18n } = useTranslation();
 
   return (
-    <main className='relative z-10 max-w-7xl mx-auto sm:px-16 px-6'> 
-    <div className="min-h-screen grid px-12">
-      <div className="border rounded border-white/0 ">
-        <Logo />
-        <h2 className="text-center mb-6 text-xl">
-          {t("front.description")}          
+    <main className='container-layout'> 
+     <Header/>
+    <div className=" container-content">
+  
+        <h2 className="text-left text-2xl mb-2 ">
+          {t("front.title")}          
         </h2>
-        <div className="">
+        <p>
+          {t("front.description")}
+        </p>
+        <div className="mt-6">
           <div className="text-left text-base md:text-base  font-normal leading-2">
             {/* <h2> Elige la Asignatura:</h2> */}
           </div>
-          <div className="grid grid-cols-4 mt-3 gap-3">
+          <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 mt-3 gap-3">
             <Link
               className="subject-button "
               href={{ pathname: "/CORE" }}
@@ -78,9 +81,10 @@ const HomePage = () => {
             </Link>
           </div>
         </div>
-      </div>
-      <Footer />
+   
+    
     </div>
+    <Footer />
     </main>
   );
 };

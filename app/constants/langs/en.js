@@ -1,7 +1,8 @@
 export const en = {
     front: {
-        title: "AIQUIZ",
-        description: "Challenge yourself: keep practicing until you excel!"
+        title: "Create your own custom quiz",
+        // description: "Challenge yourself: keep practicing until you excel!",
+        description: "Pick a subject to practice",
     },
     subject: {
         title: "Subject: ",
@@ -31,7 +32,7 @@ export const en = {
     instructions: {
         title: "Instructions",
         line1: "To submit your answer, press",
-        respond: "Respond",
+        respond: "Answer",
         line2: "If you think any question is poorly worded or incorrect, press",
         report: "Report incorrect question",
         line3: "To get your final grade you must answer",
