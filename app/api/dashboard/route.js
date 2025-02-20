@@ -1,4 +1,4 @@
-import { OpenAIResponse } from '../../utils/OpenAIStream';
+import { OpenAIResponse } from '../../utils/OpenAIApi.js';
 import dbConnect from "../../utils/dbconnect.js";
 import { NextResponse } from 'next/server';
 
@@ -11,7 +11,7 @@ await dbConnect();
 
 // Verificar si existe la clave API OpenAi
 if (!process.env.OPENAI_API_KEY) {
-     throw new Error('Falta la OpenAI API Key');
+    throw new Error('Falta la OpenAI API Key');
 }
 
 
@@ -30,7 +30,7 @@ export async function POST(request) {
         //transform languages into array of string of languages
         const languagesArray = languages.map(lang => lang.label);
         //get all questions for the subject
-        const numQuestionsTotal = await Question.countDocuments({ language: { $in: languagesArray }});
+        const numQuestionsTotal = await Question.countDocuments({ language: { $in: languagesArray } });
         console.log("numQuestionsTotal: ", numQuestionsTotal);
 
         let questionsReported = await Question.find({ language: { $in: languagesArray }, studentReport: true });
@@ -49,7 +49,7 @@ export async function POST(request) {
         }
 
         //count questions right, this is answer is the same as the student answer
-        let questionsRight = await Question.find({ language: { $in: languagesArray }, studentReport: false, $expr: { $eq: ["$answer", "$studentAnswer"] }});
+        let questionsRight = await Question.find({ language: { $in: languagesArray }, studentReport: false, $expr: { $eq: ["$answer", "$studentAnswer"] } });
         console.log("numQuestionsRight: ", questionsRight.length);
 
         //get 20 questions right randomly chosen from the array
@@ -105,13 +105,20 @@ export async function POST(request) {
             frequency_penalty: 0,
             presence_penalty: 0,
             max_tokens: 2048,
-            stream: true,
             n: 1,
         };
+        // Log del payload que estamos por enviar
+        console.log("Payload (dashboard) to send to OpenAI: ", payload);
 
-        const apiKey = process.env.OPENAI_API_KEY;
+        const response1 = await OpenAIResponse(payload);
 
-        const response1 = await OpenAIResponse(payload, apiKey);
+        // Log de la respuesta final
+        console.log("Response (dashboard) from OpenAI: ", response1);
+
+
+
+
+        // const response1 = await OpenAIResponse(payload, apiKey);
         /*
         let response2 = '';
         if(samplequestionsReported.length > 0){
@@ -132,11 +139,15 @@ export async function POST(request) {
                 frequency_penalty: 0,
                 presence_penalty: 0,
                 max_tokens: 2048,
-                stream: true,
                 n: 1,
             };
+            // Log del payload que estamos por enviar
+            console.log("Payload (dashboard) to send to OpenAI: ", payload2);
 
-            response2 = await OpenAIResponse(payload2, apiKey);
+            response2 = await OpenAIResponse(payload2);
+
+            // Log de la respuesta final
+            console.log("Response (dashboard) from OpenAI: ", response2);
         }
         */
 

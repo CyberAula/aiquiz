@@ -1,14 +1,20 @@
-import { OpenAIStream } from '../../utils/OpenAIStream';
+import chalk from 'chalk';
+
+import { getModelResponse } from '../../utils/llmManager.js';
+import { fillPrompt } from '../../utils/promptManager.js';
+import { ABC_Testing_List } from '../../constants/abctesting.js';
+import { assignAIModel } from '../../utils/modelManager.js';
+
 import dbConnect from "../../utils/dbconnect.js";
-import Question from '../../models/Question.js';
+import Student from '../../models/Student.js';
 
-//to get student track record
+
+
+// console.log("--------------------------------------------------");
+// console.log('[questions/route.js] Connecting to database...');
 await dbConnect();
-
-// Verificar si existe la clave API OpenAi
-if (!process.env.OPENAI_API_KEY) {
-     throw new Error('Falta la OpenAI API Key');
-}
+// console.log('[questions/route.js] Database connected successfully');
+// console.log("--------------------------------------------------");
 
 
 // Manejar las solicitudes HTTP POST
@@ -16,97 +22,112 @@ export async function POST(request) {
     try {
         const { language, difficulty, topic, numQuestions, studentEmail, subject } = await request.json();
 
-        let previousQuestionsPrompt = "";
-        if(subject === 'BBDD'){
-            previousQuestionsPrompt = `Soy un estudiante de una asignatura de nombre "bases de datos no relacionales" en la universidad. En esta asignatura vemos temas de bases de datos no relacionales, big data, nosql, json, json schema, modelos de datos nosql, mongodb shell y mongodb aggregation framework.`;
-        } else {
-            previousQuestionsPrompt = `Soy un estudiante de una asignatura de universidad. `;
-        }
-        //count questions from this same student and language and topic
-        console.log("studentEmail: ", studentEmail, "language: ", language, "topic: ", topic);
-        const num_prev_questions = await Question.countDocuments({studentEmail: studentEmail, language: language, topic: topic, studentReport: false});
-        const num_prev_questions_only_lang = await Question.countDocuments({studentEmail: studentEmail, language: language, studentReport: false});
-        console.log("num_prev_questions: ", num_prev_questions);
-        console.log("num_prev_questions_only_lang: ", num_prev_questions_only_lang);
-        if(num_prev_questions>3){
-            console.log("Student already answered " + num_prev_questions + " questions about " + topic + " in " + language);
-            //compose a prompt with the previous questions to inform the IA about the track record (max 20 questions)
-            let previousQuestions = await Question.find({studentEmail: studentEmail, language: language, topic: topic}).limit(20);
-            previousQuestionsPrompt += `Anteriormente ya he respondido ${num_prev_questions} preguntas sobre ${topic} en el lenguaje ${language}.`;
+        // Cargamos variables y objetos de configuración
 
-            for (let i = 0; i < previousQuestions.length; i++) {
-                previousQuestionsPrompt += getPreviousQuestionPrompt(previousQuestions[i]);
-            }
-        } else if (num_prev_questions_only_lang>3){
-            console.log("Student already answered " + num_prev_questions_only_lang + " questions in " + language);
-            //compose a prompt with the previous questions to inform the IA about the track record (max 20 questions)
-            let previousQuestions = await Question.find({studentEmail: studentEmail, language: language, studentReport: false}).limit(20);
-            previousQuestionsPrompt += `Anteriormente ya he respondido ${num_prev_questions_only_lang} preguntas en el lenguaje ${language}.`;
+        // Comprobamos si el ABCTesting está activo para la asignatura
+        let abcTestingConfig = ABC_Testing_List[subject];
+        let has_abctesting = (abcTestingConfig && isABCTestingActive(abcTestingConfig)) ?? false;
 
-            for (let i = 0; i < previousQuestions.length; i++) {
-                previousQuestionsPrompt += getPreviousQuestionPrompt(previousQuestions[i]);
-            }
-        } else {
-            console.log("Student has not answered enough questions yet, we cannot inform the IA about the track record");
-        }        
-       
-        console.log("params: lang, difficulty, topic, numquestions: ", language, difficulty, topic, numQuestions);
-        // Generación de preguntas
-        //añado este if para no tocar lo antiguo que especifica que se habla de un lenguaje de programacion
-        //cambio solo para que en BBDD no se hable de lenguaje de programacion como tal sino de tema, esto hay que mejorarlo
-        if(subject === 'BBDD'){
-            previousQuestionsPrompt += `Dame ${numQuestions} preguntas de opción múltiple sobre "${topic}" enmarcadas en el tema "${language}".`;
-        } else {
-            previousQuestionsPrompt += `Dame ${numQuestions} preguntas de opción múltiple sobre "${topic}" en el lenguaje de programación ${language}.`;
-        }
-        previousQuestionsPrompt += `Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
-        previousQuestionsPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente.`;
-        
-        console.log("previousQuestionsPrompt: ", previousQuestionsPrompt);
+        // Comprobaos si existe el alumno en la base de datos,
+        // si existe pero no tiene la asignatura, la añadimos,
+        // si no existe, lo creamos y se devuelve el objeto del alumno
+        let existingStudent = await getAndEnsureStudentAndSubject(studentEmail, subject, has_abctesting);
 
-        // Configurar parámetros de la solicitud a la API de OpenAI.
-        const payload = {
-            model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: previousQuestionsPrompt }],
-            temperature: 1.0,
-            frequency_penalty: 0,
-            presence_penalty: 0,
-            max_tokens: 2048,
-            stream: true,
-            n: 1,
-        };
+        let studentSubjectData = await existingStudent?.subjects?.find(s => s.subjectName === subject);
+        let subjectIndex = await existingStudent?.subjects?.findIndex(s => s.subjectName === subject);
 
-        const apiKey = process.env.OPENAI_API_KEY;
 
-        // Solicitud a la API de OpenAI
-        const stream = await OpenAIStream(payload, apiKey);
 
-        // Respuesta generada por la API de OpenAI.
-        return new Response(stream);
 
-    } catch (error) {        
+        // SOLICITUD A LA API de promptManager para obtener el prompt final
+        let finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex);
+
+
+        // SOLICITUD A LA API de modelManager para asignar un modelo de LLM al alumno
+        const assignedModel = await assignAIModel(abcTestingConfig, has_abctesting, existingStudent, studentSubjectData, subjectIndex);
+
+
+        // Imprimimos por pantalla todos los parametros necesarios para la asignacion de modelo para controlar que todo ha ido bien
+        console.log(chalk.bgGreen.black("--------------------------------------------------------------------------------------------------------------"));
+        console.log(chalk.bgGreen.black(`Assigned Model to ${studentEmail}: ${assignedModel} - Subject: ${subject} - ABCTesting: ${has_abctesting}    `));
+        console.log(chalk.bgGreen.black("--------------------------------------------------------------------------------------------------------------"));
+
+
+        // SOLICITUD A LA API del LLM seleccionado para el alumno
+        const responseLlmManager = await getModelResponse(assignedModel, finalPrompt);
+        // Formatear la respuesta de la API
+        const formattedResponse = responseLlmManager.replace(/^\[|\]$/g, '').replace(/```json/g, '').replace(/```/g, '').trim();
+
+
+        return new Response(formattedResponse);
+
+    } catch (error) {
         console.error('Error during request:', error.message);
         return new Response('Error during request', { status: 500 });
     }
 }
 
 
-function getPreviousQuestionPrompt(previousQuestion){
-    let prompt = '';
-    if(previousQuestion.studentAnswer === previousQuestion.answer){
-        prompt = `A la pregunta "${previousQuestion.query}" con opciones "${getChoicesWithNumbers(previousQuestion.choices)}", donde la correcta era la respuesta ${previousQuestion.answer}, respondí correctamente con la opción ${previousQuestion.studentAnswer}. `;
-    } else {
-        prompt = `A la pregunta "${previousQuestion.query}" con opciones "${getChoicesWithNumbers(previousQuestion.choices)}", donde la correcta era la respuesta ${previousQuestion.answer}, respondí incorrectamente con la opción ${previousQuestion.studentAnswer}. `;
-    }
 
-    return prompt;
-}
-
-function getChoicesWithNumbers(choices){
-    let choicesWithNumbers = '';
-    for (let i = 0; i < choices.length; i++) {
-        choicesWithNumbers += `${i}. ${choices[i]}, `;
+// Verificamos si el ABCTesting está activo según las fechas
+const isABCTestingActive = (config) => {
+    const currentDate = new Date();
+    const fromDate = new Date(config.from_date);
+    const toDate = new Date(config.to_date);
+    const isactive = currentDate >= fromDate && currentDate <= toDate;
+    if (!isactive) {
+        console.log("--------------------------------------------------------");
+        console.log(`ABCTesting fuera de fecha. Modificar o eliminar del archivo de configuración abctesting.js`);
+        console.log("--------------------------------------------------------");
     }
-    //we remove the last comma
-    return choicesWithNumbers.slice(0, -2);
-}
+    return isactive;
+};
+
+// Comprobamos si el alumno existe, si no tiene la asignatura la añade, si no existe lo crea
+const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesting) => {
+    try {
+        let student = await Student.findOne({ studentEmail });
+
+        if (!student) {
+            // Si el estudiante no existe, lo creamos con la asignatura
+            student = new Student({
+                studentEmail,
+                subjects: [{
+                    subjectName: subject,
+                    subjectModel: "Nuevo estudiante",
+                    ABC_Testing: has_abctesting,
+                    md5Prompt: null,
+                    prompt: null
+                }]
+            });
+            await student.save();
+            console.log("--------------------------------------------------------");
+            console.log(`Nuevo estudiante creado: ${studentEmail} con la asignatura ${subject}`);
+            console.log("--------------------------------------------------------");
+            return student;
+        }
+
+        // Si el estudiante ya tiene la asignatura, salimos sin hacer nada ni mostrar logs
+        if (student.subjects.some(s => s.subjectName === subject)) {
+            return student;
+        }
+
+        // Si el estudiante existe pero no tiene la asignatura, la añadimos
+        student.subjects.push({
+            subjectName: subject,
+            subjectModel: "Nuevo estudiante",
+            ABC_Testing: has_abctesting,
+            md5Prompt: null,
+            prompt: null
+        });
+        await student.save();
+        console.log("--------------------------------------------------------");
+        console.log(`Asignatura ${subject} añadida a ${studentEmail}`);
+        console.log("--------------------------------------------------------");
+        return student;
+
+    } catch (error) {
+        console.error('Error asegurando la existencia del estudiante y su asignatura:', error.message);
+    }
+};
+
