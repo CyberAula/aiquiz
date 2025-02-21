@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-
 import { HiCheck, HiOutlineXMark } from 'react-icons/hi2'
-
 import nextConfig from '../../next.config';
 import urljoin from 'url-join';
 import { useTranslation } from "react-i18next";
@@ -17,9 +15,8 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
     //console.log('question:', question);
 
     //random id to identify the question in the db and not use the query
-    
     const [id, setId] = useState(Math.floor(Math.random() * 1000000000));
-    
+
     const { query, choices, answer, explanation } = question
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [isExplained, setIsExplained] = useState(false)
@@ -36,7 +33,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
     //console.log("array map choices:", newChoiceObjects);
     const [choiceObjects, setChoiceObjects] = useState(newChoiceObjects);
     //console.log('choiceObjects:', choiceObjects);
-    
+
     //opción correcta
     const isCorrect = () => {
         return Number(answer) === selectedChoiceIndex
@@ -66,52 +63,86 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
 
     // Manejo de envío de respuestas
     const handleAnswerSubmit = async () => {
-      if (isSubmitted || !isSelected) return;
+        if (isSubmitted || !isSelected) return;
 
-      setIsSubmitted(true);
-      addSubmission(order);
-      const choiceIndex = choiceObjects.findIndex((choice) => choice.isSelected);
-      setSelectedChoiceIndex(choiceIndex);
+        setIsSubmitted(true);
+        addSubmission(order);
+        const choiceIndex = choiceObjects.findIndex((choice) => choice.isSelected);
+        setSelectedChoiceIndex(choiceIndex);
 
-      if (isCorrect()) {
-        setNumCorrect((prevNumCorrect) => prevNumCorrect + 1);
-        setIsExplained(true);
-      }
-      //save to the database in server
-      await saveQuestion(choiceIndex, false);
+        if (isCorrect()) {
+            setNumCorrect((prevNumCorrect) => prevNumCorrect + 1);
+            setIsExplained(true);
+        }
+        //save to the database in server
+        await saveQuestion(choiceIndex, false);
     };
 
     // Post to /api/questions to save data
     const saveQuestion = async (choiceIndex, report) => {
-      
-      /*example data
-      {
-        "_id": ObjectId("5f3f8e3e3e3e3e3e3e3e3e3e"),
-        "id": 394823782738,
-        "subject": "CORE",
-        "language": "JavaScript",
-        "difficulty": "intermedio",
-        "topic": "asincronía",
-        "query": "¿Qué método se utiliza para ejecutar una función después de cierto tiempo en JavaScript?",
-        "choices": [
-            "setTimeout()",
-            "wait()",
-            "delay()",
-            "executeAfter()"
-        ],
-        "answer": 0,
-        "explanation": "El método setTimeout() se utiliza en JavaScript para ejecutar una función después de cierto tiempo, permitiendo así la programación asíncrona y el manejo de tareas diferidas en el tiempo.",
-        "studentEmail": "pepe@alumnos.upm.es",
-        "studentAnswer": 0
-        "studentReport": false
-        }*/
+
+        /*example data
+        {
+          "_id": ObjectId("5f3f8e3e3e3e3e3e3e3e3e3e"),
+          "id": 394823782738,
+          "subject": "CORE",
+          "language": "JavaScript",
+          "difficulty": "intermedio",
+          "topic": "asincronía",
+          "query": "¿Qué método se utiliza para ejecutar una función después de cierto tiempo en JavaScript?",
+          "choices": [
+              "setTimeout()",
+              "wait()",
+              "delay()",
+              "executeAfter()"
+          ],
+          "answer": 0,
+          "explanation": "El método setTimeout() se utiliza en JavaScript para ejecutar una función después de cierto tiempo, permitiendo así la programación asíncrona y el manejo de tareas diferidas en el tiempo.",
+          "studentEmail": "pepe@alumnos.upm.es",
+          "studentAnswer": 0
+          "studentReport": false
+          }*/
         let studentEmail = window.localStorage.getItem('student_email');
-        if(studentEmail == null || studentEmail == "" || studentEmail == "undefined" || studentEmail == "null") {
+        if (studentEmail == null || studentEmail == "" || studentEmail == "undefined" || studentEmail == "null") {
             console.log("NO EMAIL IN LOCALSTORAGE, WE ADD ANONYMOUS@EXAMPLE.COM");
             studentEmail = "anonymous@example.com";
         }
 
-      const data = {};
+
+
+        // Obtenemos el llmModel, el ABC_Testing, el hash del prompt y el prompt del estudiante
+        let llmModel = 'undefined';
+        let ABC_Testing = false;
+        let md5Prompt = '';
+        let prompt = '';
+
+        const urlStudent = urljoin(basePath, `/api/student`);
+        const responseStudent = await fetch(urlStudent, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: studentEmail }),
+        });
+
+        if (!responseStudent.ok) {
+            console.error('Failed to fetch student data');
+            return;
+        }
+
+        const student = await responseStudent.json();
+        const subjectData = student.subjects.find(s => s.subjectName === subject);
+
+        if (subjectData) {
+            llmModel = subjectData.subjectModel;
+            ABC_Testing = subjectData.ABC_Testing;
+            md5Prompt = subjectData.md5Prompt;
+            prompt = subjectData.prompt;
+        }
+
+        
+        //estructura de datos a guardar
+        const data = {};
         data.id = id;
         data.subject = subject;
         data.language = language;
@@ -122,17 +153,20 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.answer = answer;
         data.explanation = explanation;
         data.studentEmail = studentEmail;
-        if(report) {
+        data.llmModel = llmModel;
+        data.ABC_Testing = ABC_Testing;
+        data.md5Prompt = md5Prompt;
+        data.prompt = prompt;
+        if (report) {
             data.studentReport = true;
             data.studentAnswer = selectedChoiceIndex; //if reported, we can use the state to keep what the user selected or -1 if nothing selected
         } else {
             data.studentReport = isSubmittedReport; //if not reported, we can use the state to keep if the user reported or not
             data.studentAnswer = choiceIndex;
-        }       
-        data.created_at = Date.now();
-        data.updated_at = Date.now();
+        }
         console.log("data to save: ", data);
-        //save to the database in server
+
+        // Save to the database in server
         const url = urljoin(basePath, '/api/answer');
         const response = await fetch(url, {
             method: 'POST',
@@ -141,8 +175,10 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
             },
             body: JSON.stringify(data)
         });
-        
-    };  
+        if (!response.ok) {
+            console.error("Failed to save question", await response.text());
+        }
+    };
 
     const renderChoices = () => {
         //console.log('renderChoices', choiceObjects);
@@ -291,5 +327,3 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
     )
 }
 export default Question
-
-

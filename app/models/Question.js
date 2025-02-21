@@ -51,15 +51,24 @@ const questionSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
     },
-    created_at: {
-        type: Number,
+    llmModel: {
+        type: String,
         required: true,
     },
-    updated_at: {
-        type: Number,
+    ABC_Testing: {
+        type: Boolean,
         required: true,
     },
-});
+    md5Prompt: {
+        type: String,
+        required: false,
+    },
+    prompt: {
+        type: String,
+        required: true,
+    },
+
+}, { timestamps: true }); // Habilitamos `createdAt` y `updatedAt`
 
 export default mongoose.models.Question || mongoose.model('Question', questionSchema);
 

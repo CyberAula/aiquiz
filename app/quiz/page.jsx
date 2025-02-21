@@ -31,9 +31,7 @@ function QuizPageFun() {
     const [numSubmitted, setNumSubmitted] = useState(0)
     const [numReported, setNumReported] = useState(0)
     const [numCorrect, setNumCorrect] = useState(0)
-
     const [progress, setProgress] = useState(0)
-
     const [responseStream, setResponseStream] = useState('')
 
     const [showInstructionsModal, setShowInstructionsModal] = useState(true);
@@ -54,10 +52,8 @@ function QuizPageFun() {
 
     const generateQuestions = async (studentEmail) => {
         let responseText = '';
-        let cleanedResponse = '';
 
         try {
-            console.log('fetching questions for student: ', studentEmail)
             const response = await fetch('api/questions', {
                 method: 'POST',
                 headers: {
@@ -77,7 +73,8 @@ function QuizPageFun() {
                 throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
             }
 
-            console.log('Respuesta del servidor:', response);
+            console.log("--------------------------------------------------");
+            console.log('SERVER ANSWER', response);
 
             const data = response.body
             // console.log('data', data)
@@ -105,14 +102,13 @@ function QuizPageFun() {
 
                 setResponseStream((prev) => prev + chunkValue)
             }
-
-            // streaming way
-            cleanedResponse = responseText.replace(/\n/g, '');
-            //replace ```json and ``` with nothing (Sometimes the response is wrapped in ```json and ``` which is not valid JSON)
-            cleanedResponse = cleanedResponse.replace(/```json/g, '').replace(/```/g, '');
-            let jsonResponse = JSON.parse(cleanedResponse);
+            
+            // Ajusta el texto de la respuesta para que sea un JSON válido
+            let jsonResponse = JSON.parse(responseText.replace(/^\[|\]$/g, '').trim());
             const allQuestions = jsonResponse.questions;
-            console.log('allQuestions', allQuestions);
+            console.log('All Questions ->', allQuestions);
+            console.log("--------------------------------------------------");
+
 
             // Ajustar el número de preguntas mostradas en el cuestionario
             const questionsToShow = allQuestions.slice(0, numQuestions);
@@ -128,7 +124,7 @@ function QuizPageFun() {
                 topic: topic,
                 numQuestions: numQuestions,
                 error: err.message,
-                cleanedResponse: cleanedResponse
+                // cleanedResponse: cleanedResponse
             }
             const response = await fetch('/api/error-log', {
                 method: 'POST',
@@ -144,6 +140,7 @@ function QuizPageFun() {
     }
 
     useEffect(() => {
+        console.log("--------------------------------------------------");
         console.log('useEffect called. Getting student email and generating questions...');
         console.log('loading...');
         setIsLoading(true);
@@ -154,6 +151,7 @@ function QuizPageFun() {
             studentEmail = "anonymous@example.com";
         }
         console.log('studentEmail: ', studentEmail);
+        console.log("--------------------------------------------------");
 
         generateQuestions();
     }, [])

@@ -6,8 +6,7 @@ https://github.com/user-attachments/assets/eb8e601e-a7f7-4b3e-b1ef-d50103a9d144
 
 
 
-
-
+Alvaro ya conectado
 
 ## Configuration
 
