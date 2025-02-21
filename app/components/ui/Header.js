@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 const Header = () => {
   return (
-    <div className="flex justify-between border-b border-gray-300 px-4 md:px-8 py-2">
+    <div className="flex justify-between border-b border-gray-300 margin-items-container">
       <Logo />
       <div className="flex flex-row items-center gap-4">
         <LangSwitcher />

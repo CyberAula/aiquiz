@@ -12,11 +12,17 @@ body {
 }
 
 .container-layout {
- @apply relative z-10 max-w-7xl mx-auto sm:mx-16 sm:my-4 bg-white rounded-md min-h-[93vh] flex flex-col  
+ @apply relative max-w-6xl mx-auto sm:mx-16 my-auto xl:mx-auto sm:my-4 bg-white rounded-md min-h-[93vh] 2xl:min-h-[80vh] flex flex-col;
+ z-index: 0;  
 }
+
 
 .container-content {
   @apply my-3 px-4 md:my-6 md:px-12
+}
+
+.margin-items-container {
+  @apply px-4 md:px-8 py-2
 }
 /*icons*/
 
@@ -32,23 +38,33 @@ body {
 .btn-sm {
   @apply inline-block rounded px-3 py-1.5 duration-75
 }
+.btn-sm-icon {
+  @apply rounded px-3 py-1.5 duration-75 gap-2
+}
 .btn-xs {
   @apply inline-block rounded px-2 py-0.5 duration-75
 }
 /*solido-linea*/
 .btn-outline {
-  @apply border-2 text-customColor/90  border-customColor/50 hover:border-customColor hover:text-customColor hover:bg-customColor/10 
+  @apply border text-blue-800 border-blue-800 hover:border-blue-950 hover:text-blue-950 hover:bg-blue-100
+}
+.btn-ghost {
+  @apply text-customColor/90  hover:text-customColor hover:bg-gray-100
 }
 /*personalizados*/
 .btn-quizz {
-  @apply   bg-blue-700 text-white text-left text-base font-medium  hover:bg-blue-900  active:bg-blue-950 duration-75;
+  @apply   bg-blue-700 text-white text-center text-base font-medium  hover:bg-blue-900  active:bg-blue-950 duration-75;
 }
+.btn-quizz-inactive {
+  @apply   bg-blue-400 text-gray-100 text-center text-base font-medium  cursor-not-allowed duration-75;
+}
+
 
 .btn-quizz-disabled {
   @apply bg-gray-300 text-gray-950 border-2 border-gray-600
 }
 .btn-report {
-  @apply border text-red-700/80 bg-transparent border-transparent  hover:border-red-500 hover:text-red-900 hover:bg-red-200 
+  @apply border text-red-700/80 bg-transparent border-transparent hover:text-red-900 text-xs
 }
 
 /* .btn-instructions {
@@ -387,14 +403,15 @@ label.radio-card-difficulty {
 }
 
 .progress-bar {
-  @apply bg-blue-300;
+  @apply bg-blue-500;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 10px;
   transform-origin: 0%;
-  /* z-index: 20; */
+
+  z-index: 1
 }
 
 .q {
@@ -453,6 +470,8 @@ option {
 .reverse-text {
   direction: rtl;
   writing-mode: vertical-rl;
+  @apply text-indigo-300;
+  z-index:0;
 }
 
 .question-buttons {

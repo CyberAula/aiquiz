@@ -28,8 +28,8 @@ const Facts = () => {
     const fact = facts[factIndex];
 
     return (
-        <div className='flex flex-col items-center text-center mt-8'>
-            <p className='min-h-[100px] text-2xl '>
+        <div className='flex flex-col text-indigo-600 items-center text-center mt-8 z-10'>
+            <p className='min-h-[100px] text-lg md:text-2xl fixed mx-4 md:w-1/2'>
                 <Typewriter
                     key={fact}
                     words={[fact]}

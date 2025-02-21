@@ -49,7 +49,7 @@ export const en = {
         answer: "Answer",
         answered: "Answered",
         report: "Report incorrect question",
-        reported: "Reported",
+        reported: "Question reported",
         question: "Question",
         explanation: "Feedback",
     },

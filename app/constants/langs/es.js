@@ -50,7 +50,7 @@ export const es = {
         answer: "Responder",
         answered: "Respondida",
         report: "Reportar pregunta incorrecta",
-        reported: "Reportada",
+        reported: "Pregunta reportada",
         question: "Pregunta",
         explanation: "Explicación",
     },

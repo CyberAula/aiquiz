@@ -5,6 +5,7 @@ import { HiCheck, HiOutlineXMark } from 'react-icons/hi2'
 import nextConfig from '../../next.config';
 import urljoin from 'url-join';
 import { useTranslation } from "react-i18next";
+import CheckOutlined from "@mui/icons-material/CheckOutlined";
 
 
 const basePath = nextConfig.basePath || '';
@@ -44,18 +45,21 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
     //manejo de selección de opciones
     const handleChoiceSelect = (choiceIndex) => {
         if (isSubmitted) return
-
+        console.log("is submitted")
         setSelectedChoiceIndex(choiceIndex)
         setIsSelected(true)
-
+ 
         setChoiceObjects((prevChoiceObjects) =>
             prevChoiceObjects.map((choice, index) => {
                 return {
                     ...choice,
                     isSelected: choiceIndex === index ? true : false,
+                 
                 }
+               
             })
         )
+
         // Almacena la respuesta seleccionada
         setSelectedAnswer(question.choices[choiceIndex]);
     }
@@ -230,7 +234,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
     const submitButtonStyles = () => {
       let style = isSelected
           ? 'pointer-events-auto bg-blue text-white-500 font-bold btn-quizz'
-          : 'pointer-events-auto btn-quizz';
+          : 'pointer-events-auto btn-quizz-inactive';
         style = isSubmitted
           ? 'pointer-events-none bg-blue-950 text-white'
           : style
@@ -238,24 +242,26 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
   };
 
     return (
-        <div className='max-w-3xl mx-auto'>
-        <h2 className='text-sm font-semibold bg-blue-100 rounded px-1.5 py-0.5 inline-block text-blue-600'>
+        <div className=' flex'>
+       <div className='flex flex-col w-full'>
+        <h2 className='text-sm font-semibold w-fit bg-blue-100 rounded px-1.5 py-0.5 inline-block text-blue-600'>
           {t('question.question')} {order + 1}/{numQuestions} 
         </h2>
-        <div className='border border-gray-500/0 rounded w-4/5'>
+        <div className='border border-gray-500/0 rounded w-full'>
           <div className='py-2 text-lg font-medium'>{query}</div>
           <div className='grid gap-2 mt-1'>{renderChoices()}</div>
           <div className='flex flex-col items-start mt-2 items'>
-      
-          <div className=' flex gap-3 mt-3'>
+          <div className=' flex flex-col sm:flex-row w-full gap-1 md:gap-3 mt-3'>
               {/* botón de enviar */}
-              <button onClick={() => { handleAnswerSubmit(); }} className={`btn-md  rounded ${submitButtonStyles()} fuente`}            >
-                {isSubmitted ? t("question.answered")+ '✔️' : t('question.answer')}
+              <button onClick={() => { handleAnswerSubmit(); }} className={ `btn-md rounded ${submitButtonStyles()} fuente` }            >
+          
+                { isSubmitted ? <span> {t("question.answered")} <CheckOutlined className="mb-1 text-blue-300" /> </span> : t('question.answer')  }
+            
               </button>            
               
               {/* botón de reporte */}                               
-              <button onClick={() => {handleReport()}}   className={`btn-md rounded ${submitButtonReportStyles()} fuente`}   >
-                  {!isSubmittedReport ? t('question.report'): t('question.reported') + "✔️" }
+              <button onClick={() => {handleReport()}}   className={`btn-xs rounded ${submitButtonReportStyles()} fuente`}   >
+                  {!isSubmittedReport ? t('question.report'): <span className="text-xs gap-1">{t('question.reported')} <CheckOutlined className="mb-1" sx = {{fontSize: 16}} />  </span>}
               </button>
           </div>                
            
@@ -269,6 +275,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
               </div>
              )}
 
+          </div>
           </div>
           {(isSubmitted && !(isCorrect())) && (
             <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>

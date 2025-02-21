@@ -9,6 +9,9 @@ import Instructions from '../components/Instructions';
 import 'highlight.js/styles/atom-one-dark.css';
 import { Suspense } from 'react'
 import { useTranslation } from "react-i18next";
+import Header from "../components/ui/Header"
+import { HiArrowLeft } from 'react-icons/hi2'
+import Footer from "../components/ui/Footer"
 
 
 function QuizPageFun() {
@@ -152,7 +155,7 @@ function QuizPageFun() {
         }
         console.log('studentEmail: ', studentEmail);
 
-        generateQuestions(studentEmail);
+        generateQuestions();
     }, [])
 
 
@@ -202,22 +205,27 @@ function QuizPageFun() {
 
     return (
         <div>
-               <div className='max-w-3xl mx-auto px-4'>
+           <div>
             {/* renderiza barra de progreso */}
             <motion.div className='progress-bar' style={{ scaleX }} />
 
-            {isLoading ? <><LoadingScreen responseStream={responseStream} /></> : <div className='pt-12'>
-                <div className='flex justify-start gap-3 border-b border-gray-400 pb-5'>
-                    <button className='btn-sm btn-outline'
+            {isLoading ? 
+             <div className="bg-blue-200"><LoadingScreen responseStream={responseStream} /></div> : 
+            <div className='container-layout'>
+            <div className='bg-white rounded-md pb-4'>
+                <Header/>
+                <div className='margin-items-container flex justify-between gap-3 pb-5'>
+                    <button className='btn-sm-icon btn-ghost flex'
                         onClick={handlePlayAgain}>
-                        « {t('quizpage.back')}
+                            <HiArrowLeft sx={{fontSize: 18}} className='mt-1'/>
+                         {t('quizpage.back')}
                     </button>
-                    <button className='btn-sm bg-gray-600 text-white hover:bg-slate-900'
+                    <button className='btn-sm btn-outline text-white'
                         onClick={() => setShowInstructionsModal(true)}>
                         🛈 {t('quizpage.instructions')}
                     </button>
                 </div>
-             <div className='pb-6'>
+             <div className='pb-6 max-w-3xl mx-4 sm:mx-auto flex flex-col justify-center sm:w-3/4 md:w-3/5 xl:w-1/2'>
                 <h1
                     className='text-3xl font-bold  text-left pt-3 pb-1.5 text-text text-pretty'
                     style={{
@@ -231,11 +239,12 @@ function QuizPageFun() {
                     {t('quizpage.testof')} {language} {t('quizpage.about')} {topic}
                 </h1>
               
-                <p>{t('quizpage.subjectof')} <span className={`${textSubjectId} font-bold`}> {subject} </span></p>
+                <p className='mb-6'>{t('quizpage.subjectof')} <span className={`${textSubjectId} font-bold`}> {subject} </span></p>
                 {/* recorre la pregunta*/}
-                </div>
+               
+                
                 {quiz?.map((question, index) => (
-                    <div className='mb-12' key={index}>
+                    <div className='mb-6 md:mb-12' key={index}>
                         <Question
                             numQuestions={numQuestions}
                             question={question}
@@ -252,11 +261,13 @@ function QuizPageFun() {
                     </div>
                 ))}
                  
-            
+                 </div>
                 {/* Renderiza la caja de instrucciones solo cuando isLoading es false */}
                 {!isLoading && showInstructionsModal && (
                     <Instructions onClose={() => setShowInstructionsModal(false)} />
                 )}
+            </div>
+            <Footer/>
             </div>
             }
         </div>
