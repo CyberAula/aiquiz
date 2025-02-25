@@ -88,7 +88,7 @@ const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesti
     try {
         let student = await Student.findOne({ studentEmail });
 
-        if (!student) {
+        if (!student || student === null) {
             // Si el estudiante no existe, lo creamos con la asignatura
             student = new Student({
                 studentEmail,
@@ -128,6 +128,7 @@ const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesti
 
     } catch (error) {
         console.error('Error asegurando la existencia del estudiante y su asignatura:', error.message);
+        console.error(error);
     }
 };
 

@@ -153,7 +153,7 @@ function QuizPageFun() {
         console.log('studentEmail: ', studentEmail);
         console.log("--------------------------------------------------");
 
-        generateQuestions();
+        generateQuestions(studentEmail);
     }, [])
 
 
