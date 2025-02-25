@@ -1,4 +1,3 @@
-import { OpenAIResponse } from '../../utils/OpenAIApi.js';
 import dbConnect from "../../utils/dbconnect.js";
 import { NextResponse } from 'next/server';
 
@@ -110,7 +109,7 @@ export async function POST(request) {
         // Log del payload que estamos por enviar
         console.log("Payload (dashboard) to send to OpenAI: ", payload);
 
-        const response1 = await OpenAIResponse(payload);
+        //const response1 = await OpenAIResponse(payload);
 
         // Log de la respuesta final
         console.log("Response (dashboard) from OpenAI: ", response1);
