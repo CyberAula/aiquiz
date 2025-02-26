@@ -1,7 +1,8 @@
-//Listado de preguntas reportadas!!!!!!!!!!!!!!!!!!!1
+
+
+//Listado de preguntas reportadas!!!!!!!!!!!!!!!!!!!!!!!!
 export const preguntasreportadas = (metricas) => {
 let preguntasreportadas =[];
-
 //encontrar preguntas reportadas y eliminar duplicados
 metricas.forEach((fila) =>{
     if (fila.studentReport == true && preguntasreportadas.includes(fila.query)==false){
@@ -22,7 +23,6 @@ let array = [
     {dificultad: "avanzado", nacierto: 0, npreguntas:0}
     
 ];
-
 //Datos sin preguntas reportadas
 let metricasSINreportadas = metricas.reduce((res, fila) => {
     if(fila.studentReport==false){
@@ -49,68 +49,58 @@ metricasSINreportadas.forEach((fila)=>{
         }
       }
 })
-      console.log(array);
-
-
-
 return array;
-
 }
 
 
 
-// //Preguntas mas frecuentes y su porcentaje de acierto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// exports.pregMasFrecuentesYPorcentajeAcierto = (metricas) =>{
+//Preguntas mas frecuentes y su porcentaje de acierto!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+export const pregMasFrecuentesYPorcentajeAcierto = (metricas) =>{
 
-// //Datos sin preguntas reportadas
-// let metricasSINreportadas = metricas.reduce((res, fila) => {
-//     if(fila.studentReport==false){
-//         return res = [...res, fila]
-//     }
-//     return res
-//     }, []);
+//Datos sin preguntas reportadas
+let metricasSINreportadas = metricas.reduce((res, fila) => {
+    if(fila.studentReport==false){
+        return res = [...res, fila]
+    }
+    return res
+    }, []);
 
-//     let preguntas_numeroaciertos = {};
+    let preguntas_numeroaciertos = [];
 
-//     // Recorremos cada fila para calcular aciertos y apariciones de cada pregunta
-//     metricasSINreportadas.forEach(row => {
-//         const query = row.query;
-//         const correctAnswer = row.correctAnswer;
+    // Recorremos cada fila para calcular aciertos y apariciones de cada pregunta
+    metricasSINreportadas.forEach(row => {
+        const query = row.query;
+        const correctAnswer = row.correctAnswer;
     
-//         if (preguntas_numeroaciertos[query]) {
-//             if (correctAnswer) {
-//                 preguntas_numeroaciertos[query][0] += 1;
-//             }
-//             preguntas_numeroaciertos[query][1] += 1;
-//         } else {
-//             if (correctAnswer) {
-//                 preguntas_numeroaciertos[query] = [1,1];
-//             }else{
-//                 preguntas_numeroaciertos[query] = [0,1];
-//             }
-//         }
-//     });
+        if (preguntas_numeroaciertos[query]) {
+            if (correctAnswer) {
+                preguntas_numeroaciertos[query][0] += 1;
+            }
+            preguntas_numeroaciertos[query][1] += 1;
+        } else {
+            if (correctAnswer) {
+                preguntas_numeroaciertos[query] = [1,1];
+            }else{
+                preguntas_numeroaciertos[query] = [0,1];
+            }
+        }
+    });
     
-//     // Filtramos las preguntas más repetidas (respondidas 15 veces o más) y calculamos el porcentaje de aciertos
-//     let preguntas_mas_repetidas = {};
-//     for (let pregunta in preguntas_numeroaciertos) {
-//         const [numAciertos, numTotal] = preguntas_numeroaciertos[pregunta];
-//         if (numTotal >= 15) {
-//             preguntas_mas_repetidas[pregunta] = (numAciertos / numTotal) * 100;
-//         }
-//     }
-//     console.log(preguntas_mas_repetidas)
-
-
-//     // Escribir las preguntas en un archivo de texto
-//     const fileStream = fs.createWriteStream('PreguntasMasFrecuentesyPorcentajeAcierto.txt');
+    // Filtramos las preguntas más repetidas (respondidas 15 veces o más) y calculamos el porcentaje de aciertos
+    let preguntas_mas_repetidas = [];
+    for (let pregunta in preguntas_numeroaciertos) {
+        const [numAciertos, numTotal] = preguntas_numeroaciertos[pregunta];
+        if (numTotal >= 15) {
+            preguntas_mas_repetidas[pregunta] = (numAciertos / numTotal) * 100;
+        }
+    }
+    console.log(preguntas_mas_repetidas)
     
-//     fileStream.write( JSON.stringify(preguntas_mas_repetidas));
-    
-//     fileStream.end();
+    return preguntas_mas_repetidas
+}
 
 
-// }
+
 
 // //Temas genericos frecuencia y porcentaje de acierto!!!!!!!!!!!!!!!!
 // exports.temasFrecuenciaYPorcentajedeAcierto = (metricas) =>{
