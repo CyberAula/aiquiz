@@ -102,275 +102,265 @@ let metricasSINreportadas = metricas.reduce((res, fila) => {
 
 
 
-// //Temas genericos frecuencia y porcentaje de acierto!!!!!!!!!!!!!!!!
-// exports.temasFrecuenciaYPorcentajedeAcierto = (metricas) =>{
+//Temas genericos frecuencia y porcentaje de acierto!!!!!!!!!!!!!!!!
+export const temasFrecuenciaYPorcentajedeAcierto = (metricas) =>{
 
-// //Datos sin preguntas reportadas
-// let metricasSINreportadas = metricas.reduce((res, fila) => {
-//     if(fila.studentReport==false){
-//         return res = [...res, fila]
-//     }
-//     return res
-//     }, []);
+//Datos sin preguntas reportadas
+let metricasSINreportadas = metricas.reduce((res, fila) => {
+    if(fila.studentReport==false){
+        return res = [...res, fila]
+    }
+    return res
+    }, []);
 
-// metricasSINreportadas.forEach((fila) => {
-//     if(fila.language == "JSON y esquema JSON"){
-//         fila.language = "JSON y JSON Schema";
-//     }else if (fila.language == 'Marco de agregación de MongoDB'){
-//         fila.language = 'MongoDB Aggregation Framework';
-//     }else if (fila.language == 'javascript_cliente'){
-//         fila.language = 'JavaScript Cliente';
-//     }else if (fila.language =='javascript'){
-//         fila.language =  'Lenguaje JavaScript';
-//     }
-// })
+metricasSINreportadas.forEach((fila) => {
+    if(fila.language == "JSON y esquema JSON"){
+        fila.language = "JSON y JSON Schema";
+    }else if (fila.language == 'Marco de agregación de MongoDB'){
+        fila.language = 'MongoDB Aggregation Framework';
+    }else if (fila.language == 'javascript_cliente'){
+        fila.language = 'JavaScript Cliente';
+    }else if (fila.language =='javascript'){
+        fila.language =  'Lenguaje JavaScript';
+    }
+})
 
-// metricasSINreportadas.forEach((fila) =>{
-//     let tema = fila.language;
-//     fila.language = tema.toUpperCase();
-// })
+metricasSINreportadas.forEach((fila) =>{
+    let tema = fila.language;
+    fila.language = tema.toUpperCase();
+})
 
 
-// let temas_numeroaciertos = {};
+let temas_numeroaciertos = {};
 
-// // Recorremos cada fila para calcular aciertos y apariciones de cada pregunta
-// metricasSINreportadas.forEach((fila)=> {
-//     const tema = fila.language;
+// Recorremos cada fila para calcular aciertos y apariciones de cada pregunta
+metricasSINreportadas.forEach((fila)=> {
+    const tema = fila.language;
 
-//     if (temas_numeroaciertos[tema]) {
-//         if (fila.correctAnswer) {
-//             temas_numeroaciertos[tema][0] += 1;
-//         }
-//         temas_numeroaciertos[tema][1] += 1;
-//     } else {
-//         if (fila.correctAnswer) {
-//             temas_numeroaciertos[tema] = [1,1];
-//         }else{
-//             temas_numeroaciertos[tema] = [0,1];
-//         }
-//     }
-// });
+    if (temas_numeroaciertos[tema]) {
+        if (fila.correctAnswer) {
+            temas_numeroaciertos[tema][0] += 1;
+        }
+        temas_numeroaciertos[tema][1] += 1;
+    } else {
+        if (fila.correctAnswer) {
+            temas_numeroaciertos[tema] = [1,1];
+        }else{
+            temas_numeroaciertos[tema] = [0,1];
+        }
+    }
+});
 
-// let arrayfinal = [];
+let arrayfinal = [];
 
-// for (let tema in temas_numeroaciertos) {
-//     arrayfinal.push({tema: tema, npreguntas: temas_numeroaciertos[tema][1], porcentajeacierto: temas_numeroaciertos[tema][0]/temas_numeroaciertos[tema][1]*100 }) 
+for (let tema in temas_numeroaciertos) {
+    arrayfinal.push({tema: tema, naciertos: temas_numeroaciertos[tema][0], npreguntas: temas_numeroaciertos[tema][1], porcentajeacierto: temas_numeroaciertos[tema][0]/temas_numeroaciertos[tema][1]*100 }) 
 
-// }
-// console.log(arrayfinal)
+}
+console.log(arrayfinal)
+return arrayfinal
+}
 
-// // Escribir las preguntas en un archivo de texto
-// const fileStream = fs.createWriteStream('TemasFrecuenciayAcierto.txt');
-// arrayfinal.forEach((objeto, idx) => {
-//     fileStream.write(`${idx + 1}. tema: ${objeto.tema}, número preguntas: ${objeto.npreguntas}, porcentaje acierto: ${objeto.porcentajeacierto}} \n`);
-// });
-// fileStream.end();
-// }
 
-// //Temas frecuencia y porcentaje de acierto GIB !!!!
-// exports.temasGIB = (metricas)=>{
+
+
+//Temas frecuencia y porcentaje de acierto GIB !!!!
+export const temasGIB = (metricas)=>{
     
-// //Datos sin preguntas reportadas
-// let metricasSINreportadas = metricas.reduce((res, fila) => {
-//     if(fila.studentReport==false){
-//         return res = [...res, fila]
-//     }
-//     return res
-//     }, []);
+//Datos sin preguntas reportadas
+let metricasSINreportadas = metricas.reduce((res, fila) => {
+    if(fila.studentReport==false){
+        return res = [...res, fila]
+    }
+    return res
+    }, []);
 
-// metricasSINreportadas.forEach((fila) => {
-//     if(fila.language == "JSON y esquema JSON"){
-//         fila.language = "JSON y JSON Schema";
-//     }else if (fila.language == 'Marco de agregación de MongoDB'){
-//         fila.language = 'MongoDB Aggregation Framework';
-//     }else if (fila.language == 'javascript_cliente'){
-//         fila.language = 'JavaScript Cliente';
-//     }else if (fila.language =='javascript'){
-//         fila.language =  'Lenguaje JavaScript';
-//     }
-// })
+metricasSINreportadas.forEach((fila) => {
+    if(fila.language == "JSON y esquema JSON"){
+        fila.language = "JSON y JSON Schema";
+    }else if (fila.language == 'Marco de agregación de MongoDB'){
+        fila.language = 'MongoDB Aggregation Framework';
+    }else if (fila.language == 'javascript_cliente'){
+        fila.language = 'JavaScript Cliente';
+    }else if (fila.language =='javascript'){
+        fila.language =  'Lenguaje JavaScript';
+    }
+})
 
-// metricasSINreportadas.forEach((fila) =>{
-//     let tema = fila.language;
-//     fila.language = tema.toUpperCase();
-// })
+metricasSINreportadas.forEach((fila) =>{
+    let tema = fila.language;
+    fila.language = tema.toUpperCase();
+})
 
-// let metricasGIB = metricasSINreportadas.reduce((res, fila) => {
-//     if(fila.Degree=="GIB"){
-//         return res = [...res, fila]
-//     }
-//     return res
-//     }, []);
-
-
-
-// let temas_numeroaciertos = {};
-
-// // Recorremos cada fila para calcular aciertos y apariciones de cada pregunta
-// metricasGIB.forEach((fila)=> {
-//     const tema = fila.language;
-
-//     if (temas_numeroaciertos[tema]) {
-//         if (fila.correctAnswer) {
-//             temas_numeroaciertos[tema][0] += 1;
-//         }
-//         temas_numeroaciertos[tema][1] += 1;
-//     } else {
-//         if (fila.correctAnswer) {
-//             temas_numeroaciertos[tema] = [1,1];
-//         }else{
-//             temas_numeroaciertos[tema] = [0,1];
-//         }
-//     }
-// });
-
-// let arrayfinal = [];
-
-// for (let tema in temas_numeroaciertos) {
-//     arrayfinal.push({tema: tema, npreguntas: temas_numeroaciertos[tema][1], porcentajeacierto: temas_numeroaciertos[tema][0]/temas_numeroaciertos[tema][1]*100 }) 
-
-// }
-// console.log(arrayfinal)
-
-// // Escribir las preguntas en un archivo de texto
-// const fileStream = fs.createWriteStream('TemasGIB.txt');
-// arrayfinal.forEach((objeto, idx) => {
-//     fileStream.write(`${idx + 1}. tema: ${objeto.tema}, número preguntas: ${objeto.npreguntas}, porcentaje acierto: ${objeto.porcentajeacierto}} \n`);
-// });
-// fileStream.end();
-// }
+let metricasGIB = metricasSINreportadas.reduce((res, fila) => {
+    if(fila.Degree=="GIB"){
+        return res = [...res, fila]
+    }
+    return res
+    }, []);
 
 
-// //Temas frecuencia y porcentaje de acierto GITST !!!!
-// exports.temasGITST = (metricas)=>{
+
+let temas_numeroaciertos = {};
+
+// Recorremos cada fila para calcular aciertos y apariciones de cada pregunta
+metricasGIB.forEach((fila)=> {
+    const tema = fila.language;
+
+    if (temas_numeroaciertos[tema]) {
+        if (fila.correctAnswer) {
+            temas_numeroaciertos[tema][0] += 1;
+        }
+        temas_numeroaciertos[tema][1] += 1;
+    } else {
+        if (fila.correctAnswer) {
+            temas_numeroaciertos[tema] = [1,1];
+        }else{
+            temas_numeroaciertos[tema] = [0,1];
+        }
+    }
+});
+
+let arrayfinal = [];
+
+for (let tema in temas_numeroaciertos) {
+    arrayfinal.push({tema: tema, naciertos: temas_numeroaciertos[tema][0], npreguntas: temas_numeroaciertos[tema][1], porcentajeacierto: (temas_numeroaciertos[tema][0]/temas_numeroaciertos[tema][1]*100).toFixed(2) }) 
+
+}
+
+return arrayfinal
+}
+
+
+//Temas frecuencia y porcentaje de acierto GITST !!!!
+export const temasGITST = (metricas)=>{
     
-//     //Datos sin preguntas reportadas
-//     let metricasSINreportadas = metricas.reduce((res, fila) => {
-//         if(fila.studentReport==false){
-//             return res = [...res, fila]
-//         }
-//         return res
-//         }, []);
+    //Datos sin preguntas reportadas
+    let metricasSINreportadas = metricas.reduce((res, fila) => {
+        if(fila.studentReport==false){
+            return res = [...res, fila]
+        }
+        return res
+        }, []);
     
-//     metricasSINreportadas.forEach((fila) => {
-//         if(fila.language == "JSON y esquema JSON"){
-//             fila.language = "JSON y JSON Schema";
-//         }else if (fila.language == 'Marco de agregación de MongoDB'){
-//             fila.language = 'MongoDB Aggregation Framework';
-//         }else if (fila.language == 'javascript_cliente'){
-//             fila.language = 'JavaScript Cliente';
-//         }else if (fila.language =='javascript'){
-//             fila.language =  'Lenguaje JavaScript';
-//         }
-//     })
+    metricasSINreportadas.forEach((fila) => {
+        if(fila.language == "JSON y esquema JSON"){
+            fila.language = "JSON y JSON Schema";
+        }else if (fila.language == 'Marco de agregación de MongoDB'){
+            fila.language = 'MongoDB Aggregation Framework';
+        }else if (fila.language == 'javascript_cliente'){
+            fila.language = 'JavaScript Cliente';
+        }else if (fila.language =='javascript'){
+            fila.language =  'Lenguaje JavaScript';
+        }
+    })
     
-//     metricasSINreportadas.forEach((fila) =>{
-//         let tema = fila.language;
-//         fila.language = tema.toUpperCase();
-//     })
+    metricasSINreportadas.forEach((fila) =>{
+        let tema = fila.language;
+        fila.language = tema.toUpperCase();
+    })
     
-//     let metricasGITST = metricasSINreportadas.reduce((res, fila) => {
-//         if(fila.Degree=="GITST"){
-//             return res = [...res, fila]
-//         }
-//         return res
-//         }, []);
+    let metricasGITST = metricasSINreportadas.reduce((res, fila) => {
+        if(fila.Degree=="GITST"){
+            return res = [...res, fila]
+        }
+        return res
+        }, []);
     
     
     
-//     let temas_numeroaciertos = {};
+    let temas_numeroaciertos = {};
     
-//     // Recorremos cada fila para calcular aciertos y apariciones de cada pregunta
-//     metricasGITST.forEach((fila)=> {
-//         const tema = fila.language;
+    // Recorremos cada fila para calcular aciertos y apariciones de cada pregunta
+    metricasGITST.forEach((fila)=> {
+        const tema = fila.language;
     
-//         if (temas_numeroaciertos[tema]) {
-//             if (fila.correctAnswer) {
-//                 temas_numeroaciertos[tema][0] += 1;
-//             }
-//             temas_numeroaciertos[tema][1] += 1;
-//         } else {
-//             if (fila.correctAnswer) {
-//                 temas_numeroaciertos[tema] = [1,1];
-//             }else{
-//                 temas_numeroaciertos[tema] = [0,1];
-//             }
-//         }
-//     });
+        if (temas_numeroaciertos[tema]) {
+            if (fila.correctAnswer) {
+                temas_numeroaciertos[tema][0] += 1;
+            }
+            temas_numeroaciertos[tema][1] += 1;
+        } else {
+            if (fila.correctAnswer) {
+                temas_numeroaciertos[tema] = [1,1];
+            }else{
+                temas_numeroaciertos[tema] = [0,1];
+            }
+        }
+    });
     
-//     let arrayfinal = [];
+    let arrayfinal = [];
     
-//     for (let tema in temas_numeroaciertos) {
-//         arrayfinal.push({tema: tema, npreguntas: temas_numeroaciertos[tema][1], porcentajeacierto: temas_numeroaciertos[tema][0]/temas_numeroaciertos[tema][1]*100 }) 
+    for (let tema in temas_numeroaciertos) {
+        arrayfinal.push({tema: tema, naciertos: temas_numeroaciertos[tema][0], npreguntas: temas_numeroaciertos[tema][1], porcentajeacierto: (temas_numeroaciertos[tema][0]/temas_numeroaciertos[tema][1]*100 ).toFixed(2)}) 
     
-//     }
-//     console.log(arrayfinal)
+    }
     
-//     // Escribir las preguntas en un archivo de texto
-//     const fileStream = fs.createWriteStream('TemasGITST.txt');
-//     arrayfinal.forEach((objeto, idx) => {
-//         fileStream.write(`${idx + 1}. tema: ${objeto.tema}, número preguntas: ${objeto.npreguntas}, porcentaje acierto: ${objeto.porcentajeacierto}} \n`);
-//     });
-//     fileStream.end();
-// }
+    return arrayfinal
+}
 
 
-// //Numero de respuestas a lo largo de los meses
-// exports.temporal = (metricas)=>{
-// //Datos sin preguntas reportadas
-// let metricasSINreportadas = metricas.reduce((res, fila) => {
-//     if(fila.studentReport==false){
-//         return res = [...res, fila]
-//     }
-//     return res
-//     }, []);
+//Numero de respuestas a lo largo de los meses!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+export const temporal = (metricas)=>{
+//Datos sin preguntas reportadas
+let metricasSINreportadas = metricas.reduce((res, fila) => {
+    if(fila.studentReport==false){
+        return res = [...res, fila]
+    }
+    return res
+    }, []);
 
 
-// // Función para calcular el mes a partir del número serializado de Excel
-// function getMonthFromSerial(serial) {
-//     const excelEpoch = new Date(1900, 0, 1); //Excel empieza a contar desde 1 de enero de 1900
-//     const days = serial - 2; // Ajustar desfase de Excel
-//     const fecha = new Date(excelEpoch.getTime() + days * 24 * 60 * 60 * 1000);
-//     return fecha.getMonth() + 1; // Mes (1-12)
-// }
+// Función para calcular el mes a partir del número serializado de Excel
+function getMonthFromSerial(serial) {
+    const excelEpoch = new Date(1900, 0, 1); //Excel empieza a contar desde 1 de enero de 1900
+    const days = serial - 2; // Ajustar desfase de Excel
+    const fecha = new Date(excelEpoch.getTime() + days * 24 * 60 * 60 * 1000);
+    return fecha.getMonth() + 1; // Mes (1-12)
+}
 
 
 
-// // Obtener los meses de las fechas
-// let meses = metricasSINreportadas.map((fila) => {
-//  return getMonthFromSerial(fila.created_at);
-// }); 
+// Obtener los meses de las fechas
+let meses = metricasSINreportadas.map((fila) => {
+    if(fila.created_at > 50000){ //generado desde la app
+        return new Date(fila.created_at).getMonth();
+    }
+    return getMonthFromSerial(fila.created_at); //si es exportado de excel
+}); 
 
 
-// // Cambiar número de meses por el nombre del mes
-// let nombreMeses = meses.map(mes => {
-//     switch (mes) {
-//         case 3: return 'Marzo';
-//         case 4: return 'Abril';
-//         case 5: return 'Mayo';
-//         case 6: return 'Junio';
-//         case 7: return 'Julio';
-//     }
-// });
-
-// // Contar el número de preguntas por mes
-// const mesesNumeropreguntas = {};
-// nombreMeses.forEach((mes) => {
-//     if (mesesNumeropreguntas[mes]) {
-//         mesesNumeropreguntas[mes]++;
-//     } else {
-//         mesesNumeropreguntas[mes] = 1;
-//     }
-// });
-
-// console.log(mesesNumeropreguntas)
-
-
-// // Escribir en un archivo de texto
-// const fileStream = fs.createWriteStream('NumeroRespuestasPorMeses.txt');
+// Cambiar número de meses por el nombre del mes
+let nombreMeses = meses.map(mes => {
     
-// fileStream.write( JSON.stringify(mesesNumeropreguntas));
+    console.log(mes)
+    switch (mes) {
+        case 0: return 'Enero';
+        case 1: return 'Enero';
+        case 2: return 'Febrero';
+        case 3: return 'Marzo';
+        case 4: return 'Abril';
+        case 5: return 'Mayo';
+        case 6: return 'Junio';
+        case 7: return 'Julio';
+        case 8: return 'Agosto';
+        case 9: return 'Septiembre';
+        case 10: return 'Octubre';
+        case 11: return 'Noviembre';
+        case 12: return 'Diciembre';
+    }
+});
 
-// fileStream.end();
+// Contar el número de preguntas por mes
+const mesesNumeropreguntas = {};
+nombreMeses.forEach((mes) => {
+    if (mesesNumeropreguntas[mes]) {
+        mesesNumeropreguntas[mes]++;
+    } else {
+        mesesNumeropreguntas[mes] = 1;
+    }
+});
 
-// }
+return mesesNumeropreguntas
+
+}
