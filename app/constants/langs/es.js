@@ -5,6 +5,10 @@ export const es = {
         //  description: "Desafíate a ti mismo: ¡sigue practicando hasta que seas imparable!",
         description: "Escoge la asignatura que quieras repasar",
     },
+    login: {
+        title: "Inicio de sesión",
+        description: "Introduce tu correo de alumnos UPM para crear tu quiz."
+    },
     subject: {
         title: "Asignatura: ",
         description: "¡Realiza tantos cuestionarios como desees sobre los temas del curso!",

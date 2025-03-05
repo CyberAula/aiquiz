@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
         <html lang='en'>
             <head>
                 <title>{t("front.title")}</title>
-                <link rel="icon" href="/my-favicon-32x32.png" type="image/x-icon"></link>
+                {/* <link rel="icon" href="/my-favicon-32x32.png" type="image/x-icon"></link> */}
             </head>
             <body className={`${inter.className} relative bg-blue-200`}>
                

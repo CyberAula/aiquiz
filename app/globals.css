@@ -428,8 +428,8 @@ label.radio-card-difficulty {
   animation: gradient 12s ease infinite;
 }
 
-.input {
-  @apply border-2 border-customColor rounded justify-start text-lg font-normal mx-auto mt-5 px-6 py-2;
+.input-email {
+  @apply border border-customColor w-96 rounded flex justify-start items-start text-lg font-normal  mt-5 px-5 py-2;
   color: black;
 }
 

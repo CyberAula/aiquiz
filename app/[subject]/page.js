@@ -73,8 +73,8 @@ const HomePage = ({ params: { subject } }) => {
   }, []);
 
   const setEmailFromLocalStorage = () => {
-    let studentEmail = window.localStorage.getItem("student_email");
-    //  let studentEmail = null;
+ let studentEmail = window.localStorage.getItem("student_email");
+    // let studentEmail = null;
     if (
       studentEmail != null &&
       studentEmail != "" &&
@@ -149,10 +149,7 @@ const HomePage = ({ params: { subject } }) => {
       <div className="border rounded border-white/0 ">
         <Header />
         <div className="container-content">
-          <h2 className="text-left text-2xl mb-2 font-normal ">
-            {t("front.title")}
-          </h2>
-          <p>{t("subject.description")}</p>
+          
           {/* {loading && (
           <div className="flex items-center justify-center w-screen bg-myBg">
             <Image src="/spinner.gif" height={250} width={250} alt="loading" />
@@ -161,10 +158,14 @@ const HomePage = ({ params: { subject } }) => {
 
           {loading == false && myUserEmail == null && (
             <div className="flex flex-col items-center justify-center mt-5">
+              <div className="w-96">
+                <h2 className="text-left text-2xl mb-2 font-normal">  {t("login.title")} </h2> 
+                <p>  {t("login.description")} </p>
+              </div>
               <input
                 type="email"
                 value={inputEmail}
-                className="input"
+                className="input-email"
                 placeholder="emailalumno@alumnos.upm.es"
                 onChange={(e) => {
                   setInputEmail(e.target.value);
@@ -212,6 +213,11 @@ const HomePage = ({ params: { subject } }) => {
             </div>
           )}
           {loading == false && myUserEmail != null && (
+            <>
+            <h2 className="text-left text-2xl mb-2 font-normal ">
+            {t("front.title")}
+          </h2>
+          <p>{t("subject.description")}</p>
             <form
               onSubmit={handleSubmit}
               className="mt-6 flex flex-col gap-3 lg:w-[80%] md:w-full mx-auto"
@@ -497,6 +503,7 @@ const HomePage = ({ params: { subject } }) => {
                 )}
               </div>
             </form>
+            </>
           )}
         </div>
       </div>

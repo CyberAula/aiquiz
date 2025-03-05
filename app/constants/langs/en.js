@@ -4,6 +4,10 @@ export const en = {
         // description: "Challenge yourself: keep practicing until you excel!",
         description: "Pick a subject to practice",
     },
+    login: {
+        title: "Log in",
+        description: "Enter your UPM email to create a quiz."
+    },
     subject: {
         title: "Subject: ",
         description: "Take as many quizzes as you want on topics of the course!",
