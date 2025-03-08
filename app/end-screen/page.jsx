@@ -54,16 +54,14 @@ function EndScreenFun() {
 
             let data = await response.json();
 
-            // console.log("--------------------------------------------------");
-            // console.log('SERVER ANSWER', response);
-            console.log('data', data);
-            // console.log("--------------------------------------------------");
+            console.log('/api/survey -> data:', data);
 
             setShowSurvey(data.survey);
             // setStudentEmail(data.studentEmail);
 
             if (data.survey) {
-                setUrlSurvey(`https://forms.office.com/Pages/ResponsePage.aspx?id=Xaj-aiPDcEK2naT7OSfCVGBhyguLRyZMmcnRYOmI32BUMjlBNTlOWFBRODUxR0MxVTRRRDg0NVgwSC4u&r04d26b54129e4bc0aeb88ae7218f99dc=${encodeURIComponent(studentEmail)}&r207b87f55a3f4e77a053936051f00da2=${encodeURIComponent(subject)}`);
+                console.log('data.urlSurvey: ', data.urlSurvey);
+                setUrlSurvey(data.urlSurvey);
             }
 
         } catch (error) {
