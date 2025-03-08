@@ -33,7 +33,6 @@ function EndScreenFun() {
     // const [studentEmail, setStudentEmail] = useState('');
     const [urlSurvey, setUrlSurvey] = useState('');
     const [surveyCompleted, setSurveyCompleted] = useState(false);
-    const iframeRef = useRef(null);
 
 
     const getSurveyStatus = async (studentEmail) => {
