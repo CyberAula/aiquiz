@@ -98,12 +98,6 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
         // asignamos el finalPrompt por defecto con las respuestas anteriores del estudiante.
         console.log("--------------------------------------------------");
 
-        if (studentSubjectData.subjectName === 'BBDD') {
-            finalPrompt = `Soy un estudiante de una asignatura de nombre "bases de datos no relacionales" en la universidad. En esta asignatura vemos temas de bases de datos no relacionales, big data, nosql, json, json schema, modelos de datos nosql, mongodb shell y mongodb aggregation framework.`;
-        } else {
-            finalPrompt = `Soy un estudiante de una asignatura de universidad. `;
-        }
-
         if (num_prev_questions > 3) {
             console.log("Student already answered " + num_prev_questions + " questions about " + topic + " in " + language);
             finalPrompt += `Anteriormente ya he respondido ${num_prev_questions} preguntas sobre ${topic} en el lenguaje ${language}.`;
@@ -123,14 +117,9 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
         }
 
         console.log("params: lang, difficulty, topic, numquestions: ", language, difficulty, topic, numQuestions);
+        
         // Generación de preguntas
-        //añado este if para no tocar lo antiguo que especifica que se habla de un lenguaje de programacion
-        //cambio solo para que en BBDD no se hable de lenguaje de programacion como tal sino de tema, esto hay que mejorarlo
-        if (studentSubjectData.subjectName === 'BBDD') {
-            finalPrompt += `Dame ${numQuestions} preguntas que tengan 4 o 5 opciones, siendo solo una de ellas la respuesta correcta, sobre "${topic}" enmarcadas en el tema "${language}".`;
-        } else {
-            finalPrompt += `Dame ${numQuestions} preguntas que tengan 4 o 5 opciones, siendo solo una de ellas la respuesta correcta, sobre "${topic}" en el lenguaje de programación ${language}.`;
-        }
+        finalPrompt += `Dame ${numQuestions} preguntas que tengan 4 o 5 opciones, siendo solo una de ellas la respuesta correcta, sobre "${topic}" enmarcadas en el tema ${language}.`;
         finalPrompt += `Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
         finalPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente. Intenta no colocar siempre la respuesta correcta en la misma posición, vete intercalando entre las 4 o 5 opciones.`;
 

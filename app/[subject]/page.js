@@ -329,12 +329,11 @@ const HomePage = ({ params: { subject } }) => {
                   </div>
                 </div>
                 <div className="container-settings-quiz">
-                  {/* DIFICULTAD, quitado para BBDD */}
+                  {/* DIFICULTAD */}
                   <h2 className="mb-1 text-lg font-bold">
                     {t("subject.settings")}
                   </h2>
                   <p className="mb-6 text-sm">{t("subject.choosedif")}</p>
-                  {subject !== "BBDD" && (
                     <div className="flex flex-col parameters ">
                       <label
                         htmlFor="difficult"
@@ -399,10 +398,8 @@ const HomePage = ({ params: { subject } }) => {
                         </label>
                       </div>
                     </div>
-                  )}{" "}
                   {console.log("dificultad" + difficulty)}
-                  {/* NUMERO DE PREGUNTAS, quitado para BBDD, siempre 5 */}
-                  {subject !== "BBDD" && (
+                  {/* NUMERO DE PREGUNTAS */}
                     <div className="flex flex-col parameters">
                       <label
                         htmlFor="numQuestions"
@@ -468,7 +465,6 @@ const HomePage = ({ params: { subject } }) => {
                         </label>
                       </div>
                     </div>
-                  )}{" "}
                   {console.log("numero preguntas " + numQuestions)}
                 </div>
               </div>
