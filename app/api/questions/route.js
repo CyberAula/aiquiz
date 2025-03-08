@@ -96,6 +96,7 @@ const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesti
                     subjectName: subject,
                     subjectModel: "Nuevo estudiante",
                     ABC_Testing: has_abctesting,
+                    survey: false,
                     md5Prompt: null,
                     prompt: null
                 }]
@@ -117,6 +118,7 @@ const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesti
             subjectName: subject,
             subjectModel: "Nuevo estudiante",
             ABC_Testing: has_abctesting,
+            survey: false,
             md5Prompt: null,
             prompt: null
         });

@@ -1,11 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-
 import { pickRandom } from '../utils'
-
 import { endMessages } from '../constants/endMessages'
 
 import useWindowSize from 'react-use/lib/useWindowSize'
@@ -16,7 +13,6 @@ import { gifs } from '../constants/gifs'
 import { Suspense } from 'react'
 import { useTranslation } from "react-i18next";
 import Header from "../components/ui/Header"
-
 
 
 function EndScreenFun() {
@@ -32,6 +28,51 @@ function EndScreenFun() {
     const [gif, setGif] = useState('')
 
     const { width, height } = useWindowSize()
+
+    const [showSurvey, setShowSurvey] = useState(false)
+    // const [studentEmail, setStudentEmail] = useState('');
+    const [urlSurvey, setUrlSurvey] = useState('');
+    const [surveyCompleted, setSurveyCompleted] = useState(false);
+    const iframeRef = useRef(null);
+
+
+    const getSurveyStatus = async (studentEmail) => {
+        try {
+            const response = await fetch('api/survey', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    studentEmail,
+                    subject
+                }),
+            })
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+            }
+
+            let data = await response.json();
+
+            // console.log("--------------------------------------------------");
+            // console.log('SERVER ANSWER', response);
+            console.log('data', data);
+            // console.log("--------------------------------------------------");
+
+            setShowSurvey(data.survey);
+            // setStudentEmail(data.studentEmail);
+
+            if (data.survey) {
+                setUrlSurvey(`https://forms.office.com/Pages/ResponsePage.aspx?id=Xaj-aiPDcEK2naT7OSfCVGBhyguLRyZMmcnRYOmI32BUMjlBNTlOWFBRODUxR0MxVTRRRDg0NVgwSC4u&r04d26b54129e4bc0aeb88ae7218f99dc=${encodeURIComponent(studentEmail)}&r207b87f55a3f4e77a053936051f00da2=${encodeURIComponent(subject)}`);
+            }
+
+        } catch (error) {
+            console.error('Error during request:', error.message);
+        }
+    }
+
+
 
     const handlePlayAgain = () => {
         router.push(`/${subject}`);
@@ -49,9 +90,27 @@ function EndScreenFun() {
 
         let randomMessage = pickRandom(endMessages[grade])
         setMessage(randomMessage)
-
         let randomGif = pickRandom(gifs[grade])
         setGif(randomGif)
+
+        // Gestionamos el studentEmail
+        let studentEmail = window.localStorage.getItem('student_email');
+        console.log("--------------------------------------------------");
+        if (studentEmail == null || studentEmail == "" || studentEmail == "undefined" || studentEmail == "null") {
+            console.log("NO EMAIL IN LOCALSTORAGE, WE ADD ANONYMOUS@EXAMPLE.COM");
+            studentEmail = "anonymous@example.com";
+        }
+        console.log('studentEmail: ', studentEmail);
+        console.log("--------------------------------------------------");
+        getSurveyStatus(studentEmail);
+
+
+        // Mostramos el botón de continuar después de 10 segundos
+        const timer = setTimeout(() => {
+            setSurveyCompleted(true);
+        }, 10000); // 10 segundos
+
+        return () => clearTimeout(timer);
 
     }, [])
 
@@ -75,41 +134,67 @@ function EndScreenFun() {
         }
     };
 
+
     return (
         <div className='h-screen sm:h-fit container-layout'>
-            <Header/>
+            <Header />
             {score >= 0.8 && <Confetti width={width} height={height} className='overflow-hidden' />}
 
-            <div className='max-w-3xl flex flex-col content-between h-2/3   items-center mx-auto  my-4 md:my-8 justify-between z-10'>
-                <div className='flex flex-col items-center'>
-                <h2 className='mb-1.5'>{t('endscreen.title')}</h2>
-                <h2 className={`score-box ${getScoreColorClass()} text-3xl md:text-5xl text-center fuente`}> {score * 100}%</h2>
-                </div>
-                <div className='gifs-container flex justify-center space-x-8 mt-5'>
+            {showSurvey ? (
+                <div className='max-w-3xl flex flex-col content-between h-2/3   items-center mx-auto  my-4 md:my-8 justify-between z-10'>
                     <iframe
-                        src={gif}
-                        width='200'
-                        height='200'
-                        className='giphy-embed'
+                        width="640px"
+                        height="480px"
+                        src={urlSurvey}
+                        style={{ border: 'none', maxWidth: '100%', maxHeight: '100vh' }}
                         allowFullScreen
                     ></iframe>
+
+                    {surveyCompleted && (
+                        <div className='flex flex-col sm:flex-row gap-2 md:gap-4 mt-4 md:mt-8'>
+                            <button
+                                className='btn-md btn-quizz inline-block text-center  text-lg font-semibold md:mx-auto'
+                                onClick={() => setShowSurvey(false)}>
+                                CONTINUAR
+                            </button>
+                        </div>
+                    )}
                 </div>
 
-                <p className='text-xl md:text-2xl mt-8 mx-3 text-center fuente'>{message}{getIconForScore()}</p>
+            ) : (
 
-                <div className='flex flex-col sm:flex-row gap-2 md:gap-4 mt-4 md:mt-8'>
-                    <button >
-                        <Link className='btn-md btn-outline' href="/"> {t('endscreen.back')} </Link>
-                    </button>
-                    <button
-                        className='btn-md btn-quizz inline-block text-center  text-lg font-semibold md:mx-auto'
-                        onClick={handlePlayAgain}
-                    >
-                        {t('endscreen.repeat')}
-                    </button>
+                <div className='max-w-3xl flex flex-col content-between h-2/3   items-center mx-auto  my-4 md:my-8 justify-between z-10'>
+                    <div className='flex flex-col items-center'>
+                        <h2 className='mb-1.5'>{t('endscreen.title')}</h2>
+                        <h2 className={`score-box ${getScoreColorClass()} text-3xl md:text-5xl text-center fuente`}> {score * 100}%</h2>
+                    </div>
+                    <div className='gifs-container flex justify-center space-x-8 mt-5'>
+                        <iframe
+                            src={gif}
+                            width='200'
+                            height='200'
+                            className='giphy-embed'
+                            allowFullScreen
+                        ></iframe>
+                    </div>
 
+                    <p className='text-xl md:text-2xl mt-8 mx-3 text-center fuente'>{message}{getIconForScore()}</p>
+
+                    <div className='flex flex-col sm:flex-row gap-2 md:gap-4 mt-4 md:mt-8'>
+                        <button >
+                            <Link className='btn-md btn-outline' href="/"> {t('endscreen.back')} </Link>
+                        </button>
+                        <button
+                            className='btn-md btn-quizz inline-block text-center  text-lg font-semibold md:mx-auto'
+                            onClick={handlePlayAgain}
+                        >
+                            {t('endscreen.repeat')}
+                        </button>
+
+                    </div>
                 </div>
-            </div>
+
+            )}
         </div>
     )
 }
@@ -119,9 +204,9 @@ export default function EndScreen() {
     return (
         // You could have a loading skeleton as the `fallback` too
         <Suspense>
-          <EndScreenFun />
+            <EndScreenFun />
         </Suspense>
-      )
+    )
 }
 
 

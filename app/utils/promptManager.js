@@ -109,7 +109,7 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
             finalPrompt += `Anteriormente ya he respondido ${num_prev_questions} preguntas sobre ${topic} en el lenguaje ${language}.`;
 
             for (let i = 0; i < previousQuestionsTopic.length; i++) {
-                finalPrompt += getPreviousQuestionfinalPrompt(previousQuestionsTopic[i]);
+                finalPrompt += getPreviousQuestionPrompt(previousQuestionsTopic[i]);
             }
         } else if (num_prev_questions_only_lang > 3) {
             console.log("Student already answered " + num_prev_questions_only_lang + " questions in " + language);

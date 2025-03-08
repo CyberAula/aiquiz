@@ -22,6 +22,11 @@ const studentSchema = new mongoose.Schema({
                     required: true,
                     default: false,
                 },
+                survey: {
+                    type: Boolean,
+                    required: false,
+                    default: false,
+                },
                 md5Prompt: {
                     type: String,
                     required: false,
