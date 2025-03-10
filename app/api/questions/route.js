@@ -40,7 +40,7 @@ export async function POST(request) {
 
 
         // SOLICITUD A LA API de promptManager para obtener el prompt final
-        let finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex);
+        let finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
 
 
         // SOLICITUD A LA API de modelManager para asignar un modelo de LLM al alumno

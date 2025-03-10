@@ -2,8 +2,11 @@ import dbConnect from '../utils/dbconnect.js';
 import Question from '../models/Question.js';
 import Student from '../models/Student.js';
 
+import { subjects } from '../constants/subjects.js';
+
 import { createHash } from 'crypto';
 import chalk from 'chalk';
+import { COMPILER_INDEXES } from 'next/dist/shared/lib/constants.js';
 
 // console.log("--------------------------------------------------");
 // console.log('[promptManager.js] Connecting to database...');
@@ -11,13 +14,32 @@ await dbConnect();
 // console.log('[promptManager.js] Database connected successfully');
 // console.log("--------------------------------------------------");
 
-export async function fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex) {
+export async function fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject) {
 
-    // Definimos las variables necesarias para rellenar el prompt
+    // DEFINIMOS LAS VARIABLES NECESARIAS PARA RELLENAR EL PROMPT
     const num_prev_questions = await Question.countDocuments({ studentEmail: studentEmail, language: language, topic: topic, studentReport: false });
     const num_prev_questions_only_lang = await Question.countDocuments({ studentEmail: studentEmail, language: language, studentReport: false });
-    let previousQuestionsTopic = await Question.find({ studentEmail: studentEmail, language: language, topic: topic }).limit(20);
-    let previousQuestionsNotReported = await Question.find({ studentEmail: studentEmail, language: language, studentReport: false }).limit(20);
+
+    // Obtenemos las preguntas anteriores del estudiante
+    // let previousQuestionsTopic = await Question.find({ studentEmail: studentEmail, language: language, topic: topic }).limit(20);
+    let previousQuestionsTopic = (await Question.find(
+        { studentEmail, language, topic },
+        { query: 1, choices: 1, answer: 1, studentAnswer: 1, _id: 0 } // Seleccionamos solo estos campos y excluimos `_id`
+    ).limit(20)).map(q =>
+        `(${q.query}) con estas opciones: (${q.choices.join(', ')}). La respuesta es: (${q.answer}) y el alumno contestó (${q.studentAnswer}).`
+    );
+    // let previousQuestionsNotReported = await Question.find({ studentEmail: studentEmail, language: language, studentReport: false }).limit(20);
+    let previousQuestionsNotReported = (await Question.find(
+        { studentEmail, language, studentReport: false },
+        { query: 1, choices: 1, answer: 1, studentAnswer: 1, _id: 0 } // Seleccionamos solo los campos necesarios
+    ).limit(20)).map(q =>
+        `(${q.query}) con estas (${q.choices.join(', ')}). La respuesta es: (${q.answer}) y el alumno ha contestado (${q.studentAnswer}).`
+    );
+
+
+    // Obtenemos el comentario del tema corrigiendo el valor de topic de la URL
+    // http://localhost:3000/aiquiz/quiz?language=Java&difficulty=intermedio&topic=declaraci%C3%B3n+de+variables&numQuestions=5&subject=PRG
+    let topicComment = subjects[subject]?.topics.find(t => t.value.toLowerCase() === language.toLowerCase())?.subtopics.find(sub => sub.title.toLowerCase() === topic.replace(/\+/g, ' ').toLowerCase())?.comment || '';
 
     const variables = {
         subject: studentSubjectData.subjectName,
@@ -29,7 +51,8 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
         num_prev_questions,
         num_prev_questions_only_lang,
         previousQuestionsTopic,
-        previousQuestionsNotReported
+        previousQuestionsNotReported,
+        comment: topicComment
     };
 
     let finalPrompt = "";
@@ -116,13 +139,6 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
             console.log("Student has not answered enough questions yet, we cannot inform the IA about the track record");
         }
 
-        console.log("params: lang, difficulty, topic, numquestions: ", language, difficulty, topic, numQuestions);
-        
-        // Generación de preguntas
-        finalPrompt += `Dame ${numQuestions} preguntas que tengan 4 o 5 opciones, siendo solo una de ellas la respuesta correcta, sobre "${topic}" enmarcadas en el tema ${language}.`;
-        finalPrompt += `Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
-        finalPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente. Intenta no colocar siempre la respuesta correcta en la misma posición, vete intercalando entre las 4 o 5 opciones.`;
-
         console.log("--------------------------------------------------");
     }
 
@@ -133,9 +149,15 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
         // Convertir el prompt a hash y asignarlo a la asignatura del estudiante
         const hashPrompt = createHash('md5').update(finalPrompt).digest('hex');
         existingStudent.subjects[subjectIndex].md5Prompt = hashPrompt;
-        // Reemplazar las variables en el prompt para enviar al llm con el prompt final
-        finalPrompt = fillVariables(finalPrompt, variables);
     }
+
+    // Generación de preguntas
+    finalPrompt += `Dame ${numQuestions} preguntas que tengan 4 o 5 opciones, siendo solo una de ellas la respuesta correcta, sobre "${topic}" enmarcadas en el tema ${language}.`;
+    finalPrompt += `Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
+    finalPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente. Intenta no colocar siempre la respuesta correcta en la misma posición, vete intercalando entre las 4 o 5 opciones.`;
+
+    // Reemplazar las variables en el prompt para enviar al llm con el prompt final
+    finalPrompt = fillVariables(finalPrompt, variables);
 
     existingStudent.subjects[subjectIndex].prompt = finalPrompt;
     existingStudent.subjects[subjectIndex].ABC_Testing = has_abctesting;
@@ -219,18 +241,18 @@ const getEquitablePrompt = async (arrayPrompts, subjectName) => {
 
 // Función que reemplaza las variables en un prompt dado un objeto de variables
 function fillVariables(prompt, variables) {
-    console.log(chalk.bgRedBright.black("--------------------------------------------------"));
 
     const result = prompt.replace(/{(\w+)}/g, (match, key) => {
         if (variables[key] !== undefined) {
             return variables[key];
         } else {
+            console.log(chalk.bgRedBright.black("--------------------------------------------------"));
             console.log(chalk.bgRedBright.black(`Variable "${key}" no reconocida en el prompt.`));
+            console.log(chalk.bgRedBright.black("--------------------------------------------------"));
             return match; // Devuelve la variable sin reemplazar si no se encuentra en variables
         }
     });
 
-    console.log(chalk.bgRedBright.black("--------------------------------------------------"));
     return result;
 }
 
