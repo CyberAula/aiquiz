@@ -29,6 +29,20 @@ export default function ReportsPage() {
   const [aciertosDificultad, setAciertosDificultad] = useState(null);
   const [frecuenciaAciertoTemaporAsignatura, setfrecuenciaAciertoTemaporAsignatura] = useState(null);
 
+
+  const ordenarPorcentajeAcierto = (objeto) => {
+    const ordenado = {};
+    Object.keys(objeto).forEach((asignatura) => {
+      // Ordenar los temas de cada asignatura según el porcentaje de acierto
+      const temasOrdenados = [...objeto[asignatura]].sort((a, b) => {
+        return parseFloat(b.porcentaje) - parseFloat(a.porcentaje);
+      });
+      // Asignar los temas ordenados al objeto final
+      ordenado[asignatura] = temasOrdenados;
+    });
+    return ordenado;
+  };
+
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -98,8 +112,9 @@ export default function ReportsPage() {
             );
           })
         );
-        setfrecuenciaAciertoTemaporAsignatura(arrayNAporTema);
-        console.log(arrayNAporTema)
+
+        setfrecuenciaAciertoTemaporAsignatura(ordenarPorcentajeAcierto(arrayNAporTema));
+       
 
       } catch (err) {
         setError(err.message);
@@ -110,6 +125,11 @@ export default function ReportsPage() {
 
     fetchReports();
   }, []);
+
+
+
+  
+  
 
   if (loading) return <p className="text-center text-lg">Cargando datos...</p>;
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
@@ -205,7 +225,7 @@ export default function ReportsPage() {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={aciertosDificultad}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#FFFFFF" />
-                <XAxis dataKey="dificultad" stroke="#FFFFFF" tick={{ fontSize: 8 }} angle={-30} textAnchor="end" />
+                <XAxis dataKey="dificultad" stroke="#FFFFFF"   />
                 <YAxis  stroke="#FFFFFF" />
                 <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" }} />
                 <Legend wrapperStyle={{ color: "#FFFFFF" }} />
@@ -228,9 +248,36 @@ export default function ReportsPage() {
       <section className="mb-6 p-4 border rounded-lg shadow">
       <h2 className="text-xl font-semibold mb-2">3. Frecuencia y Acierto por Tema de cada Asignatura</h2>
 
-      {Object.keys(frecuenciaAciertoTemaporAsignatura).map((as) =>  ( 
+      {(Object.keys(frecuenciaAciertoTemaporAsignatura)).map((as) =>  ( 
         <section key={as} className="mb-6 p-4 border rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-2">{as}</h2>
+          <h2 className="text-xl font-semibold mb-4"> - {as}</h2>
+
+          <table className="w-full border-collapse border border-gray-300 mb-12">
+            <thead>
+              <tr className="bg-200">
+                <th className="border p-2">#</th>
+                <th className="border p-2">Tema</th>
+                <th className="border p-2">N° Preguntas</th>
+                <th className="border p-2">N° Aciertos</th>
+                <th className="border p-2">Porcentaje Acierto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {frecuenciaAciertoTemaporAsignatura[as].map((obj, index) => {
+                return (
+                  <tr key={index} className="text-center border-t">
+                    <td className="border p-2">{index + 1}</td>
+                    <td className="border p-2">{obj.tema}</td>
+                    <td className="border p-2">{obj.npreg}</td>
+                    <td className="border p-2">{obj.acierto}</td>
+                    <td className="border p-2">
+                      {obj.porcentaje}%
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
 
           {/* Contenedor flex para las gráficas */}
         <div className="flex justify-between mb-4">
@@ -240,12 +287,12 @@ export default function ReportsPage() {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart layout="vertical" data={frecuenciaAciertoTemaporAsignatura[as]}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#FFFFFF" />
-                <XAxis type="number" stroke="#FFFFFF" />
+                <XAxis type="number" stroke="#FFFFFF" domain = {[0,100]} />
                 <YAxis
                   dataKey="tema"
                   type="category"
                   stroke="#FFFFFF"
-                  tick={{ fontSize: 8 }}
+                  tick={{ fontSize: 9 }}
                   width={120}
                 />
                 <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" }} />
@@ -253,7 +300,7 @@ export default function ReportsPage() {
                 <Bar
                   dataKey="porcentaje"
                   fill="#86cb98"
-                  name="Frecuencia de Preguntas"
+                  name="Porcentaje de Acierto"
                   barSize={60}
                 />
               </BarChart>
@@ -271,7 +318,7 @@ export default function ReportsPage() {
                   dataKey="tema"
                   type="category"
                   stroke="#FFFFFF"
-                  tick={{ fontSize: 8 }}
+                  tick={{ fontSize: 9 }}
                   width={120}
                 />
                 <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" }} />
