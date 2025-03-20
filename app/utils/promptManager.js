@@ -16,30 +16,38 @@ await dbConnect();
 
 export async function fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject) {
 
+    console.log("FILLPROMPT with variables received: ", abcTestingConfig, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
+
     // DEFINIMOS LAS VARIABLES NECESARIAS PARA RELLENAR EL PROMPT
     const num_prev_questions = await Question.countDocuments({ studentEmail: studentEmail, language: language, topic: topic, studentReport: false });
     const num_prev_questions_only_lang = await Question.countDocuments({ studentEmail: studentEmail, language: language, studentReport: false });
 
     // Obtenemos las preguntas anteriores del estudiante
-    // let previousQuestionsTopic = await Question.find({ studentEmail: studentEmail, language: language, topic: topic }).limit(20);
+    let previousQuestionsTopic = await Question.find({ studentEmail: studentEmail, language: language, topic: topic, studentReport: false }).limit(20);
+    /* Enrique: comento esto porque luego hay un método getPreviousQuestionPrompt que ya hace esto. Revisar y borrar.
     let previousQuestionsTopic = (await Question.find(
-        { studentEmail, language, topic },
+        { studentEmail, language, topic, studentReport: false },
         { query: 1, choices: 1, answer: 1, studentAnswer: 1, _id: 0 } // Seleccionamos solo estos campos y excluimos `_id`
     ).limit(20)).map(q =>
-        `(${q.query}) con estas opciones: (${q.choices.join(', ')}). La respuesta es: (${q.answer}) y el alumno contestó (${q.studentAnswer}).`
-    );
-    // let previousQuestionsNotReported = await Question.find({ studentEmail: studentEmail, language: language, studentReport: false }).limit(20);
+        `(${q.query}) con estas opciones: (${q.choices.join(', ')}). La respuesta es: (${q.answer}) y he contestado (${q.studentAnswer}).`
+    );*/
+    console.log("previousQuestionsTopic: ", previousQuestionsTopic);
+    let previousQuestionsNotReported = await Question.find({ studentEmail: studentEmail, language: language, studentReport: false }).limit(20);
+    /* Enrique: comento esto porque luego hay un método getPreviousQuestionPrompt que ya hace esto. Revisar y borrar.
     let previousQuestionsNotReported = (await Question.find(
         { studentEmail, language, studentReport: false },
         { query: 1, choices: 1, answer: 1, studentAnswer: 1, _id: 0 } // Seleccionamos solo los campos necesarios
     ).limit(20)).map(q =>
-        `(${q.query}) con estas (${q.choices.join(', ')}). La respuesta es: (${q.answer}) y el alumno ha contestado (${q.studentAnswer}).`
+        `(${q.query}) con estas opciones (${q.choices.join(', ')}). La respuesta es: (${q.answer}) y he contestado (${q.studentAnswer}).`
     );
+    */
+    console.log("previousQuestionsNotReported: ", previousQuestionsNotReported);
 
 
     // Obtenemos el comentario del tema corrigiendo el valor de topic de la URL
     // http://localhost:3000/aiquiz/quiz?language=Java&difficulty=intermedio&topic=declaraci%C3%B3n+de+variables&numQuestions=5&subject=PRG
-    let topicComment = subjects[subject]?.topics.find(t => t.value.toLowerCase() === language.toLowerCase())?.subtopics.find(sub => sub.title.toLowerCase() === topic.replace(/\+/g, ' ').toLowerCase())?.comment || '';
+
+    let topicComment = subjects[subject]?.topics.find(t => t.label.toLowerCase() === language.toLowerCase())?.subtopics.find(sub => sub.title.toLowerCase() === topic.toLowerCase())?.comment || '';
 
     const variables = {
         subject: studentSubjectData.subjectName,
@@ -120,17 +128,18 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
         // En caso de no haber un ABC_Testing en la asignatura o no tener definidos unos prompts, 
         // asignamos el finalPrompt por defecto con las respuestas anteriores del estudiante.
         console.log("--------------------------------------------------");
+        finalPrompt += "Soy un estudiante de una asignatura de universidad que estoy repasando para el examen de la asignatura. Eres un profesor de la asignatura que hace muy buenas preguntas tipo test, con buenos distractores. ";
 
         if (num_prev_questions > 3) {
             console.log("Student already answered " + num_prev_questions + " questions about " + topic + " in " + language);
-            finalPrompt += `Anteriormente ya he respondido ${num_prev_questions} preguntas sobre ${topic} en el lenguaje ${language}.`;
+            finalPrompt += `Anteriormente ya he respondido ${num_prev_questions} preguntas sobre "${topic}" enmarcadas en el tema "${language}". Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
 
             for (let i = 0; i < previousQuestionsTopic.length; i++) {
                 finalPrompt += getPreviousQuestionPrompt(previousQuestionsTopic[i]);
             }
         } else if (num_prev_questions_only_lang > 3) {
             console.log("Student already answered " + num_prev_questions_only_lang + " questions in " + language);
-            finalPrompt += `Anteriormente ya he respondido ${num_prev_questions_only_lang} preguntas en el lenguaje ${language}.`;
+            finalPrompt += `Anteriormente ya he respondido ${num_prev_questions_only_lang} preguntas enmarcadas en el tema "${language}". Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
 
             for (let i = 0; i < previousQuestionsNotReported.length; i++) {
                 finalPrompt += getPreviousQuestionPrompt(previousQuestionsNotReported[i]);
@@ -152,9 +161,12 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
     }
 
     // Generación de preguntas
-    finalPrompt += `Dame ${numQuestions} preguntas que tengan 4 o 5 opciones, siendo solo una de ellas la respuesta correcta, sobre "${topic}" enmarcadas en el tema ${language}.`;
-    finalPrompt += `Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema.`;
-    finalPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente. Intenta no colocar siempre la respuesta correcta en la misma posición, vete intercalando entre las 4 o 5 opciones.`;
+    finalPrompt += `Dame ${numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. Las preguntas deben ser sobre "${topic}" enmarcadas en el tema "${language}". `;
+    //Si hay comentario extra sobre este tema tipo "ten en cuenta que esto lo he contado en clase así..." lo añadimos al prompt.
+    if(topicComment) {
+        finalPrompt += '"' + topicComment + '".';
+    }
+    finalPrompt += `Las preguntas deben estar en un nivel ${difficulty} de dificultad. Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente. Intenta no colocar siempre la respuesta correcta en la misma posición, vete intercalando entre las 4 opciones.`;
 
     // Reemplazar las variables en el prompt para enviar al llm con el prompt final
     finalPrompt = fillVariables(finalPrompt, variables);

@@ -126,7 +126,7 @@ function QuizPageFun() {
                 error: err.message,
                 // cleanedResponse: cleanedResponse
             }
-            const response = await fetch('/api/error-log', {
+            const response = await fetch('/aiquiz/api/error-log', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
