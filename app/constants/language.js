@@ -29,8 +29,9 @@ export const language = {
     { value: 'intro_nosql', label: 'Introducción a NoSQL' },
     { value: 'json', label: 'JSON y JSON Schema' },
     { value: 'schema_design', label: 'Schema Design en NoSQL y en MongoDB' },
-    { value: 'mongosh', label: 'MongoDB Shell' },
-    { value: 'mongodb_aggregation', label: 'MongoDB Aggregation Framework' },
+    { value: 'mongosh', label: 'MongoDB Shell y Aggregation' },
+    { value: 'clave-valor', label: 'Clave-valor y Redis'},
+    { value: 'columns', label: 'Columnas y Cassandra'},
   ],
   IWEB: [
     { value: 'react', label: 'React' },

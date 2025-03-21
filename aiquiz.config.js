@@ -23,7 +23,7 @@ const aiquizConfig = {
     keepmodel: true,
 
     urlSurvey: "https://forms.office.com/Pages/ResponsePage.aspx?id=Xaj-aiPDcEK2naT7OSfCVGBhyguLRyZMmcnRYOmI32BUMjlBNTlOWFBRODUxR0MxVTRRRDg0NVgwSC4u&r04d26b54129e4bc0aeb88ae7218f99dc=studentEmail&r207b87f55a3f4e77a053936051f00da2=subject",
-    numQuestionsForSurvey: 20,
+    numQuestionsForSurvey: 20000,
 };
 
 export default aiquizConfig;

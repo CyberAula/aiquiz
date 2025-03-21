@@ -343,7 +343,7 @@ const HomePage = ({ params: { subject } }) => {
                       </label>
                       <div className="grid md:grid-cols-3 mb-3 md:mb-0 gap-2 items-stretch justify-stretch">
                         <label
-                          for="radio-card-facil"
+                          htmlFor="radio-card-facil"
                           className="radio-card-difficulty grow"
                         >
                           <input
@@ -354,14 +354,14 @@ const HomePage = ({ params: { subject } }) => {
                             onChange={(e) => setDifficulty(e.target.value)}
                             checked={difficulty === "facil"} // Controla si debe estar marcado
                           />
-                          <div class="card-content-wrapper">
+                          <div className="card-content-wrapper">
                             <h4 className="text-xs uppercase">
                               {t("subject.easy")} 🙂
                             </h4>
                           </div>
                         </label>
                         <label
-                          for="radio-card-intermedio"
+                          htmlFor="radio-card-intermedio"
                           className="radio-card-difficulty grow"
                         >
                           <input
@@ -372,14 +372,14 @@ const HomePage = ({ params: { subject } }) => {
                             onChange={(e) => setDifficulty(e.target.value)}
                             checked={difficulty === "intermedio"} // Controla si debe estar marcado
                           />
-                          <div class="card-content-wrapper">
+                          <div className="card-content-wrapper">
                             <h4 className="text-xs uppercase">
                               {t("subject.medium")} 🧐
                             </h4>
                           </div>
                         </label>
                         <label
-                          for="radio-card-avanzado"
+                          htmlFor="radio-card-avanzado"
                           className="radio-card-difficulty grow"
                         >
                           <input
@@ -390,7 +390,7 @@ const HomePage = ({ params: { subject } }) => {
                             onChange={(e) => setDifficulty(e.target.value)}
                             checked={difficulty === "avanzado"} // Controla si debe estar marcado
                           />
-                          <div class="card-content-wrapper">
+                          <div className="card-content-wrapper">
                             <h4 className="text-xs uppercase">
                               {t("subject.advanced")} 🥵
                             </h4>
@@ -408,7 +408,7 @@ const HomePage = ({ params: { subject } }) => {
                         {t("subject.nquestions")}
                       </label>
                       <div className="flex flex-row gap-2 ">
-                        <label for="radio-card-five" class="radio-card">
+                        <label htmlFor="radio-card-five" className="radio-card">
                           <input
                             type="radio"
                             name="radio-card"
@@ -417,11 +417,11 @@ const HomePage = ({ params: { subject } }) => {
                             onChange={(e) => setNumQuestions(e.target.value)}
                             checked={numQuestions === "5"} // Controla si debe estar marcado
                           />
-                          <div class="card-content-wrapper">
+                          <div className="card-content-wrapper">
                             <h4 className="text-sm uppercase">5</h4>
                           </div>
                         </label>
-                        <label for="radio-card-ten" class="radio-card">
+                        <label htmlFor="radio-card-ten" className="radio-card">
                           <input
                             type="radio"
                             name="radio-card"
@@ -430,11 +430,11 @@ const HomePage = ({ params: { subject } }) => {
                             onChange={(e) => setNumQuestions(e.target.value)}
                             checked={numQuestions === "10"} // Controla si debe estar marcado
                           />
-                          <div class="card-content-wrapper">
+                          <div className="card-content-wrapper">
                             <h4 className="text-sm uppercase">10</h4>
                           </div>
                         </label>
-                        <label for="radio-card-fifteen" className="radio-card">
+                        <label htmlFor="radio-card-fifteen" className="radio-card">
                           <input
                             type="radio"
                             name="radio-card"
@@ -443,12 +443,12 @@ const HomePage = ({ params: { subject } }) => {
                             onChange={(e) => setNumQuestions(e.target.value)}
                             checked={numQuestions === "15"} // Controla si debe estar marcado
                           />
-                          <div class="card-content-wrapper">
+                          <div className="card-content-wrapper">
                             <h4 className="text-sm uppercase">15</h4>
                           </div>
                         </label>
                         <label
-                          for="radio-card-twenty"
+                          htmlFor="radio-card-twenty"
                           className="radio-card grow"
                         >
                           <input
@@ -459,7 +459,7 @@ const HomePage = ({ params: { subject } }) => {
                             onChange={(e) => setNumQuestions(e.target.value)}
                             checked={numQuestions === "20"} // Controla si debe estar marcado
                           />
-                          <div class="card-content-wrapper">
+                          <div className="card-content-wrapper">
                             <h4 className="text-sm uppercase">20</h4>
                           </div>
                         </label>

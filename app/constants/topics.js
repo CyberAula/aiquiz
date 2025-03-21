@@ -157,7 +157,6 @@ export const topics = {
     json: [
         'Estructura de un documento JSON',
         'Tipos de datos JSON',
-        'Arrays y objetos JSON',
         'Que es JSON Schema y para que sirve',
         'Estructura de un documento JSON Schema',
     ],
@@ -166,17 +165,20 @@ export const topics = {
         'Modelo de datos orientado a documentos con MongoDB'    
     ],
     mongosh: [
-        'Comandos básicos',
-        'Operaciones CRUD',
-        'Operaciones de consulta',
-        'Operaciones de actualización',
-        'Operaciones de eliminación'
+        'Comandos básicos e índices',
+        'Operaciones CRUD',        
+        'Operadores de agregación match, group, project, sort',
+        'Operador de agregación unwind'
     ],
-    mongodb_aggregation: [
-        'Operadores de agregación',
-        'Operadores de proyección',
-        'Operadores de agrupación',
-        'Operador unwind'
+    "clave-valor": [
+        "Modelo de datos clave-valor",
+        "Estructurar claves"
+    ],
+    "columns": [
+        "Propiedades de las BBDDD de columnas",
+        "Cassandra",
+        "Clave primaria",
+        "Modelados de datos en Cassandra"
     ],
     big_data: [
         'Historia y evolución',

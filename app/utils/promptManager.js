@@ -115,7 +115,7 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
             finalPrompt += `Anteriormente ya he respondido ${num_prev_questions} preguntas sobre "${topic}" enmarcadas en el tema "${language}". Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema. Estas son algunas de mis respuestas:`;
 
             for (let i = 0; i < previousQuestions.length; i++) {
-                finalPrompt += getPreviousQuestionPrompt(previousQuestions[i]);
+                finalPrompt += getPreviousQuestionPrompt(previousQuestions[i], i+1);
             }
         } else {
             console.log("Student has not answered enough questions yet, we cannot inform the IA about the track record");
@@ -185,12 +185,12 @@ async function getPreviousQuestions(studentEmail, language, topic, numNeededQues
 }
 
 
-function getPreviousQuestionPrompt(previousQuestion) {
+function getPreviousQuestionPrompt(previousQuestion, order) {
     let prompt = '';
     if (previousQuestion.correct === true) {
-        prompt = `A la pregunta "${previousQuestion.query}" con opciones "${getChoicesWithNumbers(previousQuestion.choices)}", donde la correcta era la respuesta ${previousQuestion.answer}, respondí correctamente con la opción ${previousQuestion.studentAnswer}. `;
+        prompt = `Pregunta ${order}. El enunciado era "${previousQuestion.query}", las opciones "${getChoicesWithNumbers(previousQuestion.choices)}", la correcta era la respuesta ${previousQuestion.answer}, respondí correctamente con la opción ${previousQuestion.studentAnswer}. `;
     } else {
-        prompt = `A la pregunta "${previousQuestion.query}" con opciones "${getChoicesWithNumbers(previousQuestion.choices)}", donde la correcta era la respuesta ${previousQuestion.answer}, respondí incorrectamente con la opción ${previousQuestion.studentAnswer}. `;
+        prompt = `Pregunta ${order}. El enunciado era "${previousQuestion.query}", las opciones "${getChoicesWithNumbers(previousQuestion.choices)}", la correcta era la respuesta ${previousQuestion.answer}, respondí incorrectamente con la opción ${previousQuestion.studentAnswer}. `;
     }
     return prompt;
 };
@@ -198,7 +198,7 @@ function getPreviousQuestionPrompt(previousQuestion) {
 function getChoicesWithNumbers(choices) {
     let choicesWithNumbers = '';
     for (let i = 0; i < choices.length; i++) {
-        choicesWithNumbers += `Opción ${i}. ${choices[i]}, `;
+        choicesWithNumbers += `Opción ${i}: ${choices[i]}. `;
     }
     //we remove the last comma
     return choicesWithNumbers.slice(0, -2);
@@ -256,7 +256,7 @@ function fillVariables(prompt, variables) {
             let replacePreviousQuestions = "";
             if (variables.num_prev_questions > 3) {
                 for (let i = 0; i < variables.previousQuestions.length; i++) {
-                    replacePreviousQuestions += getPreviousQuestionPrompt(variables.previousQuestions[i]);
+                    replacePreviousQuestions += getPreviousQuestionPrompt(variables.previousQuestions[i], i+1);
                 }            
             } else {
                 console.log("Student has not answered enough questions yet, we cannot inform the IA about the track record");
