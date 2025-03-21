@@ -47,6 +47,10 @@ const questionSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    correct: {
+        type: Boolean,
+        required: true,
+    },
     studentReport: {
         type: Boolean,
         required: true,

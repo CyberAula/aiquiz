@@ -36,28 +36,21 @@ export async function POST(request) {
         let studentSubjectData = await existingStudent?.subjects?.find(s => s.subjectName === subject);
         let subjectIndex = await existingStudent?.subjects?.findIndex(s => s.subjectName === subject);
 
-
-
-
         // SOLICITUD A LA API de promptManager para obtener el prompt final
         let finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
 
-
         // SOLICITUD A LA API de modelManager para asignar un modelo de LLM al alumno
         const assignedModel = await assignAIModel(abcTestingConfig, has_abctesting, existingStudent, studentSubjectData, subjectIndex);
-
 
         // Imprimimos por pantalla todos los parametros necesarios para la asignacion de modelo para controlar que todo ha ido bien
         console.log(chalk.bgGreen.black("--------------------------------------------------------------------------------------------------------------"));
         console.log(chalk.bgGreen.black(`Assigned Model to ${studentEmail}: ${assignedModel} - Subject: ${subject} - ABCTesting: ${has_abctesting}    `));
         console.log(chalk.bgGreen.black("--------------------------------------------------------------------------------------------------------------"));
 
-
         // SOLICITUD A LA API del LLM seleccionado para el alumno
         const responseLlmManager = await getModelResponse(assignedModel, finalPrompt);
         // Formatear la respuesta de la API
         const formattedResponse = responseLlmManager.replace(/^\[|\]$/g, '').replace(/```json/g, '').replace(/```/g, '').trim();
-
 
         return new Response(formattedResponse);
 

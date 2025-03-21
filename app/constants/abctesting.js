@@ -1,17 +1,14 @@
 export const ABC_Testing_List = {
-    PRG: {
+    BBDD: {
         from_date: "2024-01-01",
         to_date: "2026-12-31",
         models: ["OpenAI_GPT_4o_Mini"],
         prompt1: {
-            content: "I am a higher education student enrolled in the subject {subject}. Generate {numQuestions} multiple-choice questions on the topic {topic} in the knowledge domain {language}. I have previously answered {num_prev_questions} questions, which are provided here with their corresponding answers: {previousQuestionsTopic}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {comment}."
+            content: "Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. Eres un profesor de la asignatura que hace muy buenas preguntas tipo test, con buenos distractores. Anteriormente ya he respondido {num_prev_questions} preguntas sobre '{topic}' enmarcadas en el tema '{language}'. Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema. Estas son algunas de mis respuestas: {previousQuestions}. Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. Las preguntas deben estar en un nivel {difficulty} de dificultad. Las preguntas deben ser sobre '{topic}' enmarcadas en el tema '{language}'. {comment}."        
         },
         prompt2: {
-            content: "You are a teacher and expert in the field on the topic {topic} in the knowledge domain {language}, you can generate very good multiple choice questions on the topic. I am a higher education student enrolled in the subject {subject}. Generate {numQuestions} multiple-choice questions on the topic {topic} in the knowledge domain {language}. I have previously answered {num_prev_questions_only_lang} questions, which are provided here with their corresponding answers: {previousQuestionsTopic}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {coletilla}."
-        },
-        // prompt3: {
-        //     content: "You are a teacher and expert in the field on the topic {topic} in the knowledge domain {domain}, you can generate very good multiple choice questions on the topic.I am a higher education student enrolled in the subject {subject}. Generate {number} multiple-choice questions on the topic {topic} in the knowledge domain {domain}. I have previously answered {number2} questions, which are provided here with their corresponding answers: {questions}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {rest}.",
-        // }
+            content: "Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. Eres un profesor de la asignatura que hace muy buenas preguntas tipo test, con buenos distractores. Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. Las preguntas deben estar en un nivel {difficulty} de dificultad. Las preguntas deben ser sobre '{topic}' enmarcadas en el tema '{language}'. {comment}."        
+        }
     },
 
     /*
@@ -45,26 +42,24 @@ export const ABC_Testing_List = {
      *       to_date: "2026-12-31",
      *       models: ["OpenAI_GPT_4o_Mini", "Google_Generative_Flash"],
      *       prompt1: {
-     *           content: "I am a higher education student enrolled in the subject {subject}. Generate {numQuestions} multiple-choice questions on the topic {topic} in the knowledge domain {language}. I have previously answered {num_prev_questions} questions, which are provided here with their corresponding answers: {previousQuestionsTopic}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {coletilla}."
+     *           content: "I am a higher education student enrolled in the subject {subject}. Generate {numQuestions} multiple-choice questions on the topic {topic} in the knowledge domain {language}. I have previously answered {num_prev_questions} questions, which are provided here with their corresponding answers: {previousQuestionsTopic}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {comment}."
      *       },
      *       prompt2: {
-     *           content: "You are a teacher and expert in the field on the topic {topic} in the knowledge domain {language}, you can generate very good multiple choice questions on the topic. I am a higher education student enrolled in the subject {subject}. Generate {numQuestions} multiple-choice questions on the topic {topic} in the knowledge domain {language}. I have previously answered {num_prev_questions_only_lang} questions, which are provided here with their corresponding answers: {previousQuestionsTopic}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {coletilla}."
+     *           content: "You are a teacher and expert in the field on the topic {topic} in the knowledge domain {language}, you can generate very good multiple choice questions on the topic. I am a higher education student enrolled in the subject {subject}. Generate {numQuestions} multiple-choice questions on the topic {topic} in the knowledge domain {language}. I have previously answered {num_prev_questions_only_lang} questions, which are provided here with their corresponding answers: {previousQuestionsTopic}. Use my previous answers to create new questions to help me dig deeper into the topic. Questions should have a difficulty level of {difficulty}. Make sure that each correct answer corresponds exactly to its respective question. {comment}."
      *       }
      *   }
      * }
      *
      * Variables disponibles para los prompts:
-     * - subject: (string) Nombre de la asignatura del estudiante.
-     * - language: (string) Idioma en el que se deben generar las preguntas.
-     * - difficulty: (string) Nivel de dificultad de las preguntas.
-     * - topic: (string) Tema específico sobre el que se generan las preguntas.
-     * - numQuestions: (number) Número total de preguntas a generar.
-     * - studentEmail: (string) Correo electrónico del estudiante.
-     * - num_prev_questions: (number) Número de preguntas previas respondidas por el estudiante.
-     * - num_prev_questions_only_lang: (number) Número de preguntas previas filtradas por language.
-     * - previousQuestionsTopic: (array) Preguntas previas respondidas sobre el mismo tema.
-     * - previousQuestionsNotReported: (array) Preguntas previas no reportadas anteriormente.
-    * - comment: (string) Comentario asociado al subtema dentro del topic seleccionado.
+     * - subjectName: Nombre de la asignatura del estudiante.
+     * - language: tema en el que se deben generar las preguntas.
+     * - difficulty: Nivel de dificultad de las preguntas.
+     * - topic: Tema específico sobre el que se generan las preguntas.
+     * - numQuestions: Número total de preguntas a generar.
+     * - studentEmail: Correo electrónico del estudiante.
+     * - num_prev_questions: Número de preguntas previas respondidas por el estudiante.
+     * - previousQuestions: Preguntas previas respondidas sobre el mismo tema con la opción que respondió el estudiante (sirve para hacerlo adaptado a su nivel).
+     * - comment: Comentario asociado al subtema dentro del topic seleccionado.
      *
      * Notas:
      * - Las fechas deben ser válidas y estar en formato "YYYY-MM-DD".

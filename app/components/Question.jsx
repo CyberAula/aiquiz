@@ -150,7 +150,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.topic = topic;
         data.query = query;
         data.choices = choices;
-        data.answer = answer;
+        data.answer = answer;        
         data.explanation = explanation;
         data.studentEmail = studentEmail;
         data.llmModel = llmModel;
@@ -164,6 +164,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
             data.studentReport = isSubmittedReport; //if not reported, we can use the state to keep if the user reported or not
             data.studentAnswer = choiceIndex;
         }
+        data.correct = answer === choiceIndex;
         console.log("data to save: ", data);
 
         // Save to the database in server
