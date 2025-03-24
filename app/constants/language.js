@@ -32,6 +32,10 @@ export const language = {
     { value: 'mongosh', label: 'MongoDB Shell y Aggregation' },
     { value: 'clave-valor', label: 'Clave-valor y Redis'},
     { value: 'columns', label: 'Columnas y Cassandra'},
+    { value: 'graph', label: 'Grafos y Neo4j'},
+    { value: 'security', label: 'Seguridad en NoSQL'},
+    {value: 'odms', label: 'ODMs'},
+    {value: 'replicacion_particionamiento', label: 'Replicación y Particionamiento'},
   ],
   IWEB: [
     { value: 'react', label: 'React' },

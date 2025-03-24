@@ -13,11 +13,11 @@ await dbConnect();
 
 export async function fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject) {
 
-    console.log("FILLPROMPT with variables received: ", abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
+    //console.log("FILLPROMPT with variables received: ", abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
 
     // DEFINIMOS LAS VARIABLES NECESARIAS PARA RELLENAR EL PROMPT
     const num_prev_questions = await Question.countDocuments({ studentEmail: studentEmail, language: language, topic: topic, studentReport: false });
-    const neededQuestions = 5;
+    const neededQuestions = 10;
     const previousQuestions = await getPreviousQuestions(studentEmail, language, topic, neededQuestions);   
 
     // Obtenemos el comentario del tema corrigiendo el valor de topic de la URL
@@ -112,7 +112,10 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
 
         if (num_prev_questions > 3) {
             console.log("Student already answered " + num_prev_questions + " questions about " + topic + " in " + language);
-            finalPrompt += `Anteriormente ya he respondido ${num_prev_questions} preguntas sobre "${topic}" enmarcadas en el tema "${language}". Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema. Estas son algunas de mis respuestas:`;
+            finalPrompt += `Anteriormente ya he respondido ${num_prev_questions} preguntas sobre "${topic}" enmarcadas en el tema "${language}". 
+            Usa esta información para generar preguntas adaptativas que me ayuden a reforzar mis puntos débiles y profundizar en los temas que ya domino. Ajusta dinámicamente el nivel de dificultad en función de mis respuestas anteriores, haciéndolo más difícil si estoy acertando y más fácil si estoy fallando.
+            Estas son algunas de mis respuestas:
+            `;
 
             for (let i = 0; i < previousQuestions.length; i++) {
                 finalPrompt += getPreviousQuestionPrompt(previousQuestions[i], i+1);
@@ -122,7 +125,11 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
         }
 
         // Generación de preguntas
-        finalPrompt += `Dame ${numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. Las preguntas deben estar en un nivel ${difficulty} de dificultad. Las preguntas deben ser sobre "${topic}" enmarcadas en el tema "${language}". `;
+        finalPrompt += `
+        Dame ${numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
+        Las preguntas deben estar en un nivel ${difficulty} de dificultad. 
+        Las preguntas deben ser sobre "${topic}" enmarcadas en el tema "${language}". `;
+        
         //Si hay comentario extra sobre este tema tipo "ten en cuenta que esto lo he contado en clase así..." lo añadimos al prompt.
         if(topicComment) {
             finalPrompt += '"' + topicComment + '".';
@@ -131,7 +138,16 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
         console.log("--------------------------------------------------");
     }
 
-    finalPrompt += `Devuelve tu respuesta completamente en forma de objeto JSON. El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. Cada pregunta del quiz debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta. No incluya nada más que el JSON. Las propiedades JSON de cada pregunta deben ser "query" (que es la pregunta), "choices", "answer" y "explanation". Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. La respuesta debe ser el número indexado a 0 de la opción correcta. Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente. Intenta no colocar siempre la respuesta correcta en la misma posición, vete intercalando entre las 4 opciones.`;
+    finalPrompt += `
+    Devuelve tu respuesta completamente en forma de objeto JSON. 
+    El objeto JSON debe tener una clave denominada "questions", que es un array de preguntas. 
+    Cada pregunta del cuestionario debe incluir las opciones, la respuesta y una breve explicación de por qué la respuesta es correcta y por qué las otras opciones son incorrectas. 
+    No incluya nada más que el JSON. 
+    Las propiedades JSON de cada pregunta deben ser "query" (que es el enunciado de la pregunta), "choices", "answer" y "explanation". 
+    Las opciones no deben tener ningún valor ordinal como A, B, C, D ó un número como 1, 2, 3, 4. 
+    La respuesta debe ser el número indexado a 0 de la opción correcta. 
+    Haz una doble verificación de que cada respuesta correcta corresponda de verdad a la pregunta correspondiente. 
+    Intenta no colocar siempre la respuesta correcta en la misma posición, vete intercalando entre las 4 opciones.`;
 
     // Guardamos el prompt final en la base de datos  
 
@@ -180,7 +196,7 @@ async function getPreviousQuestions(studentEmail, language, topic, numNeededQues
         }        
     }
 
-    console.log("previousQuestions: ", previousQuestions);
+    //console.log("previousQuestions: ", previousQuestions);
     return previousQuestions;
 }
 
@@ -188,9 +204,9 @@ async function getPreviousQuestions(studentEmail, language, topic, numNeededQues
 function getPreviousQuestionPrompt(previousQuestion, order) {
     let prompt = '';
     if (previousQuestion.correct === true) {
-        prompt = `Pregunta ${order}. El enunciado era "${previousQuestion.query}", las opciones "${getChoicesWithNumbers(previousQuestion.choices)}", la correcta era la respuesta ${previousQuestion.answer}, respondí correctamente con la opción ${previousQuestion.studentAnswer}. `;
+        prompt = `Pregunta ${order}. El enunciado era "${previousQuestion.query}", las opciones "${getChoicesWithNumbers(previousQuestion.choices)}", la correcta era la opción ${previousQuestion.answer}, respondí correctamente con la opción ${previousQuestion.studentAnswer}. `;
     } else {
-        prompt = `Pregunta ${order}. El enunciado era "${previousQuestion.query}", las opciones "${getChoicesWithNumbers(previousQuestion.choices)}", la correcta era la respuesta ${previousQuestion.answer}, respondí incorrectamente con la opción ${previousQuestion.studentAnswer}. `;
+        prompt = `Pregunta ${order}. El enunciado era "${previousQuestion.query}", las opciones "${getChoicesWithNumbers(previousQuestion.choices)}", la correcta era la opción ${previousQuestion.answer}, respondí incorrectamente con la opción ${previousQuestion.studentAnswer}. `;
     }
     return prompt;
 };

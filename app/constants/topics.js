@@ -170,15 +170,35 @@ export const topics = {
         'Operadores de agregación match, group, project, sort',
         'Operador de agregación unwind'
     ],
+    security: [
+        "Modelo CIA",
+        "Modelo AAAA",
+        "Caso MongoDB y otras consideraciones"
+    ],
+    odms: [
+        "Concepto de ODM",
+        "Ventajas y Desventajas de los ODMs"
+    ],
+    replicacion_particionamiento: [
+        "Replicación de Datos",
+        "Particionamiento de Datos",
+        "Implementación en mongoDB"
+    ],
     "clave-valor": [
         "Modelo de datos clave-valor",
         "Estructurar claves"
     ],
-    "columns": [
+    columns: [
         "Propiedades de las BBDDD de columnas",
         "Cassandra",
         "Clave primaria",
         "Modelados de datos en Cassandra"
+    ],
+    graph:[
+        "Características básicas bases de datos orientadas a grafos",
+        "Grafos y árboles",
+        "Casos de uso",
+        "Operaciones CRUD Cypher (Neo4j)"
     ],
     big_data: [
         'Historia y evolución',

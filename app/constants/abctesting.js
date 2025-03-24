@@ -4,10 +4,27 @@ export const ABC_Testing_List = {
         to_date: "2026-12-31",
         models: ["OpenAI_GPT_4o_Mini"],
         prompt1: {
-            content: "Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. Eres un profesor de la asignatura que hace muy buenas preguntas tipo test, con buenos distractores. Anteriormente ya he respondido {num_prev_questions} preguntas sobre '{topic}' enmarcadas en el tema '{language}'. Usa mis respuestas anteriores para conseguir hacer nuevas preguntas que me ayuden a aprender y profundizar sobre este tema. Estas son algunas de mis respuestas: {previousQuestions}. Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. Las preguntas deben estar en un nivel {difficulty} de dificultad. Las preguntas deben ser sobre '{topic}' enmarcadas en el tema '{language}'. {comment}"        
+            content: `Eres un Sistema de Evaluación Adaptativa experto en '{language}'. Tu objetivo es generar preguntas personalizadas que aborden específicamente las dificultades de aprendizaje del estudiante, basándote en un análisis detallado de sus respuestas previas. 
+            Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. 
+            
+            Anteriormente ya he respondido {num_prev_questions} preguntas sobre '{topic}' enmarcadas en el tema '{language}'. 
+            Usa esta información para generar preguntas adaptativas que me ayuden a reforzar mis puntos débiles y profundizar en los temas que ya domino. 
+            Ajusta dinámicamente el nivel de dificultad en función de mis respuestas anteriores, haciéndolo más difícil si estoy acertando y más fácil si estoy fallando. 
+            Estas son algunas de mis respuestas anteriores: {previousQuestions}. 
+            
+            Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
+            Las preguntas deben ser sobre '{topic}' enmarcadas en el tema '{language}'. 
+            {comment} 
+            `        
         },
         prompt2: {
-            content: "Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. Eres un profesor de la asignatura que hace muy buenas preguntas tipo test, con buenos distractores. Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. Las preguntas deben estar en un nivel {difficulty} de dificultad. Las preguntas deben ser sobre '{topic}' enmarcadas en el tema '{language}'. {comment}"        
+            content: `Eres un profesor de la asignatura que hace muy buenas preguntas tipo test, con buenos distractores. 
+            Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura.  
+            
+            Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
+            Las preguntas deben ser sobre '{topic}' enmarcadas en el tema '{language}'. 
+            {comment} 
+            `        
         }
     },
 
