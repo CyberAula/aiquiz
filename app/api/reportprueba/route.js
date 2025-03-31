@@ -46,6 +46,10 @@ export async function GET(req) {
       filtros.language = searchParams.get('tema');
     }
 
+    if (searchParams.get('subtema')) {
+      filtros.topic = searchParams.get('subtema').toLowerCase();
+    }
+
 
     if (searchParams.get('temporal') === "true") {
       let mes = parseInt(searchParams.get('mes'), 10);

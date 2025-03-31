@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import urljoin from "url-join";
 
-import { language } from '../constants/language';
-import { subjectNames } from '../constants/language';
+import { language } from '../../constants/language';
+import { subjectNames } from '../../constants/language';
+import { topics } from '../../constants/topics';
 
 import {
   BarChart,
@@ -22,10 +23,13 @@ import {
   Cell
 } from "recharts";
 
-import nextConfig from "../../next.config.js";
+import nextConfig from "../../../next.config.js";
 const basePath = nextConfig.basePath || "";
 
-export default function ReportsPage() {
+
+
+const SubjectPage = ({ params: { subject } }) => {
+  
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,11 +38,10 @@ export default function ReportsPage() {
   const [aciertosDificultad, setAciertosDificultad] = useState(null);
   const [UsoporAsignatura, setUsoporAsignatura] = useState(null);
   const [frecuenciaAciertoTemaporAsignatura, setfrecuenciaAciertoTemaporAsignatura] = useState(null);
+  const [frecuenciaAciertoSubtemaporTema, setfrecuenciaAciertoSubtemaporTema] = useState(null);
   const [Temporal, setTemporal] = useState(null);
 
   const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff6b6b", "#4fc3f7", "#ffb74d", "#9575cd"];
-
-
 
   const ordenarPorcentajeAcierto = (objeto) => {
     const ordenado = {};
@@ -59,26 +62,26 @@ export default function ReportsPage() {
         setLoading(true);
 
         // Fetch preguntas reportadas
-        const responseReportadas = await fetch(urljoin(basePath,"/api/reportgg?studentReport=true"));
+        const responseReportadas = await fetch(urljoin(basePath,`/api/reportprueba?studentReport=true&&asignatura=${subject}`));
         if (!responseReportadas.ok)
           throw new Error("Error cargando preguntas reportadas");
         const resultReportadas = await responseReportadas.json();
         setReportadas(resultReportadas.preguntas);
 
         //Fetch frecuencia y acierto por dificultad
-        const responseFacilFrecuencia = await fetch(urljoin(basePath, "/api/reportgg?dificultad=facil&&count=true"));
+        const responseFacilFrecuencia = await fetch(urljoin(basePath, `/api/reportgg?dificultad=facil&&count=true&&asignatura=${subject}`));
         const nFacilFrencuencia = (await responseFacilFrecuencia.json()).count;
-        const responseFacilAcierto = await fetch(urljoin(basePath,"/api/reportgg?dificultad=facil&&acierto=true&&count=true"));
+        const responseFacilAcierto = await fetch(urljoin(basePath,`/api/reportgg?dificultad=facil&&acierto=true&&count=true&&asignatura=${subject}`));
         const nFacilAcierto = (await responseFacilAcierto.json()).count;
 
-        const responseIntermedioFrecuencia = await fetch(urljoin(basePath, "/api/reportgg?dificultad=intermedio&&count=true"));
+        const responseIntermedioFrecuencia = await fetch(urljoin(basePath, `/api/reportgg?dificultad=intermedio&&count=true&&asignatura=${subject}`));
         const nIntermedioFrencuencia =(await responseIntermedioFrecuencia.json()).count;
-        const responseIntermedioAcierto = await fetch(urljoin(basePath,"/api/reportgg?dificultad=intermedio&&acierto=true&&count=true"));
+        const responseIntermedioAcierto = await fetch(urljoin(basePath,`/api/reportgg?dificultad=intermedio&&acierto=true&&count=true&&asignatura=${subject}`));
         const nIntermedioAcierto = (await responseIntermedioAcierto.json()).count;
 
-        const responseAvanzadoFrecuencia = await fetch(urljoin(basePath, "/api/reportgg?dificultad=avanzado&&count=true"));
+        const responseAvanzadoFrecuencia = await fetch(urljoin(basePath, `/api/reportgg?dificultad=avanzado&&count=true&&asignatura=${subject}`));
         const nAvanzadoFrencuencia =( await responseAvanzadoFrecuencia.json()).count;
-        const responseAvanzadoAcierto = await fetch(urljoin(basePath,"/api/reportgg?dificultad=avanzado&&acierto=true&&count=true"));
+        const responseAvanzadoAcierto = await fetch(urljoin(basePath,`/api/reportgg?dificultad=avanzado&&acierto=true&&count=true&&asignatura=${subject}`));
         const nAvanzadoAcierto = (await responseAvanzadoAcierto.json()).count;
 
         if (!responseFacilFrecuencia.ok || !responseFacilAcierto.ok || !responseIntermedioAcierto.ok|| !responseIntermedioFrecuencia.ok|| !responseAvanzadoAcierto.ok|| !responseAvanzadoFrecuencia.ok)
@@ -111,12 +114,10 @@ export default function ReportsPage() {
 
         //Fetch frecuencia y acierto por tema
         let arrayNAporTema = {};
-        let subjetsArray = Object.keys(subjectNames);
-        await Promise.all(
-          subjetsArray.map(async (sub) => {
-            let temasArray = language[sub].map((lang) => lang.label);
+        let subjectTemas = language[subject].map((lang) => lang.label);
+        
             await Promise.all(
-              temasArray.map(async (tema) => {
+              subjectTemas.map(async (tema) => {
                 const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reportgg?tema=${tema}&&count=true`));
                 const nTemaFrencuencia = (await responseTemaFrecuencia.json()).count;
 
@@ -131,17 +132,56 @@ export default function ReportsPage() {
                   porcentaje = 0;
                 }
 
-                if (!arrayNAporTema[sub]) {
-                  arrayNAporTema[sub] = [];
+                if (!arrayNAporTema[subject]) {
+                  arrayNAporTema[subject] = [];
                 }
 
-                arrayNAporTema[sub].push({tema: tema, npreg: nTemaFrencuencia, acierto: nTemaAcierto, porcentaje: porcentaje.toFixed(2)});
+                arrayNAporTema[subject].push({tema: tema, npreg: nTemaFrencuencia, acierto: nTemaAcierto, porcentaje: porcentaje.toFixed(2)});
               })
             );
-          })
-        );
+          
 
         setfrecuenciaAciertoTemaporAsignatura(ordenarPorcentajeAcierto(arrayNAporTema));
+
+
+        ////Fetch frecuencia y acierto por subtema
+        let arrayNAporSubtema = {};
+        let subjectTemas2 = language[subject].map((lang) => lang.value);
+      
+        await Promise.all(
+          subjectTemas2.map(async (tema) => {
+            
+            let SubtemasArray = topics[tema].map((t) => t);
+            
+            await Promise.all(
+              SubtemasArray.map(async (subtema) => {
+                console.log(tema)
+                const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reportprueba?subtema=${subtema}&&count=true`));
+                const nTemaFrencuencia = (await responseTemaFrecuencia.json()).count;
+
+                const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reportprueba?subtema=${subtema}&&count=true&&acierto=true`));
+                const nTemaAcierto = (await responseTemaAcierto.json()).count;
+                
+                if (!responseTemaFrecuencia.ok || !responseTemaAcierto.ok)
+                throw new Error("Error cargando datos frecuencia y acierto por tema");
+
+                let porcentaje = (nTemaAcierto * 100) / nTemaFrencuencia;
+                if (nTemaFrencuencia === 0) {
+                  porcentaje = 0;
+                }
+
+                if (!arrayNAporSubtema[tema]) {
+                  arrayNAporSubtema[tema] = [];
+                }
+
+                arrayNAporSubtema[tema].push({subtema: subtema, npreg: nTemaFrencuencia, acierto: nTemaAcierto, porcentaje: porcentaje.toFixed(2)});
+              })
+            );
+           
+          })
+        );
+        console.log(arrayNAporSubtema)
+        setfrecuenciaAciertoSubtemaporTema(ordenarPorcentajeAcierto(arrayNAporSubtema));
        
 
         //Fetch uso por meses
@@ -171,7 +211,7 @@ export default function ReportsPage() {
           await Promise.all(
             Array.from({ length: dias }, async (_, j) => {
 
-              const responsePregDia = await fetch(urljoin(basePath, `/api/reportgg?temporal=true&&count=true&&dia=${j + 1}&&mes=${i}`));
+              const responsePregDia = await fetch(urljoin(basePath, `/api/reportgg?temporal=true&&count=true&&dia=${j + 1}&&mes=${i}&&asignatura=${subject}`));
             
               if (!responsePregDia.ok) {
                 throw new Error("Error cargando datos uso por dias");
@@ -211,21 +251,17 @@ export default function ReportsPage() {
   }, []);
 
 
-  
-  
-  
-
   if (loading) return <p className="text-center text-lg">Cargando datos...</p>;
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
   const formattedData = Object.keys(Temporal).map((month, index) => ({
     name: month,
     Preguntas_contestadas: Temporal[month].reduce((sum, val) => sum + val, 0),
-  }));
-
+  }));    
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    
+    <div className="p-3  mx-auto ">
       <h1 className="text-3xl font-bold mb-6 text-center ">Reportes</h1>
 
       {/* Preguntas reportadas */}
@@ -264,7 +300,7 @@ export default function ReportsPage() {
               const porcentaje =
                 obj.npreguntas > 0
                   ? ((obj.nacierto / obj.npreguntas) * 100).toFixed(2)
-                  : "N/A";
+                  : "0";
               return (
                 <tr key={index} className="text-center border-t">
                   <td className="border p-2">{index + 1}</td>
@@ -364,13 +400,12 @@ export default function ReportsPage() {
 
       <section className="mb-6 p-4 border rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-2">
-          4. Frecuencia y Acierto por Tema de cada Asignatura
+          4. Frecuencia y Acierto por cada Tema de {subject}
         </h2>
 
         {Object.keys(frecuenciaAciertoTemaporAsignatura).map((as) => (
-          <section key={as} className="mb-6 p-4 border rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4"> - {as}</h2>
-
+          <section key={as} >
+            
             <table className="w-full border-collapse border border-gray-300 mb-12">
               <thead>
                 <tr className="bg-200">
@@ -458,6 +493,105 @@ export default function ReportsPage() {
         ))}
       </section>
 
+
+      <section className="mb-6 p-4 border rounded-lg shadow">
+        <h2 className="text-xl font-semibold mb-2">
+          6. Frecuencia y Acierto de cada Subtema por Tema
+        </h2>
+
+        {Object.keys(frecuenciaAciertoSubtemaporTema).map((tema) => (
+          <section key={tema} className="mb-6 p-4 border rounded-lg shadow" >
+              <h2 className="text-xl font-semibold mb-4"> - Tema: {tema}</h2>
+            
+            <table className="w-full border-collapse border border-gray-300 mb-12">
+              <thead>
+                <tr className="bg-200">
+                  <th className="border p-2">#</th>
+                  <th className="border p-2">Subtema</th>
+                  <th className="border p-2">N° Preguntas</th>
+                  <th className="border p-2">N° Aciertos</th>
+                  <th className="border p-2">Porcentaje Acierto</th>
+                </tr>
+              </thead>
+              <tbody>
+                {frecuenciaAciertoSubtemaporTema[tema].map((obj, index) => {
+                  return (
+                    <tr key={index} className="text-center border-t">
+                      <td className="border p-2">{index + 1}</td>
+                      <td className="border p-2">{obj.subtema}</td>
+                      <td className="border p-2">{obj.npreg}</td>
+                      <td className="border p-2">{obj.acierto}</td>
+                      <td className="border p-2">{obj.porcentaje}%</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Contenedor flex para las gráficas */}
+            <div className="flex justify-between mb-4">
+              {/* Gráfico de porcentaje de aciertos por tema */}
+              <div className="w-1/2 p-2">
+                <ResponsiveContainer width="100%" minHeight={200}>
+                  <BarChart
+                    layout="vertical"
+                    data={frecuenciaAciertoSubtemaporTema[tema]}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#FFFFFF" />
+                    <XAxis type="number" stroke="#FFFFFF" domain={[0, 100]} />
+                    <YAxis
+                      dataKey="subtema"
+                      type="category"
+                      stroke="#FFFFFF"
+                      tick={{ fontSize: 8, textAnchor: "end" }}
+                      width={200}
+                    />
+                    <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" } } />
+                    <Legend wrapperStyle={{ color: "#FFFFFF" }} />
+                    <Bar
+                      dataKey="porcentaje"
+                      fill="#86cb98"
+                      name="Porcentaje de Acierto"
+                      barSize={60}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Gráfico de frecuencia preguntas por subtema */}
+              <div className="w-1/2 p-2">
+                <ResponsiveContainer width="100%" height={440}>
+                  <BarChart
+                    layout="vertical"
+                    data={frecuenciaAciertoSubtemaporTema[tema]}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#FFFFFF" />
+                    <XAxis type="number" stroke="#FFFFFF" />
+                    <YAxis
+                      dataKey="subtema"
+                      type="category"
+                      stroke="#FFFFFF"
+                      tick={{ fontSize: 8 }}
+                      width={200}
+                    />
+                    <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" }} />
+                    <Legend wrapperStyle={{ color: "#FFFFFF" }} />
+                    <Bar
+                      dataKey="npreg"
+                      fill="#c1daf6"
+                      name="Frecuencia de Preguntas"
+                      barSize={60}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </section>
+        ))}
+      </section>
+
+
+
       {/*  ¿Cuándo se ha utilizado más la aplicación? */}
       <section className="mb-6 p-4 border rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-2">
@@ -475,5 +609,8 @@ export default function ReportsPage() {
         </ResponsiveContainer>
       </section>
     </div>
+  
   );
-}
+};
+
+export default SubjectPage;
