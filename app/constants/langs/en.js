@@ -6,7 +6,11 @@ export const en = {
     },
     login: {
         title: "Log in",
-        description: "Enter your UPM email to create a quiz."
+        description: "Enter your UPM email to create a quiz.",
+        preTerms: "By registering, I confirm that I have read and agree to the",
+        terms: "Terms of Use",
+        prePrivacy: "and the",
+        privacy: "Privacy Policy",
     },
     subject: {
         title: "Subject: ",
@@ -25,6 +29,7 @@ export const en = {
         createtest: "Create test",
         saveemail: "Save email",
         alertEmptyMail: "You must enter your UPM email to start",
+        alertUncheckedTermsPolicy: "You must accept the Terms of Use and Privacy Policy",
         alertUPMMail: "The email must be from a UPM student",
         alertPickLang: "You must choose a topic to start",
         alertPickTopic: "You must choose a sub-topic to start",

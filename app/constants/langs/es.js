@@ -7,7 +7,11 @@ export const es = {
     },
     login: {
         title: "Inicio de sesión",
-        description: "Introduce tu correo de alumnos UPM para crear tu quiz."
+        description: "Introduce tu correo de alumnos UPM para crear tu quiz.",
+        preTerms: "Al registrarme, confirmo que he leído y acepto los",
+        terms: "Términos de Uso",
+        prePrivacy: "y la",
+        privacy: "Política de Privacidad",
     },
     subject: {
         title: "Asignatura: ",
@@ -26,6 +30,7 @@ export const es = {
         createtest: "Crear test",
         saveemail: "Guardar email",
         alertEmptyMail: "Debes introducir tu email de alumno para empezar ",
+        alertUncheckedTermsPolicy: "Debes aceptar los Términos de uso y la Política de Privacidad",
         alertUPMMail: "El email debe ser de alumno de la UPM",
         alertPickLang: "Debes elegir tema para empezar",
         alertPickTopic: "Debes elegir sub-tema para empezar",

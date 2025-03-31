@@ -283,7 +283,7 @@ function fillVariables(prompt, variables) {
             return variables[key];
         } else {
             console.log(chalk.bgRedBright.black("--------------------------------------------------"));
-            console.log(chalk.bgRedBright.black(`Variable "{key}" no reconocida en el prompt.`));
+            console.log(chalk.bgRedBright.black(`Variable "${key}" no reconocida en el prompt.`));
             console.log(chalk.bgRedBright.black("--------------------------------------------------"));
             return match; // Devuelve la variable sin reemplazar si no se encuentra en variables
         }
