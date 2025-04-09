@@ -50,6 +50,8 @@
     "react-use": "^17.4.0",
     "slick-carousel": "^1.8.1",
     "sqlite3": "^5.1.6",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-react": "^5.20.0",
     "url-join": "^5.0.0"
   },
   "devDependencies": {
