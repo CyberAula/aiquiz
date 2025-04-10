@@ -83,5 +83,31 @@ export const es = {
     },
     footer: {
         title: "Universidad Politécnica de Madrid - Grupo de Internet de Nueva Generación",
+    },
+    reports: {
+        title: "Reportes",
+        description: "Escoge la asignatura de la que quieras obtener estadísticas",
+        subtitle1: "Preguntas reportadas",
+        pregreport: "Número de preguntas reportadas",
+        subtitle2: "Frecuencia y Porcentaje de acierto según Dificultad",
+        dificultad: "Dificultad",
+        preguntas: "Preguntas",
+        acierto: "Acierto",
+        porcentaje_acierto: "Porcentaje Acierto",
+        numero_preguntas: "Número de Preguntas",
+        graph1_title: "Porcentaje aciertos por Dificultad",
+        graph2_title: "Frecuencia de preguntas por Dificultad",
+        subtitle3: "Frecuencia y Acierto por cada Tema de",
+        graph3_title: "Porcentaje aciertos por cada Tema",
+        graph4_title: "Frecuencia de preguntas por cada Tema",
+        tema: "Tema",
+        subtitle4: "Frecuencia y Acierto de cada Subtema por Temas",
+        graph5_title: "Porcentaje aciertos por cada Subtema de",
+        graph6_title: "Frecuencia de preguntas por cada Subtema de",
+        subtema: "Subtema",
+        subtitle5: "¿Cuándo se ha utilizado más la aplicación?",
+        pormeses: "Número de preguntas respondidas",
+        
+
     }
 };
