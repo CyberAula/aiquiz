@@ -1,0 +1,27 @@
+{
+	"login": {
+		"title": "AIQUIZ",
+		"subtitle": "Inicio de sesión",
+		"email": "Correo",
+		"emailPlaceholder": "ejemplo@upv.es",
+		"password": "Contraseña",
+		"passwordPlaceholder": "••••••••••••",
+		"loginButton": "Iniciar sesión",
+		"registerButton": "Registrarse",
+		"recoverPassword": "Recuperar contraseña",
+		"processing": "Procesando...",
+		"loginSuccess": "Inicio de sesión exitoso",
+		"loginError": "Error al iniciar sesión"
+	},
+	"recovery": {
+		"title": "AIQUIZ",
+		"subtitle": "Recuperar contraseña",
+		"email": "Correo",
+		"emailPlaceholder": "profesor@upm.es",
+		"sendLink": "Enviar link",
+		"back": "Atrás",
+		"processing": "Procesando...",
+		"emailSent": "Hemos enviado el link de recuperación de contraseña al correo {{email}}",
+		"backToLogin": "Volver"
+	}
+}

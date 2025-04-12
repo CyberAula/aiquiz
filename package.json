@@ -29,6 +29,7 @@
     "html-react-parser": "^5.2.2",
     "i18next": "^24.2.2",
     "i18next-browser-languagedetector": "^8.0.2",
+    "i18next-http-backend": "^3.0.2",
     "lodash": "^4.17.21",
     "lowdb": "^1.0.0",
     "mongoose": "^8.2.0",

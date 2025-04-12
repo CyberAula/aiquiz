@@ -1,0 +1,27 @@
+{
+	"login": {
+		"title": "AIQUIZ",
+		"subtitle": "Login",
+		"email": "Email",
+		"emailPlaceholder": "example@upv.es",
+		"password": "Password",
+		"passwordPlaceholder": "••••••••••••",
+		"loginButton": "Login",
+		"registerButton": "Register",
+		"recoverPassword": "Recover password",
+		"processing": "Processing...",
+		"loginSuccess": "Login successful",
+		"loginError": "Login error"
+	},
+	"recovery": {
+		"title": "AIQUIZ",
+		"subtitle": "Password recovery",
+		"email": "Email",
+		"emailPlaceholder": "professor@upv.es",
+		"sendLink": "Send link",
+		"back": "Back",
+		"processing": "Processing...",
+		"emailSent": "We have sent a password recovery link to {{email}}",
+		"backToLogin": "Back to login"
+	}
+}
