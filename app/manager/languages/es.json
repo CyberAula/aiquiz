@@ -23,5 +23,50 @@
 		"processing": "Procesando...",
 		"emailSent": "Hemos enviado el link de recuperación de contraseña al correo {{email}}",
 		"backToLogin": "Volver"
+	},
+	"navigation": {
+		"dashboard": "Dashboard",
+		"subjects": "Mis asignaturas",
+		"account": "Mi cuenta",
+		"logout": "Cerrar sesión"
+	},
+	"subjects": {
+		"mySubjects": "Mis asignaturas",
+		"newSubject": "Nueva asignatura",
+		"viewMore": "Ver más",
+		"administrator": "Administrador",
+		"topics": "Temas"
+	},
+	"subjectDetail": {
+		"backToSubjects": "Volver a asignaturas",
+		"topics": "Temas",
+		"professors": "Profesores",
+		"settings": "Ajustes",
+		"addTopic": "Añadir tema",
+		"editTopic": "Editar tema",
+		"editSubject": "Editar asignatura",
+		"saveChanges": "Guardar cambios",
+		"cancel": "Cancelar",
+		"deleteSubject": "Eliminar asignatura",
+		"deleteWarning": "Esta acción no se puede deshacer",
+		"delete": "Eliminar",
+		"name": "Nombre",
+		"acronym": "Siglas",
+		"description": "Descripción",
+		"topicsList": "Temas",
+		"searchPlaceholder": "Buscar temas...",
+		"newTopic": "Nuevo Tema",
+		"noTopicsFound": "No se encontraron temas que coincidan con la búsqueda",
+		"inviteProfessor": "Invitar profesor",
+		"invite": "Invitar",
+		"addProfessor": "Añadir profesor",
+		"namePlaceholder": "Nombre",
+		"emailPlaceholder": "Email",
+		"edit": "Editar",
+		"subjectNotFound": "Asignatura no encontrada",
+		"loading": "Cargando...",
+		"noProfessors": "No hay profesores asignados a esta asignatura.",
+		"copyLink": "Copiar enlace",
+		"copied": "¡Enlace copiado!"
 	}
 }

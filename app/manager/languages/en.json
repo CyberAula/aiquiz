@@ -23,5 +23,50 @@
 		"processing": "Processing...",
 		"emailSent": "We have sent a password recovery link to {{email}}",
 		"backToLogin": "Back to login"
+	},
+	"navigation": {
+		"dashboard": "Dashboard",
+		"subjects": "My subjects",
+		"account": "My account",
+		"logout": "Logout"
+	},
+	"subjects": {
+		"mySubjects": "My subjects",
+		"newSubject": "New subject",
+		"viewMore": "View more",
+		"administrator": "Administrator",
+		"topics": "Topics"
+	},
+	"subjectDetail": {
+		"backToSubjects": "Back to subjects",
+		"topics": "Topics",
+		"professors": "Professors",
+		"settings": "Settings",
+		"addTopic": "Add topic",
+		"editTopic": "Edit topic",
+		"editSubject": "Edit subject",
+		"saveChanges": "Save changes",
+		"cancel": "Cancel",
+		"deleteSubject": "Delete subject",
+		"deleteWarning": "This action cannot be undone",
+		"delete": "Delete",
+		"name": "Name",
+		"acronym": "Acronym",
+		"description": "Description",
+		"topicsList": "Topics",
+		"searchPlaceholder": "Search topics...",
+		"newTopic": "New Topic",
+		"noTopicsFound": "No topics found matching your search",
+		"inviteProfessor": "Invite professor",
+		"invite": "Invite",
+		"addProfessor": "Add professor",
+		"namePlaceholder": "Name",
+		"emailPlaceholder": "Email",
+		"edit": "Edit",
+		"subjectNotFound": "Subject not found",
+		"loading": "Loading...",
+		"noProfessors": "There are no professors assigned to this subject.",
+		"copyLink": "Copy link",
+		"copied": "Link copied!"
 	}
 }

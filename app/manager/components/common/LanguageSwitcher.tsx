@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 import { useContext } from "react";
-import { ClientSideContext } from "../I18nProvider";
+import { ClientSideContext } from "../../I18nProvider";
 
 const LanguageSwitcher = () => {
 	const { i18n } = useTranslation();

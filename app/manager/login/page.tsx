@@ -1,8 +1,10 @@
+// /app/manager/login/page.tsx
 "use client";
 
 import { useState, useContext, FormEvent, ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "../components/LanguageSwitcher";
+import { useRouter } from "next/navigation";
+import LanguageSwitcher from "../components/common/LanguageSwitcher";
 import { ClientSideContext } from "../I18nProvider";
 import Link from "next/link";
 
@@ -14,12 +16,14 @@ interface Credentials {
 const LoginPage = () => {
 	const isClient = useContext(ClientSideContext);
 	const { t } = useTranslation();
+	const router = useRouter();
 
 	const [credentials, setCredentials] = useState<Credentials>({
 		email: "",
 		password: "",
 	});
 	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState("");
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -32,17 +36,59 @@ const LoginPage = () => {
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 		setLoading(true);
+		setError("");
 
 		const dataToSend = {
 			email: credentials.email,
 			password: credentials.password,
 		};
-		console.log("Datos enviados:", dataToSend);
-		// TODO: Implementar llamada real a la API
-		setTimeout(() => {
-			alert(t("login.loginSuccess"));
+
+		console.log("📤 Enviando datos a la API:", dataToSend);
+		console.log("📍 Endpoint: /api/auth/login (POST)");
+
+		try {
+			// TODO: Reemplazar con llamada real a la API cuando esté implementada
+			// const response = await fetch('/api/auth/login', {
+			//   method: 'POST',
+			//   headers: {
+			//     'Content-Type': 'application/json',
+			//   },
+			//   body: JSON.stringify(dataToSend),
+			// });
+			// const data = await response.json();
+
+			// Simulación de respuesta exitosa con JWT
+			const mockResponse = {
+				success: true,
+				token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkNhcmxvcyBHb256YWxleiIsImlhdCI6MTUxNjIzOTAyMn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+			};
+
+			console.log("📥 Respuesta simulada de la API:", mockResponse);
+
+			// Simular retardo de red
+			setTimeout(() => {
+				if (mockResponse.success) {
+					// Guardar token JWT en localStorage
+					localStorage.setItem("jwt_token", mockResponse.token);
+					console.log(
+						"🔐 Token JWT almacenado en localStorage:",
+						mockResponse.token
+					);
+
+					// Redireccionar a la página de asignaturas
+					console.log("🔀 Redireccionando a: /manager/subjects");
+					router.push("/manager/subjects");
+				} else {
+					setError(t("login.loginError"));
+					console.error("❌ Error de autenticación");
+				}
+				setLoading(false);
+			}, 1000);
+		} catch (error) {
+			console.error("❌ Error durante el login:", error);
+			setError(t("login.loginError"));
 			setLoading(false);
-		}, 1000);
+		}
 	};
 
 	return (
@@ -104,6 +150,12 @@ const LoginPage = () => {
 								required
 							/>
 						</div>
+
+						{error && (
+							<div className="mb-4 p-2 bg-red-100 text-red-700 rounded-md text-sm">
+								{error}
+							</div>
+						)}
 
 						<div className="mb-2">
 							<button

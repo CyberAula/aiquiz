@@ -3,7 +3,7 @@
 import { useState, useContext, FormEvent, ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { ClientSideContext } from "../I18nProvider";
-import LanguageSwitcher from "../components/LanguageSwitcher";
+import LanguageSwitcher from "../components/common/LanguageSwitcher";
 import Link from "next/link";
 
 const RecoveryPasswordPage = () => {
