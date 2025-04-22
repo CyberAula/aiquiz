@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import Markdown from "react-markdown";
-import { subjectNames } from "../../constants/language";
+
+import { subjects } from "../../constants/subjects";
+
 import { useTranslation } from "react-i18next";
 import parse from "html-react-parser";
 import Footer from "../../components/ui/Footer"
@@ -44,7 +46,7 @@ const SubjectPage = ({ params: { subject } }) => {
     getDashboardData();
   }, []);
 
-  const subjectName = subjectNames[subject];
+  const subjectName = subjects[subject]?.name
 
   console.log(subjectName + " subjectName");
   const subjectLowerCase = subject.toLowerCase();

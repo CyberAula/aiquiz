@@ -19,9 +19,9 @@ function QuizPageFun() {
     const params = useSearchParams()
     const router = useRouter()
 
-    const language = params.get('language')
-    const difficulty = params.get('difficulty')
     const topic = params.get('topic')
+    const difficulty = params.get('difficulty')
+    const subTopic = params.get('subTopic')
     const numQuestions = Number(params.get('numQuestions'))
     const subject = params.get('subject')
 
@@ -60,9 +60,9 @@ function QuizPageFun() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    language,
-                    difficulty,
                     topic,
+                    difficulty,
+                    subTopic,
                     numQuestions,
                     studentEmail,
                     subject
@@ -119,9 +119,9 @@ function QuizPageFun() {
             const errorLog = {
                 date: new Date().toISOString(),
                 studentEmail: studentEmail,
-                language: language,
-                difficulty: difficulty,
                 topic: topic,
+                difficulty: difficulty,
+                subTopic: subTopic,
                 numQuestions: numQuestions,
                 error: err.message,
                 // cleanedResponse: cleanedResponse
@@ -234,7 +234,7 @@ function QuizPageFun() {
                     // animate={{ opacity: 1, y: 0 }}
                     // transition={{ duration: 0.8 }}
                 >
-                    {t('quizpage.testof')} {language} {t('quizpage.about')} {topic}
+                    {t('quizpage.testof')} {topic} {t('quizpage.about')} {subTopic}
                 </h1>
               
                 <p className='mb-6'>{t('quizpage.subjectof')} <span className={`${textSubjectId} font-bold`}> {subject} </span></p>
@@ -251,9 +251,9 @@ function QuizPageFun() {
                             addSubmission={addSubmission}
                             addReport={addReport}
                             setNumCorrect={setNumCorrect}
-                            language={language}
-                            subject={subject}
                             topic={topic}
+                            subject={subject}
+                            subTopic={subTopic}
                             difficulty={difficulty}
                         />
                     </div>

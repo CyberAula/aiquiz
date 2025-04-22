@@ -6,10 +6,10 @@ import { NextResponse } from 'next/server';
 //and save it to a file
 export async function POST(request) { 
     try {
-        const { date, studentEmail, language, difficulty, topic, numQuestions, error, cleanedResponse } = await request.json();
+        const { date, studentEmail, topic, difficulty, subTopic, numQuestions, error, cleanedResponse } = await request.json();
         //get request body
         //const body = await request.text();
-        console.log("received params: ",error, date, studentEmail, language, difficulty, topic, numQuestions);
+        console.log("received params: ",error, date, studentEmail, topic, difficulty, subTopic, numQuestions);
         //save error to file
         const fs = require('fs');
         const path = require('path');
@@ -17,9 +17,9 @@ export async function POST(request) {
         const errorFull = {
             date: date,
             studentEmail: studentEmail,
-            language: language,
-            difficulty: difficulty,
             topic: topic,
+            difficulty: difficulty,
+            subTopic: subTopic,
             numQuestions: numQuestions,
             error: error,
             cleanedResponse: cleanedResponse

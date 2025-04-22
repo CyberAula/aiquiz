@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { topics } from "../constants/topics";
-import { language } from "../constants/language";
+import { subjects } from "../constants/subjects";
+
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "../components/ui/Logo";
@@ -16,8 +16,8 @@ const basePath = nextConfig.basePath || "/";
 
 const HomePage = ({ params: { subject } }) => {
   const { t, i18n } = useTranslation();
-  const [languageSelected, setLanguageSelected] = useState("");
-  const [topic, setTopic] = useState("");
+  const [topicSelected, setTopicSelected] = useState("");
+  const [subTopicSelected, setSubTopicSelected] = useState("");
   const [isTopicSelected, setIsTopicSelected] = useState(false);
   const [difficulty, setDifficulty] = useState("intermedio");
   const [numQuestions, setNumQuestions] = useState("5");
@@ -27,17 +27,17 @@ const HomePage = ({ params: { subject } }) => {
   const [isChecked, setIsChecked] = useState(false);
   const [myUserEmail, setMyUserEmail] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [languageText, setLanguageText] = useState("");
+  const [topicLabel, setTopicLabel] = useState("");
   const baseUrl = urljoin(basePath);
   const [showAlert, setShowAlert] = useState("");
   const [showAlertLang, setShowAlertLang] = useState("");
   const [showAlertTopic, setShowAlertTopic] = useState("");
 
-  console.log(languageSelected + " language selected");
-  console.log(defaultTopic + " defaultTopic");
-  console.log(topic + " topic");
-  console.log(isTopicSelected + " isTopicSelected");
-  console.log(showAlert + " showAlert");
+  // console.log(topicSelected + " subject selected");
+  // console.log(defaultTopic + " defaultTopic");
+  // console.log(subTopicSelected + " subTopicSelected");
+  // console.log(isTopicSelected + " isTopicSelected");
+  // console.log(showAlert + " showAlert");
 
   //alerts
   let alertEmptyMail = t("subject.alertEmptyMail");
@@ -47,28 +47,19 @@ const HomePage = ({ params: { subject } }) => {
   let alertPickTopic = t("subject.alertPickTopic");
 
   useEffect(() => {
-    // Actualizar el lenguaje seleccionado
-    let newLanguage = languageSelected;
-    const subjectLanguages = language[subject] || [];
+    // Actualizar los temas de la asignatura actual
+    // Obtener los temas de la asignatura actual desde subjects
+    let newTopic = topicSelected;
+    const subjectTopics = subjects[subject]?.topics || [];
 
-    if (!subjectLanguages.find((lang) => lang.value === newLanguage)) {
-      // esta declaración era para asignar un lenguaje aún cuando no había ninguno asignado
-      // newLanguage = language[subject][0].value;
-      newLanguage = "";
-      setLanguageSelected(newLanguage);
-      setLanguageText(language[subject][0].label);
+    if (!subjectTopics.find((topic) => topic.value === newTopic)) {
+      // Si el tema seleccionado no está en la lista de temas, restablecer a un valor predeterminado
+      newTopic = "";
+      setTopicSelected(newTopic);
+      setTopicLabel(subjects[subject][0]?.label);
     }
 
-    // Asignar el primer tema del lenguaje automáticamente
-    if (topics[newLanguage]?.length > 0) {
-      // setDefaultTopic(topics[newLanguage][0]);
-      setDefaultTopic("defaultTopic");
-      setTopic(""); // Seleccionar automáticamente el primer tema
-    } else {
-      setDefaultTopic(""); // Si no hay temas, restablecer el valor predeterminado
-      setTopic(""); // También restablecer el tema actual
-    }
-  }, [languageSelected]);
+  }, [topicSelected]);
 
   useEffect(() => {
     setEmailFromLocalStorage();
@@ -122,31 +113,22 @@ const HomePage = ({ params: { subject } }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!topic || !difficulty || !numQuestions) {
+    if (!topicSelected || !difficulty || !numQuestions) {
       // alert(
       //   'Por favor, selecciona una opción para "Tema", "Dificultad" y "Preguntas" antes de crear el test.'
       // );
-      if (!languageSelected) {
+      if (!topicSelected) {
         setShowAlertLang(alertPickLang);
       }
       return;
     }
-
-    // Utilizar el primer tema del lenguaje si no se ha seleccionado explícitamente
-    const selectedTopic =
-      topic ||
-      defaultTopic ||
-      (topics[languageSelected]?.length > 0 && topics[languageSelected][0]);
-    setTopic(selectedTopic);
-
-    console.log(languageSelected, difficulty, selectedTopic, numQuestions);
   };
 
-  const handleLanguageSelect = (e) => {
-    setLanguageSelected(e.target.value);
+  const handleTopicSelect = (e) => {
+    setTopicSelected(e.target.value);
     // save option text content
-    setLanguageText(e.target.options[e.target.selectedIndex].text);
-    setTopic("");
+    setTopicLabel(e.target.options[e.target.selectedIndex].text);
+    setSubTopicSelected("");
     // setShowAlertTopic(alertPickTopic)
   };
 
@@ -274,8 +256,8 @@ const HomePage = ({ params: { subject } }) => {
                       </label>
 
                       <select
-                        value={languageSelected}
-                        onChange={handleLanguageSelect}
+                        value={topicSelected}
+                        onChange={handleTopicSelect}
                         name="language"
                         className="quiz-select"
                       >
@@ -287,7 +269,7 @@ const HomePage = ({ params: { subject } }) => {
                         >
                           {t("subject.choose")}
                         </option>
-                        {language[subject].map((option) => (
+                        {subjects[subject].topics.map((option) => (
                           <option
                             key={option.value}
                             value={option.value}
@@ -297,7 +279,7 @@ const HomePage = ({ params: { subject } }) => {
                           </option>
                         ))}
                       </select>
-                      {!languageSelected && (
+                      {!topicSelected && (
                         <div className="alert">
                           {" "}
                           {showAlertLang ? (
@@ -317,7 +299,7 @@ const HomePage = ({ params: { subject } }) => {
 
                     <div
                       className={
-                        languageSelected
+                        topicSelected
                           ? "flex flex-col parameters"
                           : "flex flex-col parameters select-disabled"
                       }
@@ -326,13 +308,13 @@ const HomePage = ({ params: { subject } }) => {
                         {t("subject.subtopic")}
                       </label>
                       <select
-                        value={topic}
+                        value={subTopicSelected}
                         onChange={(e) => {
-                          setTopic(e.target.value);
+                          setSubTopicSelected(e.target.value);
                           setIsTopicSelected(!!e.target.value); // Actualizar el estado de isTopicSelected
                           setShowAlertTopic("");
                         }}
-                        disabled={languageSelected ? false : true}
+                        disabled={topicSelected ? false : true}
                         name="topic"
                         className="quiz-select"
                       >
@@ -344,13 +326,13 @@ const HomePage = ({ params: { subject } }) => {
                         >
                           {t("subject.choose")}
                         </option>
-                        {topics[languageSelected]?.map((option, index) => (
+                        {subjects[subject]?.topics.find((t) => t.value === topicSelected)?.subtopics.map((subtopic, index) => (
                           <option
                             key={index}
-                            value={option}
+                            value={subtopic.title}
                             className="font-normal"
                           >
-                            {option}
+                            {subtopic.title}
                           </option>
                         ))}
                       </select>
@@ -515,9 +497,9 @@ const HomePage = ({ params: { subject } }) => {
                       href={{
                         pathname: "/quiz",
                         query: {
-                          language: languageText,
+                          topic: topicLabel,
                           difficulty: difficulty.toLowerCase(),
-                          topic: topic.toLowerCase(), // Utilizamos el tema seleccionado
+                          subTopic: subTopicSelected.toLowerCase(), // Utilizamos el tema seleccionado
                           numQuestions: numQuestions,
                           subject: subject,
                         },

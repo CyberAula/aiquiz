@@ -11,26 +11,26 @@ await dbConnect();
 // console.log('[promptManager.js] Database connected successfully');
 // console.log("--------------------------------------------------");
 
-export async function fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject) {
+export async function fillPrompt(abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject) {
 
-    //console.log("FILLPROMPT with variables received: ", abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
+    //console.log("FILLPROMPT with variables received: ", abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
 
     // DEFINIMOS LAS VARIABLES NECESARIAS PARA RELLENAR EL PROMPT
-    const num_prev_questions = await Question.countDocuments({ studentEmail: studentEmail, language: language, topic: topic, studentReport: false });
+    const num_prev_questions = await Question.countDocuments({ studentEmail: studentEmail, topic: topic, subTopic: subTopic, studentReport: false });
     const neededQuestions = 10;
-    const previousQuestions = await getPreviousQuestions(studentEmail, language, topic, neededQuestions);   
+    const previousQuestions = await getPreviousQuestions(studentEmail, topic, subTopic, neededQuestions);   
 
-    // Obtenemos el comentario del tema corrigiendo el valor de topic de la URL
-    // http://localhost:3000/aiquiz/quiz?language=Java&difficulty=intermedio&topic=declaraci%C3%B3n+de+variables&numQuestions=5&subject=PRG
+    // Obtenemos el comentario del tema corrigiendo el valor de subTopic de la URL
+    // http://localhost:3000/aiquiz/quiz?topic=Java&difficulty=intermedio&subTopic=declaraci%C3%B3n+de+variables&numQuestions=5&subject=PRG
 
     let subjectName = subjects[subject]?.name;
-    let topicComment = subjects[subject]?.topics.find(t => t.label.toLowerCase() === language.toLowerCase())?.subtopics.find(sub => sub.title.toLowerCase() === topic.toLowerCase())?.comment || '';
+    let topicComment = subjects[subject]?.topics.find(t => t.label.toLowerCase() === topic.toLowerCase())?.subtopics.find(sub => sub.title.toLowerCase() === subTopic.toLowerCase())?.comment || '';
 
     const variables = {
         subjectName,
-        language,
-        difficulty,
         topic,
+        difficulty,
+        subTopic,
         numQuestions,
         studentEmail,
         num_prev_questions,
@@ -111,8 +111,8 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
         finalPrompt += `Soy un estudiante de una asignatura de universidad llamada "${subjectName}". Estoy repasando para el examen de la asignatura. Eres un profesor de la asignatura que hace muy buenas preguntas tipo test, con buenos distractores. `;
 
         if (num_prev_questions > 3) {
-            console.log("Student already answered " + num_prev_questions + " questions about " + topic + " in " + language);
-            finalPrompt += `Anteriormente ya he respondido ${num_prev_questions} preguntas sobre "${topic}" enmarcadas en el tema "${language}". 
+            console.log("Student already answered " + num_prev_questions + " questions about " + subTopic + " in " + topic);
+            finalPrompt += `Anteriormente ya he respondido ${num_prev_questions} preguntas sobre "${subTopic}" enmarcadas en el tema "${topic}". 
             Usa esta información para generar preguntas adaptativas que me ayuden a reforzar mis puntos débiles y profundizar en los temas que ya domino. Ajusta dinámicamente el nivel de dificultad en función de mis respuestas anteriores, haciéndolo más difícil si estoy acertando y más fácil si estoy fallando.
             Estas son algunas de mis respuestas:
             `;
@@ -128,7 +128,7 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
         finalPrompt += `
         Dame ${numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
         Las preguntas deben estar en un nivel ${difficulty} de dificultad. 
-        Las preguntas deben ser sobre "${topic}" enmarcadas en el tema "${language}". `;
+        Las preguntas deben ser sobre "${subTopic}" enmarcadas en el tema "${topic}". `;
         
         //Si hay comentario extra sobre este tema tipo "ten en cuenta que esto lo he contado en clase así..." lo añadimos al prompt.
         if(topicComment) {
@@ -167,10 +167,10 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, language, dif
 //método un poco más "listo" que prima poner en previousQuestions las preguntas del mismo tema y si puede ser que haya respondido mal
 //ya que eso informará a la IA de errores anteriores
 //numNeededQuestions indica cuantas preguntas quiero que me devuelva este método
-async function getPreviousQuestions(studentEmail, language, topic, numNeededQuestions) {
-    const num_prev_questions_incorrect = await Question.countDocuments({ studentEmail: studentEmail, language: language, topic: topic, studentReport: false, correct: false });
-    //topic diferente al anterior (porque si no repite las preguntas)
-    const num_prev_questions_only_lang_incorrect = await Question.countDocuments({ studentEmail: studentEmail, language: language, studentReport: false, correct: false, topic: { $ne: topic } });
+async function getPreviousQuestions(studentEmail, topic, subTopic, numNeededQuestions) {
+    const num_prev_questions_incorrect = await Question.countDocuments({ studentEmail: studentEmail, topic: topic, subTopic: subTopic, studentReport: false, correct: false });
+    //subTopic diferente al anterior (porque si no repite las preguntas)
+    const num_prev_questions_only_lang_incorrect = await Question.countDocuments({ studentEmail: studentEmail, topic: topic, studentReport: false, correct: false, subTopic: { $ne: subTopic } });
 
     let previousQuestions = [];
     let numQuestionsStillToAdd = numNeededQuestions;
@@ -178,21 +178,21 @@ async function getPreviousQuestions(studentEmail, language, topic, numNeededQues
     //si tenemos suficientes incorrectas esas serán las que usemos
     if(num_prev_questions_incorrect >= numQuestionsStillToAdd) {
         //caso 1, no hace falta más, ya tenemos suficientes incorrectas
-        previousQuestions = await Question.find({ studentEmail: studentEmail, language: language, topic: topic, studentReport: false, correct: false }).limit(numNeededQuestions);
+        previousQuestions = await Question.find({ studentEmail: studentEmail, topic: topic, subTopic: subTopic, studentReport: false, correct: false }).limit(numNeededQuestions);
     } else {
         //añadimos las que tengamos incorrectas del tema y seguimos buscando incorrectas
         if(num_prev_questions_incorrect > 0) {
-            previousQuestions = await Question.find({ studentEmail: studentEmail, language: language, topic: topic, studentReport: false, correct: false });
+            previousQuestions = await Question.find({ studentEmail: studentEmail, topic: topic, subTopic: subTopic, studentReport: false, correct: false });
             numQuestionsStillToAdd -= num_prev_questions_incorrect;
         }
         //añadimos las que tengamos incorrectas de otros temas
         if(num_prev_questions_only_lang_incorrect > 0) {
-            previousQuestions = previousQuestions.concat(await Question.find({ studentEmail: studentEmail, language: language, studentReport: false, correct: false, topic: { $ne: topic } }).limit(numQuestionsStillToAdd));
+            previousQuestions = previousQuestions.concat(await Question.find({ studentEmail: studentEmail, topic: topic, studentReport: false, correct: false, subTopic: { $ne: subTopic } }).limit(numQuestionsStillToAdd));
             numQuestionsStillToAdd -= num_prev_questions_only_lang_incorrect;
         }
         //añadimos las que tengamos correctas del tema, si no hemos llegado al número deseado
         if(numQuestionsStillToAdd > 0) {
-            previousQuestions = previousQuestions.concat(await Question.find({ studentEmail: studentEmail, language: language, topic: topic, studentReport: false }).limit(numQuestionsStillToAdd));            
+            previousQuestions = previousQuestions.concat(await Question.find({ studentEmail: studentEmail, topic: topic, subTopic: subTopic, studentReport: false }).limit(numQuestionsStillToAdd));            
         }        
     }
 

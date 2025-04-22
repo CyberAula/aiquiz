@@ -11,7 +11,7 @@ const questionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    language: {
+    topic: {
         type: String,
         required: true,
     },
@@ -19,7 +19,7 @@ const questionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    topic: {
+    subTopic: {
         type: String,
         required: true,
     },
@@ -75,30 +75,3 @@ const questionSchema = new mongoose.Schema({
 }, { timestamps: true }); // Habilitamos `createdAt` y `updatedAt`
 
 export default mongoose.models.Question || mongoose.model('Question', questionSchema);
-
-
-
-/* example data:
-
-{
-    "_id": ObjectId("5f3f8e3e3e3e3e3e3e3e3e3e"),
-    "id": 394823782738,
-    "language": "JavaScript",
-    "difficulty": "intermedio",
-    "topic": "asincronía",
-    "query": "¿Qué método se utiliza para ejecutar una función después de cierto tiempo en JavaScript?",
-    "choices": [
-        "setTimeout()",
-        "wait()",
-        "delay()",
-        "executeAfter()"
-    ],
-    "answer": 0,
-    "explanation": "El método setTimeout() se utiliza en JavaScript para ejecutar una función después de cierto tiempo, permitiendo así la programación asíncrona y el manejo de tareas diferidas en el tiempo.",
-    "studentEmail": "pepe@alumnos.upm.es",
-    "studentAnswer": 0,
-    "studentReport": false
-}
-
-
-*/
