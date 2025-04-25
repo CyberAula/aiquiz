@@ -27,7 +27,15 @@ export async function GET(req) {
     
     if (searchParams.get('studentReport')) {
       filtros.studentReport = searchParams.get('studentReport');
-      sacarValor = { query: 1, choices: 1 };
+      sacarValor = { query: 1, choices: 1, explanation:1, answer:1, id:1};
+    }
+
+    if (searchParams.get('evaluadas')) {
+        filtros.teacherReport = { $ne: null };
+    }
+
+    if (searchParams.get('NOevaluadas')) {
+      filtros.teacherReport = {$in: [null, undefined]};
     }
 
     if (searchParams.get('asignatura')) {

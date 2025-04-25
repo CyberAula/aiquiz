@@ -87,8 +87,11 @@ export const en = {
     reports: {
         title: "Reports",
         description: "Choose the subject you want to get statistics for",
-        subtitle1: "Reported questions",
-        pregreport: "Number of reported questions",
+        subtitle0: "Reported questions",
+        subtitle1: "Manage reported questions",
+        pregreport1: "Number of reported questions",
+        pregreport2: "Number of reported questions evaluated",
+        pregreport3: "Number of reported questions without evaluation",
         subtitle2: "Frequency and Percentage of success according to Difficulty",
         dificultad: "Difficulty",
         preguntas: "Questions",

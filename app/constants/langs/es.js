@@ -87,8 +87,11 @@ export const es = {
     reports: {
         title: "Reportes",
         description: "Escoge la asignatura de la que quieras obtener estadísticas",
-        subtitle1: "Preguntas reportadas",
-        pregreport: "Número de preguntas reportadas",
+        subtitle0: "Preguntas reportadas",
+        subtitle1: "Administrar preguntas reportadas",
+        pregreport1: "Número de preguntas reportadas",
+        pregreport2: "Número de preguntas reportadas evaluadas",
+        pregreport3: "Número de preguntas reportadas sin evaluar",
         subtitle2: "Frecuencia y Porcentaje de acierto según Dificultad",
         dificultad: "Dificultad",
         preguntas: "Preguntas",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from 'next/link';
 import urljoin from "url-join";
 
 import { language } from '../../constants/language';
@@ -38,6 +39,8 @@ const SubjectPage = ({ params: { subject } }) => {
   const [error, setError] = useState(null);
 
   const [reportadas, setReportadas] = useState(null);
+  const [reportadasSinCorregir, setReportadasSinCorregir] = useState(null);
+  const [reportadasCorregidas, setReportadasCorregidas] = useState(null);
   const [aciertosDificultad, setAciertosDificultad] = useState(null);
   const [frecuenciaAciertoTemaporAsignatura, setfrecuenciaAciertoTemaporAsignatura] = useState(null);
   const [frecuenciaAciertoSubtemaporTema, setfrecuenciaAciertoSubtemaporTema] = useState(null);
@@ -63,17 +66,32 @@ const SubjectPage = ({ params: { subject } }) => {
     router.push(`/reports`);
   }
 
+
   useEffect(() => {
     const fetchReports = async () => {
       try {
         setLoading(true);
 
         // Fetch preguntas reportadas
-        const responseReportadas = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}`));
+        const responseReportadas = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true`));
         if (!responseReportadas.ok)
           throw new Error("Error cargando preguntas reportadas");
-        const resultReportadas = await responseReportadas.json();
-        setReportadas(resultReportadas.preguntas);
+        const resultReportadas = (await responseReportadas.json()).count;
+        setReportadas(resultReportadas);
+
+        // Fetch preguntas reportadas SIN EVALUAR
+        const responseReportadasSIN = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true`));
+        if (!responseReportadasSIN.ok)
+          throw new Error("Error cargando preguntas reportadas");
+        const resultReportadasSIN = (await responseReportadasSIN.json()).count;
+        setReportadasSinCorregir(resultReportadasSIN);
+
+        // Fetch preguntas reportadas EVALUADAS
+        const responseReportadasEVAL = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true&&evaluadas=true`));
+        if (!responseReportadasEVAL.ok)
+          throw new Error("Error cargando preguntas reportadas");
+        const resultReportadasEVAL = (await responseReportadasEVAL.json()).count;
+        setReportadasCorregidas(resultReportadasEVAL);
 
       
 
@@ -112,6 +130,7 @@ const SubjectPage = ({ params: { subject } }) => {
         
             await Promise.all(
               subjectTemas.map(async (tema) => {
+                
                 const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?tema=${tema}&&asignatura=${subject}&&count=true`));
                 const nTemaFrencuencia = (await responseTemaFrecuencia.json()).count;
 
@@ -149,10 +168,11 @@ const SubjectPage = ({ params: { subject } }) => {
             await Promise.all(
               SubtemasArray.map(async (subtema) => {
                 console.log(tema)
-                const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema}&&count=true&&tema=${tema}&&asignatura=${subject}`));
+                console.log(subtema.toLowerCase())
+                const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&tema=${tema}&&asignatura=${subject}`));
                 const nTemaFrencuencia = (await responseTemaFrecuencia.json()).count;
 
-                const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema}&&count=true&&acierto=true&&tema=${tema}&&asignatura=${subject}`));
+                const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&acierto=true&&tema=${tema}&&asignatura=${subject}`));
                 const nTemaAcierto = (await responseTemaAcierto.json()).count;
                 
                 if (!responseTemaFrecuencia.ok || !responseTemaAcierto.ok)
@@ -291,18 +311,17 @@ const SubjectPage = ({ params: { subject } }) => {
         {/* 1. Preguntas reportadas */}
         <section className="mb-6 p-4 border rounded-lg shadow">
           <h2 className="text-left text-2xl mb-4 font-semibold">
-            1. {t("reports.subtitle1")}
+            1. {t("reports.subtitle0")}
           </h2>
-          <p className="text-sm mb-2">
-           {t("reports.pregreport")}: {reportadas.length}
+          <p className="text-sm mb-4">
+           {t("reports.pregreport1")}: {reportadas}
           </p>
-          <p className="text-sm mb-2">{t("reports.subtitle1")}:</p>
-          <div className="max-h-40 overflow-y-auto border p-2 rounded bg-100">
-            {reportadas.map((pregunta, index) => (
-              <p key={index} className="text-sm p-1 border-b last:border-b-0">
-                {index + 1}. {pregunta.query}: {pregunta.choices}
-              </p>
-            ))}
+      
+          <p className="text-sm mb-4">
+          {t("reports.pregreport2")}: {reportadasCorregidas}
+          </p>
+          <div className="mb-2">
+          <Link  className="text-sm p-3 bg-yellow-200    rounded transition-all duration-300 hover:bg-yellow-300 hover:shadow-lg hover:-translate-y-1" href={{ pathname: '/reports/'+ subject + '/pregreport' }} id={subject}> {t("reports.subtitle1")}</Link>
           </div>
         </section>
 
