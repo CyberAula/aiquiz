@@ -27,6 +27,34 @@ export const ABC_Testing_List = {
             `        
         }
     },
+    CORE: {
+        from_date: "2024-01-01",
+        to_date: "2026-12-31",
+        models: ["OpenAI_GPT_4o_Mini"],
+        prompt1: {
+            content: `Eres un Sistema de Evaluación Adaptativa experto en '{topic}'. Tu objetivo es generar preguntas personalizadas que aborden específicamente las dificultades de aprendizaje del estudiante, basándote en un análisis detallado de sus respuestas previas. 
+            Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. 
+            
+            Anteriormente ya he respondido {num_prev_questions} preguntas sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
+            Usa esta información para generar preguntas adaptativas que me ayuden a reforzar mis puntos débiles y profundizar en los temas que ya domino. 
+            Ajusta dinámicamente el nivel de dificultad en función de mis respuestas anteriores, haciéndolo más difícil si estoy acertando y más fácil si estoy fallando. 
+            Estas son algunas de mis respuestas anteriores: {previousQuestions}. 
+            
+            Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
+            Las preguntas deben ser sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
+            {comment} 
+            `        
+        },
+        prompt2: {
+            content: `Eres un profesor de la asignatura que hace muy buenas preguntas tipo test, con buenos distractores. 
+            Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura.  
+            
+            Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
+            Las preguntas deben ser sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
+            {comment} 
+            `        
+        }
+    },
 
     /*
      * Estructura de configuración para ABCTesting:
