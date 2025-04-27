@@ -171,7 +171,7 @@ const HomePage = ({ params: { subject } }) => {
                 <label htmlFor="terms" className="text-sm">
                   {" "}{t("login.preTerms")}{" "}
                   <Link href="/terms" className="text-blue-600 underline">
-                    {t("login.privacy")}
+                    {t("login.terms")}
                   </Link>{" "}
                   {t("login.prePrivacy")}{" "}
                   <Link href="/privacy" className="text-blue-600 underline">
