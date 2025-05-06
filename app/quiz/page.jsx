@@ -169,11 +169,11 @@ function QuizPageFun() {
                 score = numCorrect / numSubmitted;
             }
             console.log('call END SCREEN in 6 seconds with score', score);
-            //do that in 6 seconds to give time for the last question to be reviewed in case the student failed it
+            //do that in 10 seconds to give time for the last question to be reviewed in case the student failed it
             const timer = setTimeout(() => {
                 router.push(`/end-screen?score=${score}&subject=${subject}`);
             }
-                , 6000);
+                , 10000);
             return () => clearTimeout(timer);
         }
     }, [numSubmitted, numReported])

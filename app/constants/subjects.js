@@ -1,21 +1,4 @@
 export const subjects = {
-    PRG: {
-        name: 'Programación',
-        topics: [
-            {
-                value: 'java', label: 'Java',
-                subtopics: [
-                    { title: 'Declaración de variables', comment: '', files: [] },
-                    { title: 'Tipos de datos, operadores y expresiones', comment: '', files: [] },
-                    { title: 'Bucles y condicionales', comment: '', files: [] },
-                    { title: 'Uso de Break y Continue', comment: '', files: [] },
-                    { title: 'Clases y objetos', comment: '', files: [] },
-                    { title: 'Comandos try, catch y finally', comment: '', files: [] },
-                    { title: 'Manejo de excepciones', comment: '', files: [] }
-                ]
-            }
-        ]
-    },
     CORE: {
         name: 'Computación en Red',
         topics: [
@@ -1001,7 +984,7 @@ export const subjects = {
                 label: 'Servidores Web',
                 subtopics: [
                     {
-                        title: 'Opciones disponibles',
+                        title: 'Tecnologías disponibles',
                         comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
 
                         El desarrollo de un servidor web puede realizarse usando diferentres lenguajes de programación, y diferentes librerías y frameworks.
@@ -1032,50 +1015,6 @@ export const subjects = {
                         Pero estas opciones ocultan muchos detalles internos del desarrollo, y son menos recomendables desde un punto de vista didáctico para aprender como se hace el desarrollo de un servidor web.
 
                         Sin embargo, pueden ser muy recomendables cuando ya se domina este tema.
-                        </resumen>`,
-                        files: []
-                    },
-                    {
-                        title: 'Paquete net de node',
-                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
-
-                        En este tema se ilusta con varios ejemplos el desarrollo de servidores web usando el paquete net de node. 
-
-                        Primero se hace un ejemplo mínimo, un Hola Mundo, para ilustrar que debe crearse un socket TCP de servidor, aceptar las conexiones de los clientes, y programarse el soporte del protocolo HTTP.
-
-                        El desarrollo de un servidor real es un trabajo muy grande, por lo que solo se implementa una parte muy básica e incompleta en este ejemplo.
-
-                        Se justifica dado que el código que hay que desarrollar ya los proporcionan hecho otros paquetes, como por ejemplo http.
-
-
-                        Luego se hace un ejemplo muy simplificado de un servidor web de páginas estáticas. 
-
-                        En este ejemplo se lee el fichero que se indica en la URL de la peticion HTTP, y si existe se envía como respuesta al cliente.
-
-                        Para este desarrollo se usan los elements explicados en el rtema anterior.
-                        </resumen>`,
-                        files: []
-                    },
-                    {
-
-                        title: 'Paquete http de node',
-                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
-                        En este tema se ilusta con varios ejemplos el desarrollo de servidores web usando el paquete http de node. 
-                       
-                        Se implementan los mismos ejemplos que se desarrollaron con el paquete net de node.
-
-
-                        Primero se desarrolla el servidor "Hola Mundo" que siempre responde con un mensaje hola mundo.
-
-                        En este ejemplo se usa el metodo createServer que proporciona el paquete http.
-
-                        Este método crea un servidor que atiende las peticiones de los clientes, y ejecuta una función callback para cada petición recibida.
-
-                        Se explica que ya no es necesario procesar los datos que llegan del servidor para extraer las partes de los mensajes HTTP, ya que esto lo proporciona hecho el paquete http.
-                        
-                        Luego se desarrolla el servidor web de páginas estáticas. Se ilustra otra vez el uso del metodo createServer del paquete http.
-
-                        Se ve como con este metodo usa una función callback para atender las peticiones de los clientes,
                         </resumen>`,
                         files: []
                     },
@@ -1198,8 +1137,8 @@ export const subjects = {
                 value: 'miniproyecto2', label: 'Miniproyecto 2',
                 subtopics: [
                     { title: 'Crear modelos, migraciones y seeders', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> El comando para crear una migración es 'npx sequelize migration:create --name NameMigration'. El comando para crear un seeder 'npx sequelize seed:create --name SeedName'. Una vez el seeder o migración ha sido cumplimentado debe ejecutarse. 
-                        - Comando 'sequelize db:migrate --url DatabaseURL' ejecuta todas las migraciones pendientes. Las migraciones ya ejecutadas se guardan en una tabla en la base de datos. Las migraciones ejecutadas no se vuelven a ejecutar. No se puede cambiar el contenido de una migración ya ejecutada porque no va a vovler a ejecutarla. Las migraciones se ejecutan por orden cronológico (el fichero de la migración incluye sigue el formato YYYYMMDDHHmmSS-NameMigration)
-                        - Comando 'sequelize db:seed:all --url DatabaseURL' ejecuta todas los seeders. Los seeders ejecutados no se guardan en la base de datos, por lo que siempre se vuelven a ejecutar todos
+                        - Comando 'npx sequelize db:migrate --url DatabaseURL' ejecuta todas las migraciones pendientes. Las migraciones ya ejecutadas se guardan en una tabla en la base de datos. Las migraciones ejecutadas no se vuelven a ejecutar. No se puede cambiar el contenido de una migración ya ejecutada porque no va a vovler a ejecutarla. Las migraciones se ejecutan por orden cronológico (el fichero de la migración incluye sigue el formato YYYYMMDDHHmmSS-NameMigration)
+                        - Comando 'npx sequelize db:seed:all --url DatabaseURL' ejecuta todas los seeders. Los seeders ejecutados no se guardan en la base de datos, por lo que siempre se vuelven a ejecutar todos
                         - El modelo en Sequelize por defecto incluye las columnas id, UpdatedAt, CreatedAt. En las migraciones es necesario incluir esas columnas y las relaciones.</resumen>`, files: [] },
                     { title: 'Mehtod-override', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> method-override es un middleware de Express que permite usar métodos HTTP como PUT, PATCH y DELETE en entornos donde solo se pueden enviar GET y POST, como en formularios HTML. Dado que los formularios solo soportan GET y POST, method-override intercepta las solicitudes y reemplaza el método original por el que especifiques, permitiendo así seguir una arquitectura RESTful incluso con formularios.
                         Para configurarlo, primero debes instalarlo con npm install method-override. Luego en tu aplicación Express, se configura como middleware antes de definir tus rutas. La forma más común es buscar un parámetro en la URL o en los campos del formulario, por ejemplo _method. Si encuentra ese campo, reemplazará el método de la solicitud por el valor que tenga.
@@ -1233,7 +1172,7 @@ export const subjects = {
             {
                 value: 'miniproyecto3', label: 'Miniproyecto 3',
                 subtopics: [
-                    { title: 'Inyección de código', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> La inyección de código es un problema de seguridad que aparece cuando generamos sentencias (para ejecutar) usando datos proporcionados por el usuario. os datos del usuario pueden contener fragmentos de sentencias SQL para borrar una base de datos, strings que al usarse en condiciones booleanas provocan una evaluación siempre verdadera, código javascript para inundar la pantalla de ventanas emergentes, etc. Estos datos pueden llegar al programa al rellenar los campos de un formulario, al recibir una petición HTTP, en una cookie, etc. Hay que validar los datos antes de procesarlos en el servidor. Es necesaria la validación en el servidor porque la validación en cliente no es segura. ORM como sequelize nos ayuda a evitar inyección de tipo SQL.</resumen>`, files: [] },
+                    { title: 'Inyección de código', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> La inyección de código es un problema de seguridad que aparece cuando generamos sentencias (para ejecutar) usando datos proporcionados por el usuario. Los datos del usuario pueden contener fragmentos de sentencias SQL para borrar una base de datos, strings que al usarse en condiciones booleanas provocan una evaluación siempre verdadera, código javascript para inundar la pantalla de ventanas emergentes, etc. Estos datos pueden llegar al programa al rellenar los campos de un formulario, al recibir una petición HTTP, en una cookie, etc. Hay que validar los datos antes de procesarlos en el servidor. Es necesaria la validación en el servidor porque la validación en cliente no es segura. ORM como sequelize nos ayuda a evitar inyección de tipo SQL.</resumen>`, files: [] },
                     { title: 'Paginación', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> La paginación es una técnica que se utiliza para dividir grandes cantidades de datos en partes más pequeñas llamadas páginas, para que el usuario no tenga que cargar o visualizar toda la información de golpe. Esto mejora la velocidad, la experiencia de usuario y el rendimiento de la aplicación. Existen dos formas comunes de implementar paginación: paginación en cliente y paginación en servidor. Aunque ambas tienen el mismo propósito, se aplican en momentos distintos y con impactos diferentes.
                         - Paginación en cliente: En la paginación en cliente, la aplicación descarga todos los datos desde el servidor de una sola vez y luego el cliente (navegador, app, etc.) se encarga de dividir y mostrar esos datos por partes. Facilita la legibilidad ppor parte del usuario. Si hay demasiados datos, puede saturar la memoria del cliente. 
                         - Paginación en servidor: En la paginación en servidor, el cliente solo solicita una parte específica de los datos (por ejemplo, "dame la página 3") y el servidor se encarga de buscar y devolver solo ese conjunto. Normalmente, esto se controla mediante parámetros como limit y offset o page y size en las URLs. Por ejemplo en el miniproyecto 3, la URL /quizzes?pageno=2 indica que se quiere la segunda página. El servidor calcula el offset y el limit y devuelve solo esos datos.
@@ -1260,7 +1199,7 @@ export const subjects = {
             {
                 value: 'miniproyecto4', label: 'Miniproyecto 4',
                 subtopics: [
-                    { title:  'Autenticación en express', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> Implementación de un formulario de login. Para ello se implementa la ruta GET /login que devuelve el formulario con campos user y password. POST /login crea la sesión de login. Busca un usuario dado su nombre y su password. Si no existe el usuario, devuelve null. Si el password es incorrecto, devuelve null. Si el password es correcto entonces se crea un objeto en la sesión con los datos del usuario logueado: req.session.loginUser. Los datos guardado en la sesión son las propiedades de req.session. Un usuario está loqueado si existe req.session.loginUser. Si no existe req.session.loginUser, entonces no hay nadie logueado.</resumen>`, files: [] },
+                    { title:  'Autenticación en express', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> Implementación de un formulario de login en el miniproyecto. Para ello se han implementado las siguientes rutas: una ruta GET /login que devuelve el formulario con campos user y password. POST /login crea la sesión de login. Busca un usuario dado su nombre y su password. Si no existe el usuario o el password es incorrecto no loggea en el sistema y redirige de nuevo a /login. Si el password es correcto entonces se crea un objeto en la sesión con los datos del usuario logueado: req.session.loginUser. Los datos guardado en la sesión son las propiedades de req.session. Un usuario está loqueado si existe req.session.loginUser. Si no existe req.session.loginUser, entonces no hay nadie logueado.</resumen>`, files: [] },
                     { title: 'Passwords seguras', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> Cuando un usuario se registra o inicia sesión en una aplicación, es fundamental que su contraseña no se guarde en texto plano en la base de datos, ya que si esa información se filtrara, cualquier persona podría acceder a las cuentas de los usuarios. Por eso, lo correcto es cifrar o encriptar las contraseñas antes de guardarlas. Utilizamos el módulo crypto para esta tarea. El paquete crypto permite transformar la contraseña original en un hash, que es un valor irreconocible y fijo que representa la contraseña original, pero que no se puede revertir fácilmente.
                         Cifrar la contraseña significa aplicar una función matemática que transforma la contraseña en una cadena de texto diferente y segura. Esa cadena es la que se guarda en la base de datos, y no la contraseña real. Cuando el usuario intenta iniciar sesión, lo que se hace es aplicar el mismo cifrado a la contraseña que acaba de introducir y comparar el resultado con el valor almacenado en la base de datos. Si coinciden, es la misma contraseña.
                         Se añade salt a la password en claro. Salt es una cadena aleatoria de caracteres que se añade a una contraseña antes de ser cifrada (hasheada). Esto mejora la seguridad al hacer que sea más difícil para los atacantes descifrar las contraseñas, incluso si conocen el hash de una contraseña.</resumen>`, files: [] },
@@ -1273,7 +1212,7 @@ export const subjects = {
                 subtopics: [
                     { title: 'Concepto autorización vs autenticación', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> Autenticación es el proceso de verificar la identidad de un usuario. En esta etapa, la aplicación comprueba si la persona es quien dice ser, normalmente solicitando un nombre de usuario y una contraseña (o cualquier otro método, como tokens o huellas digitales). Si las credenciales son válidas, se considera que el usuario está autenticado.
                         Autorización, en cambio, es el proceso que determina qué acciones o recursos puede usar un usuario una vez que ya ha sido autenticado. Es decir, no solo importa quién eres, sino también qué tienes permitido hacer dentro de la aplicación. Por ejemplo, un usuario autenticado puede acceder a su perfil, pero solo un usuario con autorización de administrador podría eliminar cuentas de otros usuarios. Los permisos se suelen asignar a través de roles. Un usuario puede tener más de un rol.</resumen>`, files: [] },
-                    { title: 'Autorización en express', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> En el miniproyect de quizzes se han definido tres niveles de permisos: usuario loggeado, admin, autor de un quiz. Se han definido tres middlewares de protección: 1. loginRequired: comprueba si existe req.sessoin.loginUser 2. adminOrMyselfRequired: comprueba si el usuario loggeado es administrador o si el usuario loggeado coincide con el usuario al que se está accediendo el prefil. 3. adminOrAuthorRquired: comprueba si el usuario loggeado es el administrador o es el mismo que el autor del quiz que se quiere editar. La autorización se implementa protegiendo cada una de las rutas. Por ejemplo: router.delete('/:quizId(\\d+)', quizController.adminOrAuthorRequired, quizController.destroy); protege la eliminación de un quiz. Para ello quizController.adminOrAuthorRequired comprueba si el usuario es Admin o si es el autor del quiz. Si tiene permiso ejecuta next() y se ejecuta el middleware quizController.destroy. Si no tiene permiso responde una petición HTTP con código 403</resumen>`, files: [] },
+                    { title: 'Autorización en express', comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> En el miniproyect de quizzes se han definido tres niveles de permisos: usuario loggeado, admin, autor de un quiz. Se han definido tres middlewares de protección: 1. loginRequired: comprueba si existe req.sessoin.loginUser 2. adminOrMyselfRequired: comprueba si el usuario loggeado es administrador o si el usuario loggeado coincide con el usuario al que se está accediendo el prefil. 3. adminOrAuthorRquired: comprueba si el usuario loggeado es el administrador o es el mismo que el autor del quiz que se quiere editar. La autorización se implementa tanto en servidor como en cliente: En servidor protegiendo cada una de las rutas. Por ejemplo: router.delete('/:quizId(\\d+)', quizController.adminOrAuthorRequired, quizController.destroy); protege la eliminación de un quiz. Para ello quizController.adminOrAuthorRequired comprueba si el usuario es Admin o si es el autor del quiz. Si tiene permiso ejecuta next() y se ejecuta el middleware quizController.destroy. Si no tiene permiso responde una petición HTTP con código 403. En cliente se elimina de las vistas las acciones en las que el usuario no tenga permisos. La autorización en cliente es insegura si no se realiza también en servidor ya que un atacante podría enviar una petición HTTP mnaual que sí se ejecutaría en el servidor si el servidor no está protegido.</resumen>`, files: [] },
                 ]
             }            
         ]
@@ -1572,22 +1511,6 @@ export const subjects = {
                     { title: 'Clases, estructuras y métodos', comment: '', files: [] },
                     { title: 'Uso de if let y guard let', comment: '', files: [] },
                     { title: 'Nil coalescing', comment: '', files: [] }
-                ]
-            }
-        ]
-    },
-    CDPS: {
-        name: 'Centros de Datos y Provisión de Servicios',
-        topics: [
-            {
-                value: 'python', label: 'Python',
-                subtopics: [
-                    { title: 'Funciones, argumentos y valores de retorno', comment: '', files: [] },
-                    { title: 'Funciones lambda', comment: '', files: [] },
-                    { title: 'Condicionales y bucles', comment: '', files: [] },
-                    { title: 'Uso de Break y Continue', comment: '', files: [] },
-                    { title: 'Listas, tuplas y diccionarios', comment: '', files: [] },
-                    { title: 'Clases, objetos y herencia', comment: '', files: [] }
                 ]
             }
         ]
