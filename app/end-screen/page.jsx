@@ -191,10 +191,7 @@ function EndScreenFun() {
 
                     <p className='text-xl md:text-2xl mt-8 mx-3 text-center fuente'>{message}{getIconForScore()}</p>
 
-                    <div className='flex flex-col sm:flex-row gap-2 md:gap-4 mt-4 md:mt-8'>
-                        <button >
-                            <Link className='btn-md btn-outline' href="/"> {t('endscreen.back')} </Link>
-                        </button>
+                    <div className='flex flex-col sm:flex-row gap-2 md:gap-4 mt-4 md:mt-8'>                        
                         <button
                             className='btn-md btn-quizz inline-block text-center  text-lg font-semibold md:mx-auto'
                             onClick={handlePlayAgain}
