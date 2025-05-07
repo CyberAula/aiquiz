@@ -53,6 +53,7 @@ export const en = {
         testof: "Test of",
         about: "about",
         subjectof: "Course name: ",
+        finish: "Finish",
     },
     question: {
         answer: "Answer",

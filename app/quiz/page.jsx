@@ -34,6 +34,9 @@ function QuizPageFun() {
     const [progress, setProgress] = useState(0)
     const [responseStream, setResponseStream] = useState('')
 
+    const [score, setScore] = useState(0)
+    const [quizCompleted, setQuizCompleted] = useState(false)
+
     const [showInstructionsModal, setShowInstructionsModal] = useState(true);
 
     let subjectId = subject.toLowerCase();
@@ -46,8 +49,23 @@ function QuizPageFun() {
         restDelta: 0.002,
     })
 
-    const handlePlayAgain = () => {
+    const handleGoBack = () => {
         router.push(`/${subject}`);
+    }
+
+    const handleFinish = () => {
+        const params = new URLSearchParams({
+            score: score.toString(),
+            topic,
+            difficulty,
+            subTopic,
+            numQuestions: numQuestions.toString(),
+            subject
+        });
+
+        const qs = params.toString();
+
+        router.push(`/end-screen?${qs}`);
     }
 
     const generateQuestions = async (studentEmail) => {
@@ -102,7 +120,7 @@ function QuizPageFun() {
 
                 setResponseStream((prev) => prev + chunkValue)
             }
-            
+
             // Ajusta el texto de la respuesta para que sea un JSON válido
             let jsonResponse = JSON.parse(responseText.replace(/^\[|\]$/g, '').trim());
             const allQuestions = jsonResponse.questions;
@@ -164,17 +182,10 @@ function QuizPageFun() {
         //si todas son enviadas o reportadas ----> end-screen
         //check that quiz array has all elements either submitted or reported
         if (quiz.length > 0 && quiz.every((question) => question.submitted == true || question.reported == true)) {
-            let score = 0;
             if (numSubmitted > 0) {
-                score = numCorrect / numSubmitted;
+                setScore(numCorrect / numSubmitted);
             }
-            console.log('call END SCREEN in 6 seconds with score', score);
-            //do that in 6 seconds to give time for the last question to be reviewed in case the student failed it
-            const timer = setTimeout(() => {
-                router.push(`/end-screen?score=${score}&subject=${subject}`);
-            }
-                , 6000);
-            return () => clearTimeout(timer);
+            setQuizCompleted(true)
         }
     }, [numSubmitted, numReported])
 
@@ -203,77 +214,85 @@ function QuizPageFun() {
 
     return (
         <div>
-           <div>
-            {/* renderiza barra de progreso */}
-            <motion.div className='progress-bar' style={{ scaleX }} />
+            <div>
+                {/* renderiza barra de progreso */}
+                <motion.div className='progress-bar' style={{ scaleX }} />
 
-            {isLoading ? 
-             <div className="bg-blue-200"><LoadingScreen responseStream={responseStream} /></div> : 
-            <div className='container-layout'>
-            <div className='bg-white rounded-md pb-4'>
-                <Header/>
-                <div className='margin-items-container flex justify-between gap-3 pb-5'>
-                    <button className='btn-sm-icon btn-ghost flex'
-                        onClick={handlePlayAgain}>
-                            <HiArrowLeft sx={{fontSize: 18}} className='mt-1'/>
-                         {t('quizpage.back')}
-                    </button>
-                    <button className='btn-sm btn-outline text-white'
-                        onClick={() => setShowInstructionsModal(true)}>
-                        🛈 {t('quizpage.instructions')}
-                    </button>
-                </div>
-             <div className='pb-6 max-w-3xl mx-4 sm:mx-auto flex flex-col justify-center sm:w-3/4 md:w-3/5 xl:w-1/2'>
-                <h1
-                    className='text-3xl font-bold  text-left pt-3 pb-1.5 text-text text-pretty'
-                    style={{
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                    }}
-                    // initial={{ opacity: 0, y: -100 }}
-                    // animate={{ opacity: 1, y: 0 }}
-                    // transition={{ duration: 0.8 }}
-                >
-                    {t('quizpage.testof')} {topic} {t('quizpage.about')} {subTopic}
-                </h1>
-              
-                <p className='mb-6'>{t('quizpage.subjectof')} <span className={`${textSubjectId} font-bold`}> {subject} </span></p>
-                {/* recorre la pregunta*/}
-               
-                
-                {quiz?.map((question, index) => (
-                    <div className='mb-6 md:mb-12' key={index}>
-                        <Question
-                            numQuestions={numQuestions}
-                            question={question}
-                            order={index}
-                            key={index}
-                            addSubmission={addSubmission}
-                            addReport={addReport}
-                            setNumCorrect={setNumCorrect}
-                            topic={topic}
-                            subject={subject}
-                            subTopic={subTopic}
-                            difficulty={difficulty}
-                        />
+                {isLoading ?
+                    <div className="bg-blue-200"><LoadingScreen responseStream={responseStream} /></div> :
+                    <div className='container-layout'>
+                        <div className='bg-white rounded-md pb-4'>
+                            <Header />
+                            <div className='margin-items-container flex justify-between gap-3 pb-5'>
+                                <button className='btn-sm-icon btn-ghost flex'
+                                    onClick={handleGoBack}>
+                                    <HiArrowLeft sx={{ fontSize: 18 }} className='mt-1' />
+                                    {t('quizpage.back')}
+                                </button>
+                                <button className='btn-sm btn-outline text-white'
+                                    onClick={() => setShowInstructionsModal(true)}>
+                                    🛈 {t('quizpage.instructions')}
+                                </button>
+                            </div>
+                            <div className='pb-6 max-w-3xl mx-4 sm:mx-auto flex flex-col justify-center sm:w-3/4 md:w-3/5 xl:w-1/2'>
+                                <h1
+                                    className='text-3xl font-bold  text-left pt-3 pb-1.5 text-text text-pretty'
+                                    style={{
+                                        backgroundClip: 'text',
+                                        WebkitBackgroundClip: 'text',
+                                    }}
+                                // initial={{ opacity: 0, y: -100 }}
+                                // animate={{ opacity: 1, y: 0 }}
+                                // transition={{ duration: 0.8 }}
+                                >
+                                    {t('quizpage.testof')} {topic} {t('quizpage.about')} {subTopic}
+                                </h1>
+
+                                <p className='mb-6'>{t('quizpage.subjectof')} <span className={`${textSubjectId} font-bold`}> {subject} </span></p>
+                                {/* recorre la pregunta*/}
+
+
+                                {quiz?.map((question, index) => (
+                                    <div className='mb-6 md:mb-12' key={index}>
+                                        <Question
+                                            numQuestions={numQuestions}
+                                            question={question}
+                                            order={index}
+                                            key={index}
+                                            addSubmission={addSubmission}
+                                            addReport={addReport}
+                                            setNumCorrect={setNumCorrect}
+                                            topic={topic}
+                                            subject={subject}
+                                            subTopic={subTopic}
+                                            difficulty={difficulty}
+                                        />
+                                    </div>
+                                ))}
+
+                                {quizCompleted && (
+                                    <div className='text-center mt-0 mb-6'>
+                                        <button className='btn-md rounded pointer-events-auto bg-blue text-white-500 font-bold btn-quizz fuente' onClick={handleFinish}>
+                                            {t('quizpage.finish')}
+                                        </button>
+                                    </div>
+                                )}
+
+                            </div>
+                            {/* Renderiza la caja de instrucciones solo cuando isLoading es false */}
+                            {!isLoading && showInstructionsModal && (
+                                <Instructions onClose={() => setShowInstructionsModal(false)} />
+                            )}
+                        </div>
+                        <Footer />
                     </div>
-                ))}
-                 
-                 </div>
-                {/* Renderiza la caja de instrucciones solo cuando isLoading es false */}
-                {!isLoading && showInstructionsModal && (
-                    <Instructions onClose={() => setShowInstructionsModal(false)} />
-                )}
+                }
             </div>
-            <Footer/>
-            </div>
-            }
-        </div>
         </div>
 
     )
 }
-export default function QuizPage(){
+export default function QuizPage() {
     return <Suspense>
         <QuizPageFun />
     </Suspense>

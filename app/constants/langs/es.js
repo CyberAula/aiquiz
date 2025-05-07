@@ -54,6 +54,7 @@ export const es = {
         testof: "Test de",
         about: "sobre",
         subjectof: "Nombre de la asignatura:",
+        finish: "Finalizar",
     },
     question: {
         answer: "Responder",

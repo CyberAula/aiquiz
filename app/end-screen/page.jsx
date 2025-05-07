@@ -24,6 +24,11 @@ function EndScreenFun() {
     const score = Number(params.get('score'))
     const subject = params.get('subject');
 
+    const topic = params.get('topic')
+    const difficulty = params.get('difficulty')
+    const subTopic = params.get('subTopic')
+    const numQuestions = Number(params.get('numQuestions'))
+
     const [message, setMessage] = useState('')
     const [gif, setGif] = useState('')
 
@@ -70,9 +75,18 @@ function EndScreenFun() {
     }
 
 
-
     const handlePlayAgain = () => {
-        router.push(`/${subject}`);
+        const params = new URLSearchParams({
+            topic,
+            difficulty,
+            subTopic,
+            numQuestions: numQuestions.toString(),
+            subject
+        });
+
+        const qs = params.toString();
+
+        router.push(`/quiz?${qs}`);
     }
 
     useEffect(() => {
