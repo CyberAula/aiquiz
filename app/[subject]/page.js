@@ -12,16 +12,36 @@ import Header from "../components/ui/Header";
 import nextConfig from "../../next.config";
 import urljoin from "url-join";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from 'next/navigation'
+
 const basePath = nextConfig.basePath || "/";
 
 const HomePage = ({ params: { subject } }) => {
+
+  const params = useSearchParams()
+
+  // Default labels desde la URL
+  const defaultTopicLabel = params.get("topic") || "";
+
+  // Opciones de topics según la asignatura
+  const topicOptions = subjects[subject]?.topics || [];
+
+  // Encuentra el topic cuyo label coincide con defaultTopicLabel
+  const matchedTopic = topicOptions.find(t => t.label === defaultTopicLabel);
+  const initialTopic = matchedTopic ? matchedTopic.value : "";
+
+  // Cargamos el resto de los parámetros de la URL
+  const defaultDifficulty = params.get('difficulty') || "intermedio";
+  const defaultNumQuestions = params.get('numQuestions') || "5";
+  const defaultSubTopic = params.get('subTopic') || "";
+  console.log(defaultSubTopic);
+
   const { t, i18n } = useTranslation();
-  const [topicSelected, setTopicSelected] = useState("");
+  const [topicSelected, setTopicSelected] = useState(initialTopic);
   const [subTopicSelected, setSubTopicSelected] = useState("");
   const [isTopicSelected, setIsTopicSelected] = useState(false);
-  const [difficulty, setDifficulty] = useState("intermedio");
-  const [numQuestions, setNumQuestions] = useState("5");
-  const [defaultTopic, setDefaultTopic] = useState("");
+  const [difficulty, setDifficulty] = useState(defaultDifficulty);
+  const [numQuestions, setNumQuestions] = useState(defaultNumQuestions);
 
   const [inputEmail, setInputEmail] = useState("");
   const [isChecked, setIsChecked] = useState(false);
@@ -63,6 +83,11 @@ const HomePage = ({ params: { subject } }) => {
 
   useEffect(() => {
     setEmailFromLocalStorage();
+
+    if (initialTopic != "") {
+      setIsTopicSelected(true);
+    }
+
   }, []);
 
   const setEmailFromLocalStorage = () => {
@@ -245,7 +270,8 @@ const HomePage = ({ params: { subject } }) => {
               >
                 <div className="flex flex-col md:grid md:grid-cols-2 gap-x-4 gap-y-6">
                   <div className={`container-settings-quiz`}>
-                    {/* LENGUAJE /TEMA */}
+
+                    {/* TEMA */}
                     <h2 className={`mb-1 text-lg font-bold `}>
                       {t("subject.title")} <b> {subject} </b>
                     </h2>
@@ -296,7 +322,6 @@ const HomePage = ({ params: { subject } }) => {
                     </div>
 
                     {/* SUB-TEMA */}
-
                     <div
                       className={
                         topicSelected
@@ -348,7 +373,20 @@ const HomePage = ({ params: { subject } }) => {
                         </div>
                       )}
                     </div>
+
+                    {/* SUB-TEMA Anterior */}
+                    {defaultSubTopic !== "" && (
+                      <div className="flex flex-col parameters">
+                        <label htmlFor="topic" className="label-parameters-quiz">
+                          {t("subject.preSubtopic")}
+                        </label>
+                        <p className="mb-0 text-sm ms-2">{defaultSubTopic}</p>
+                      </div>
+                    )}
+
                   </div>
+
+
                   <div className="container-settings-quiz">
                     {/* DIFICULTAD */}
                     <h2 className="mb-1 text-lg font-bold">
@@ -419,7 +457,7 @@ const HomePage = ({ params: { subject } }) => {
                         </label>
                       </div>
                     </div>
-                    {console.log("dificultad" + difficulty)}
+
                     {/* NUMERO DE PREGUNTAS */}
                     <div className="flex flex-col parameters">
                       <label
@@ -486,7 +524,6 @@ const HomePage = ({ params: { subject } }) => {
                         </label>
                       </div>
                     </div>
-                    {console.log("numero preguntas " + numQuestions)}
                   </div>
                 </div>
 
@@ -497,7 +534,7 @@ const HomePage = ({ params: { subject } }) => {
                       href={{
                         pathname: "/quiz",
                         query: {
-                          topic: topicLabel,
+                          topic: defaultTopicLabel !== "" ? defaultTopicLabel : topicLabel,
                           difficulty: difficulty.toLowerCase(),
                           subTopic: subTopicSelected.toLowerCase(), // Utilizamos el tema seleccionado
                           numQuestions: numQuestions,

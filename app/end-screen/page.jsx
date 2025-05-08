@@ -8,7 +8,6 @@ import { endMessages } from '../constants/endMessages'
 import useWindowSize from 'react-use/lib/useWindowSize'
 import Confetti from 'react-confetti'
 
-import Link from "next/link"
 import { gifs } from '../constants/gifs'
 import { Suspense } from 'react'
 import { useTranslation } from "react-i18next";
@@ -74,6 +73,18 @@ function EndScreenFun() {
         }
     }
 
+    const handleGoBack = () => {
+        const params = new URLSearchParams({
+            topic,
+            difficulty,
+            subTopic,
+            numQuestions: numQuestions.toString()
+        });
+
+        const qs = params.toString();
+
+        router.push(`/${subject}?${qs}`);
+    }
 
     const handlePlayAgain = () => {
         const params = new URLSearchParams({
@@ -191,7 +202,14 @@ function EndScreenFun() {
 
                     <p className='text-xl md:text-2xl mt-8 mx-3 text-center fuente'>{message}{getIconForScore()}</p>
 
-                    <div className='flex flex-col sm:flex-row gap-2 md:gap-4 mt-4 md:mt-8'>                        
+                    <div className='flex flex-col sm:flex-row gap-2 md:gap-4 mt-4 md:mt-8'>
+                        <button
+                            className='btn-md btn-quizz inline-block text-center  text-lg font-semibold md:mx-auto'
+                            onClick={handleGoBack}
+                        >
+                            {t('endscreen.back')}
+                        </button>
+
                         <button
                             className='btn-md btn-quizz inline-block text-center  text-lg font-semibold md:mx-auto'
                             onClick={handlePlayAgain}
