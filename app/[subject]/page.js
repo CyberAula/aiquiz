@@ -29,12 +29,12 @@ const HomePage = ({ params: { subject } }) => {
   // Encuentra el topic cuyo label coincide con defaultTopicLabel
   const matchedTopic = topicOptions.find(t => t.label === defaultTopicLabel);
   const initialTopic = matchedTopic ? matchedTopic.value : "";
+  const initialTopicLabel = matchedTopic ? matchedTopic.label : "";
 
   // Cargamos el resto de los parámetros de la URL
   const defaultDifficulty = params.get('difficulty') || "intermedio";
   const defaultNumQuestions = params.get('numQuestions') || "5";
   const defaultSubTopic = params.get('subTopic') || "";
-  console.log(defaultSubTopic);
 
   const { t, i18n } = useTranslation();
   const [topicSelected, setTopicSelected] = useState(initialTopic);
@@ -47,7 +47,7 @@ const HomePage = ({ params: { subject } }) => {
   const [isChecked, setIsChecked] = useState(false);
   const [myUserEmail, setMyUserEmail] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [topicLabel, setTopicLabel] = useState("");
+  const [topicLabel, setTopicLabel] = useState(initialTopicLabel);
   const baseUrl = urljoin(basePath);
   const [showAlert, setShowAlert] = useState("");
   const [showAlertLang, setShowAlertLang] = useState("");
@@ -90,6 +90,12 @@ const HomePage = ({ params: { subject } }) => {
 
   }, []);
 
+  useEffect(() => {
+    console.log("topicSelected ha cambiado a:", topicSelected);
+    console.log("topicLabel    ha cambiado a:",    topicLabel);
+  }, [topicSelected, topicLabel]);
+
+  
   const setEmailFromLocalStorage = () => {
     let studentEmail = window.localStorage.getItem("student_email");
     // let studentEmail = null;
@@ -150,11 +156,13 @@ const HomePage = ({ params: { subject } }) => {
   };
 
   const handleTopicSelect = (e) => {
-    setTopicSelected(e.target.value);
-    // save option text content
-    setTopicLabel(e.target.options[e.target.selectedIndex].text);
+    const newValue = e.target.value;                             // valor (.value)
+    const newLabel = e.target.options[e.target.selectedIndex].text; // etiqueta (.label)
+  
+    setTopicSelected(newValue);
+    setTopicLabel(newLabel);
+
     setSubTopicSelected("");
-    // setShowAlertTopic(alertPickTopic)
   };
 
   return (
@@ -534,7 +542,7 @@ const HomePage = ({ params: { subject } }) => {
                       href={{
                         pathname: "/quiz",
                         query: {
-                          topic: defaultTopicLabel !== "" ? defaultTopicLabel : topicLabel,
+                          topic: topicLabel || defaultTopicLabel,
                           difficulty: difficulty.toLowerCase(),
                           subTopic: subTopicSelected.toLowerCase(), // Utilizamos el tema seleccionado
                           numQuestions: numQuestions,
