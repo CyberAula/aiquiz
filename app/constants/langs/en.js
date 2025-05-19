@@ -92,6 +92,8 @@ export const en = {
         pregreport1: "Number of reported questions",
         pregreport2: "Number of reported questions evaluated",
         pregreport3: "Number of reported questions without evaluation",
+        graph0_title: "Reporting reasons",
+        porcentaje: "Percentage",
         subtitle2: "Frequency and Percentage of success according to Difficulty",
         dificultad: "Difficulty",
         preguntas: "Questions",
@@ -110,5 +112,15 @@ export const en = {
         subtema: "Topic",
         subtitle5: "When has the application been used the most?",
         pormeses: "Number of questions answered",
+    },
+
+    pregreports: {
+        opt: "OPTIONS",
+        exp: "EXPLANATION",
+        ans: "CORRECT ANSWER",
+        title: "Evaluate question",
+        button: "Send evaluation"
     }
+
+
 };

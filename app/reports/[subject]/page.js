@@ -10,8 +10,11 @@ import { topics } from '../../constants/topics';
 import Footer from "../../components/ui/Footer";
 import Header from "../../components/ui/Header";
 import { useTranslation } from "react-i18next";
-import { HiArrowLeft } from 'react-icons/hi2'
-import { useRouter } from 'next/navigation'
+import { HiArrowLeft } from 'react-icons/hi2';
+import { useRouter } from 'next/navigation';
+
+
+import PanelGraficas from "../../components/PanelGraficas";
 
 import {
   BarChart,
@@ -23,7 +26,7 @@ import {
   Legend,
   ResponsiveContainer,
   LineChart,
-  Line,
+  Line
 } from "recharts";
 
 import nextConfig from "../../../next.config.js";
@@ -38,13 +41,17 @@ const SubjectPage = ({ params: { subject } }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [reportadas, setReportadas] = useState(null);
-  const [reportadasSinCorregir, setReportadasSinCorregir] = useState(null);
-  const [reportadasCorregidas, setReportadasCorregidas] = useState(null);
-  const [aciertosDificultad, setAciertosDificultad] = useState(null);
-  const [frecuenciaAciertoTemaporAsignatura, setfrecuenciaAciertoTemaporAsignatura] = useState(null);
-  const [frecuenciaAciertoSubtemaporTema, setfrecuenciaAciertoSubtemaporTema] = useState(null);
-  const [Temporal, setTemporal] = useState(null);
+
+  const [fechaInicio, setFechaInicio] = useState(null);
+  const [fechaFin, setFechaFin] = useState((new Date()).toISOString().split('T')[0]);
+
+  const [reportadas, setReportadas] = useState([]);
+  const [motivosReportadas, setMotivosReportadas] = useState([]);
+  const [reportadasCorregidas, setReportadasCorregidas] = useState([]);
+  const [aciertosDificultad, setAciertosDificultad] = useState([]);
+  const [frecuenciaAciertoTemaporAsignatura, setfrecuenciaAciertoTemaporAsignatura] = useState([]);
+  const [frecuenciaAciertoSubtemaporTema, setfrecuenciaAciertoSubtemaporTema] = useState([]);
+  const [Temporal, setTemporal] = useState([]);
 
 
 
@@ -67,31 +74,52 @@ const SubjectPage = ({ params: { subject } }) => {
   }
 
 
+
+
+
   useEffect(() => {
     const fetchReports = async () => {
       try {
         setLoading(true);
+      
 
         // Fetch preguntas reportadas
-        const responseReportadas = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true`));
+        const responseReportadas = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
         if (!responseReportadas.ok)
           throw new Error("Error cargando preguntas reportadas");
         const resultReportadas = (await responseReportadas.json()).count;
         setReportadas(resultReportadas);
 
-        // Fetch preguntas reportadas SIN EVALUAR
-        const responseReportadasSIN = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true`));
-        if (!responseReportadasSIN.ok)
-          throw new Error("Error cargando preguntas reportadas");
-        const resultReportadasSIN = (await responseReportadasSIN.json()).count;
-        setReportadasSinCorregir(resultReportadasSIN);
+  
 
         // Fetch preguntas reportadas EVALUADAS
-        const responseReportadasEVAL = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true&&evaluadas=true`));
+        const responseReportadasEVAL = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true&&evaluadas=true&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
         if (!responseReportadasEVAL.ok)
           throw new Error("Error cargando preguntas reportadas");
         const resultReportadasEVAL = (await responseReportadasEVAL.json()).count;
         setReportadasCorregidas(resultReportadasEVAL);
+
+        //Fetch motivos reportes
+        let arrayMotivos = [];
+        let comentarios = ["Redacción confusa", "Opciones mal formuladas", "Opciones repetidas", "Varias opciones correctas", "Ninguna opción correcta", "Respuesta marcada incorrecta", "Explicación errónea", "Fuera de temario", "Otro"]
+        
+            await Promise.all(
+              comentarios.map(async (motivo) => {
+                const responseMotivo = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true&&evaluadas=true&&motivo=${motivo}&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
+                const nMotivo = (await responseMotivo.json()).count;
+
+                const responseReportadasEVAL = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true&&evaluadas=true&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
+                const resultReportadasEVAL = (await responseReportadasEVAL.json()).count;
+
+                if (!responseMotivo.ok || !responseReportadasEVAL.ok)
+                throw new Error("Error cargando datos de motivos de preguntas reportadas");
+                
+                arrayMotivos.push({motivo: motivo, n: nMotivo, porcentaje: (nMotivo/resultReportadasEVAL*100).toFixed(2)});
+              })
+            );
+            setMotivosReportadas(arrayMotivos);
+            console.log(arrayMotivos)
+
 
       
 
@@ -102,10 +130,10 @@ const SubjectPage = ({ params: { subject } }) => {
         
             await Promise.all(
               dificultades.map(async (dificultad) => {
-                const responseDificultadFrecuencia = await fetch(urljoin(basePath, `/api/reports?dificultad=${dificultad}&&asignatura=${subject}&&count=true`));
+                const responseDificultadFrecuencia = await fetch(urljoin(basePath, `/api/reports?dificultad=${dificultad}&&asignatura=${subject}&&count=true&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
                 const nDificultadFrencuencia = (await responseDificultadFrecuencia.json()).count;
 
-                const responseDificultadAcierto = await fetch(urljoin(basePath, `/api/reports?dificultad=${dificultad}&&count=true&&asignatura=${subject}&&acierto=true`));
+                const responseDificultadAcierto = await fetch(urljoin(basePath, `/api/reports?dificultad=${dificultad}&&count=true&&asignatura=${subject}&&acierto=true&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
                 const nDificultadAcierto = (await responseDificultadAcierto.json()).count;
                 
                 if (!responseDificultadFrecuencia.ok || !responseDificultadAcierto.ok)
@@ -131,10 +159,10 @@ const SubjectPage = ({ params: { subject } }) => {
             await Promise.all(
               subjectTemas.map(async (tema) => {
                 
-                const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?tema=${tema}&&asignatura=${subject}&&count=true`));
+                const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?tema=${tema}&&asignatura=${subject}&&count=true&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
                 const nTemaFrencuencia = (await responseTemaFrecuencia.json()).count;
 
-                const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reports?tema=${tema}&&asignatura=${subject}&&count=true&&acierto=true`));
+                const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reports?tema=${tema}&&asignatura=${subject}&&count=true&&acierto=true&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
                 const nTemaAcierto = (await responseTemaAcierto.json()).count;
                 
                 if (!responseTemaFrecuencia.ok || !responseTemaAcierto.ok)
@@ -167,12 +195,12 @@ const SubjectPage = ({ params: { subject } }) => {
             
             await Promise.all(
               SubtemasArray.map(async (subtema) => {
-                console.log(tema)
-                console.log(subtema.toLowerCase())
-                const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&tema=${tema}&&asignatura=${subject}`));
+                
+                
+                const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&asignatura=${subject}&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
                 const nTemaFrencuencia = (await responseTemaFrecuencia.json()).count;
 
-                const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&acierto=true&&tema=${tema}&&asignatura=${subject}`));
+                const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&acierto=true&&asignatura=${subject}&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
                 const nTemaAcierto = (await responseTemaAcierto.json()).count;
                 
                 if (!responseTemaFrecuencia.ok || !responseTemaAcierto.ok)
@@ -186,6 +214,7 @@ const SubjectPage = ({ params: { subject } }) => {
                 if (!arrayNAporSubtema[tema]) {
                   arrayNAporSubtema[tema] = [];
                 }
+                
 
                 arrayNAporSubtema[tema].push({subtema: subtema, npreg: nTemaFrencuencia, acierto: nTemaAcierto, porcentaje: porcentaje.toFixed(2)});
               })
@@ -198,86 +227,117 @@ const SubjectPage = ({ params: { subject } }) => {
        
 
         // //Fetch uso por meses
-        //   let arrayNporMes = [];
-        //   const fechaActual = new Date();
-        //   const mesActual = fechaActual.getMonth() + 1;
-        //   const anioActual = fechaActual.getFullYear();
-        //   const anioInicio = anioActual - 1; 
-        
-        //   for (let anio = anioInicio; anio <= anioActual; anio++) {
-        //     for (let mes = anio === anioInicio ? mesActual : 1; mes <= 12; mes++) {
-        //       if (anio === anioActual && mes > mesActual) break;
-        
-        //       const dias = new Date(anio, mes, 0).getDate();
-        //       const nombreMes = new Intl.DateTimeFormat("es-ES", { month: "long" }).format(new Date(anio, mes - 1, 1));
-        
-        //       // Recorremos solo los días 1, 6, 11, 16, 21, 25 de cada mes
-        //       const diasSeleccionados = [1, 5, 9, 13, 17, 21, 25, 28]; 
-              
-        //       for (let dia of diasSeleccionados) {
-        //         if (dia > dias) continue; // Si el día es mayor al número de días del mes, lo saltamos
-        
-        //         const responsePregDia = await fetch(`${basePath}/api/reports?temporal=true&&count=true&&dia=${dia}&&mes=${mes}&&anio=${anio}&&asignatura=${subject}`);
-        
-        //         if (!responsePregDia.ok) {
-        //           throw new Error("Error cargando datos de uso por días");
-        //         }
-        
-        //         const nUsoPorDia = (await responsePregDia.json()).count;
-        //         const etiquetaFecha = `${dia} ${nombreMes} ${anio}`;
-        
-        //         arrayNporMes.push({ fecha: etiquetaFecha, count: nUsoPorDia });
-        //       }
-            
-        //   }
-        //   }
-        //   console.log(arrayNporMes)
-        //   setTemporal(arrayNporMes)
         
         let arrayNporMes = [];
-        const fechaActual = new Date();
-        const mesActual = fechaActual.getMonth() + 1;
-        const anioActual = fechaActual.getFullYear();
-        const anioInicio = anioActual - 1;
+        
+        if (fechaInicio!=null) {
+          
+            const start = new Date(fechaInicio);
+            const end = new Date(fechaFin);
+            // Calcular la diferencia en meses
+            const diffMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
 
-        for (let anio = anioInicio; anio <= anioActual; anio++) {
-          for (
-            let mes = anio === anioInicio ? mesActual : 1;
-            mes <= 12;
-            mes++
-          ) {
-            if (anio === anioActual && mes > mesActual) break;
+            if (diffMonths <= 3) {
+              // Si el rango es de 3 meses o menos, mostrar y consultar por días
+              let current = new Date(start);
+              while (current <= end) {
+                const dia = current.getDate();
+                const mes = current.getMonth() + 1;
+                const anio = current.getFullYear();
+                const nombreMes = new Intl.DateTimeFormat("es-ES", { month: "long" }).format(current);
+                const etiquetaFecha = `${dia} ${nombreMes} ${anio}`;
 
-            const nombreMes = new Intl.DateTimeFormat("es-ES", {
-              month: "long",
-            }).format(new Date(anio, mes - 1, 1));
+                try {
+                  // Consulta por día
+                  const response = await fetch(urljoin(basePath, `/api/reports?temporal=true&&count=true&&dia=${dia}&&mes=${mes}&&anio=${anio}&&asignatura=${subject}&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`));
+                    if (!response.ok)
+                    throw new Error("Error cargando datos de uso por día");
 
-            try {
-              const response = await fetch(
-                `${basePath}/api/reports?temporal=true&&count=true&&mes=${mes}&&anio=${anio}&&asignatura=${subject}`
-              );
+                  const nUsoPorDia = (await response.json()).count;
+                  arrayNporMes.push({ fecha: etiquetaFecha, count: nUsoPorDia });
+                } catch (error) {
+                  console.error(
+                    `Error obteniendo datos para ${etiquetaFecha}:`,
+                    error
+                  );
+                }
+                // Avanzar al siguiente día
+                current.setDate(current.getDate() + 1);
+              }
+            } else {
+              // Si el rango es mayor de 3 meses, mostrar y consultar por meses
+              start.setDate(1);
+              end.setDate(1);
+              let current = new Date(start);
+              while (current <= end) {
+                const mes = current.getMonth() + 1;
+                const anio = current.getFullYear();
+                const nombreMes = new Intl.DateTimeFormat("es-ES", { month: "long" }).format(current);
+                const etiquetaFecha = `${nombreMes} ${anio}`;
 
-              if (!response.ok)
-                throw new Error("Error cargando datos de uso por mes");
+                try {
+                  // Consulta por mes
+                  const response = await fetch(
+                    `${basePath}/api/reports?temporal=true&&count=true&&mes=${mes}&&anio=${anio}&&asignatura=${subject}&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`
+                  );
+                  if (!response.ok)
+                    throw new Error("Error cargando datos de uso por mes");
 
-              const nUsoPorMes = (await response.json()).count;
-              const etiquetaFecha = `${nombreMes} ${anio}`;
-
-              arrayNporMes.push({ fecha: etiquetaFecha, count: nUsoPorMes });
-            } catch (error) {
-              console.error(
-                `Error obteniendo datos para ${nombreMes} ${anio}:`,
-                error
-              );
+                  const nUsoPorMes = (await response.json()).count;
+                  arrayNporMes.push({ fecha: etiquetaFecha, count: nUsoPorMes });
+                } catch (error) {
+                  console.error(
+                    `Error obteniendo datos para ${etiquetaFecha}:`,
+                    error
+                  );
+                }
+                current.setMonth(current.getMonth() + 1);
+              }
             }
+
+        }else{
+              const fechaActual = new Date();
+              const mesActual = fechaActual.getMonth() + 1;
+              const anioActual = fechaActual.getFullYear();
+              const anioInicio = anioActual - 1;
+
+              for (let anio = anioInicio; anio <= anioActual; anio++) {
+                for (
+                  let mes = anio === anioInicio ? mesActual : 1;
+                  mes <= 12;
+                  mes++
+                ) {
+                  if (anio === anioActual && mes > mesActual) break;
+
+                  const nombreMes = new Intl.DateTimeFormat("es-ES", {
+                    month: "long",
+                  }).format(new Date(anio, mes - 1, 1));
+
+                  try {
+                    console.log("aqui"+ subject)
+                    const response = await fetch(
+                      `${basePath}/api/reports?temporal=true&&count=true&&mes=${mes}&&anio=${anio}&&asignatura=${subject}&&fechaInicio=${fechaInicio}&&fechaFin=${fechaFin}`
+                    );
+
+                    if (!response.ok)
+                      throw new Error("Error cargando datos de uso por mes");
+
+                    const nUsoPorMes = (await response.json()).count;
+                    const etiquetaFecha = `${nombreMes} ${anio}`;
+
+                    arrayNporMes.push({ fecha: etiquetaFecha, count: nUsoPorMes });
+                  } catch (error) {
+                    console.error(
+                      `Error obteniendo datos para ${nombreMes} ${anio}:`,
+                      error
+                    );
+                  }
+                }
+              }
+
           }
-        }
+          setTemporal(arrayNporMes);
 
-        console.log(arrayNporMes);
-        setTemporal(arrayNporMes);
-
-        
-        
         
 
       } catch (err) {
@@ -287,8 +347,12 @@ const SubjectPage = ({ params: { subject } }) => {
       }
     };
 
+ 
+    
     fetchReports();
-  }, []);
+    
+   
+  }, [fechaInicio, fechaFin]);
 
 
   if (loading) return <p className="text-center text-lg">Cargando datos...</p>;
@@ -301,6 +365,31 @@ const SubjectPage = ({ params: { subject } }) => {
     <main className="container-layout">
       <Header />
       <div className=" container-content">
+
+          {/* Selector de rango de fechas */}
+        <div className="flex gap-4 mb-6 justify-center">
+          <div>
+            <label className="block mb-1 font-semibold">Fecha inicio:</label>
+            <input
+              type="date"
+              value={fechaInicio}
+              onChange={e => setFechaInicio(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+          </div>
+          <div>
+            <label className="block mb-1 font-semibold">Fecha fin:</label>
+            <input
+              type="date"
+              value={fechaFin}
+              onChange={e => setFechaFin(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+          </div>
+        </div>
+
+
+
         <h1 className="text-3xl font-bold mb-4 text-center ">{subject}</h1>
 
         <button className='btn-sm-icon btn-ghost flex mb-4' onClick={handlePlayAgain}>
@@ -323,6 +412,38 @@ const SubjectPage = ({ params: { subject } }) => {
           <div className="mb-2">
           <Link  className="text-sm p-3 bg-yellow-200    rounded transition-all duration-300 hover:bg-yellow-300 hover:shadow-lg hover:-translate-y-1" href={{ pathname: '/reports/'+ subject + '/pregreport' }} id={subject}> {t("reports.subtitle1")}</Link>
           </div>
+
+
+
+                <h2 className="text-sl font-semibold mt-4 mb-4 text-center">
+                {t("reports.graph0_title")}
+                </h2>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart
+                    layout="vertical"
+                    data={motivosReportadas}
+                  >
+                    <CartesianGrid strokeDasharray="3 3"  />
+                      <XAxis type="number" domain={[0, 100]} />
+                    <YAxis
+                      dataKey="motivo"
+                      type="category"
+                      tick={{ fontSize: 9 }}
+                      width={140}
+                    />
+                    <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" }} />
+                    <Legend  />
+                    <Bar
+                      dataKey="porcentaje"
+                      fill="#B57EDC" 
+                      name={t("reports.porcentaje")}
+                      barSize={80}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+
+
+
         </section>
 
 
@@ -636,7 +757,7 @@ const SubjectPage = ({ params: { subject } }) => {
              <YAxis   />
              <Tooltip />
              <Legend />
-             <Line type="monotone" dataKey="count" stroke="#007bff" strokeWidth={2} dot={false} name={t("reports.pormeses")}/>
+             <Line type="monotone" dataKey="count" stroke="#B57EDC" strokeWidth={2} dot={false} name={t("reports.pormeses")}/>
              </LineChart>
             </ResponsiveContainer>
       </section>

@@ -40,7 +40,6 @@ const SubjectPage = ({ params: { subject } }) => {
     setShowEvaluation(!showEvaluation);
   };
 
-  // Función para manejar el cambio de opción seleccionada
   const handleOptionChange = (event) => {
     console.log(event.target.value)
     setSelectedOption(event.target.value);
@@ -76,8 +75,8 @@ const SubjectPage = ({ params: { subject } }) => {
   }
 
   const openEvaluationModal = (question) => {
-    setSelectedQuestion(question); // Asignamos la pregunta seleccionada al estado
-    toggleEvaluation(); // Abrimos el modal
+    setSelectedQuestion(question); 
+    toggleEvaluation(); 
   };
 
   const submitEvaluation = async () => {
@@ -85,7 +84,6 @@ const SubjectPage = ({ params: { subject } }) => {
       data.id = selectedQuestion.id;
       data.teacherReport = selectedOption;
       data.teacherComments = selectedComments;
-
     const url = urljoin(basePath, '/api/evaluationReportedQuestions');
         const response = await fetch(url, {
             method: 'POST',
@@ -194,7 +192,7 @@ const SubjectPage = ({ params: { subject } }) => {
                   Evaluar Pregunta
                 </button>
 
-                {/* Modal para seleccionar la opción */}
+                
                 {showEvaluation &&  (
                   <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5">
                     <div className="bg-white py-3 px-4 md:py-6 md:px-8 w-11/12  md:w-1/2 rounded shadow-lg">

@@ -8,6 +8,7 @@ await dbConnect();
 //api path to create a new answer or report "/api/answer" passing neccesary data (see POST in page.js)
 export async function POST(request) { 
     try {
+       
         const { id, teacherComments, teacherReport} = await request.json();
         console.log(id, teacherComments, teacherReport)
         //console.log("received params: ",id, subject, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, llmModel, ABC_Testing, prompt);
@@ -22,7 +23,7 @@ export async function POST(request) {
             // Añadimos los nuevos campos
             question.teacherReport = teacherReport;
             question.teacherComments = teacherComments;
-            console.log("prueba ",question);
+
             // Guardamos el documento actualizado
             await question.save();
 

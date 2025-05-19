@@ -92,6 +92,8 @@ export const es = {
         pregreport1: "Número de preguntas reportadas",
         pregreport2: "Número de preguntas reportadas evaluadas",
         pregreport3: "Número de preguntas reportadas sin evaluar",
+        graph0_title: " Motivos de reporte",
+        porcentaje: "Porcentaje",
         subtitle2: "Frecuencia y Porcentaje de acierto según Dificultad",
         dificultad: "Dificultad",
         preguntas: "Preguntas",
@@ -112,5 +114,14 @@ export const es = {
         pormeses: "Número de preguntas respondidas",
         
 
+    },
+
+    pregreports: {
+        opt: "OPCIONES",
+        exp: "EXPLICACIÓN",
+        ans: "RESPUESTA CORRECTA",
+        title: "Evaluar pregunta",
+        button: "Enviar evaluación"
     }
+
 };
