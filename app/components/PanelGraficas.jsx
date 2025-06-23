@@ -1,6 +1,6 @@
 // PanelGraficas.js
 import React from "react";
-import Link from 'next/link';
+
 import {
   BarChart,
   Bar,
@@ -13,7 +13,7 @@ import {
   LineChart,
   Line
 } from "recharts";
-import { HiArrowLeft } from 'react-icons/hi2';
+
 
 const PanelGraficas = ({
   subject,
@@ -29,13 +29,12 @@ const PanelGraficas = ({
   frecuenciaAciertoSubtemaporTema,
   Temporal,
   t,
-  handlePlayAgain
 }) => (
   <div className="container-content">
     {/* Selector de rango de fechas */}
     <div className="flex gap-4 mb-6 justify-center">
       <div>
-        <label className="block mb-1 font-semibold">Fecha inicio:</label>
+        <label className="block mb-1 font-semibold">{t("reports.fechainicio")}:</label>
         <input
           type="date"
           value={fechaInicio || ""}
@@ -44,7 +43,7 @@ const PanelGraficas = ({
         />
       </div>
       <div>
-        <label className="block mb-1 font-semibold">Fecha fin:</label>
+        <label className="block mb-1 font-semibold">{t("reports.fechafin")}:</label>
         <input
           type="date"
           value={fechaFin || ""}
@@ -54,12 +53,9 @@ const PanelGraficas = ({
       </div>
     </div>
 
-    <h1 className="text-3xl font-bold mb-4 text-center ">{subject}</h1>
+    
 
-    <button className='btn-sm-icon btn-ghost flex mb-4' onClick={handlePlayAgain}>
-      <HiArrowLeft sx={{fontSize: 18}} className='mt-1'/>
-      {t('quizpage.back')}
-    </button>
+    
 
     {/* 1. Preguntas reportadas */}
     <section className="mb-6 p-4 border rounded-lg shadow">
@@ -72,11 +68,7 @@ const PanelGraficas = ({
       <p className="text-sm mb-4">
         {t("reports.pregreport2")}: {reportadasCorregidas}
       </p>
-      <div className="mb-2">
-        <Link className="text-sm p-3 bg-yellow-200 rounded transition-all duration-300 hover:bg-yellow-300 hover:shadow-lg hover:-translate-y-1" href={{ pathname: '/reports/'+ subject + '/pregreport' }} id={subject}>
-          {t("reports.subtitle1")}
-        </Link>
-      </div>
+      
       <h2 className="text-sl font-semibold mt-4 mb-4 text-center">
         {t("reports.graph0_title")}
       </h2>
@@ -135,9 +127,9 @@ const PanelGraficas = ({
             {t("reports.graph1_title")}
           </h2>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={aciertosDificultad}>
+            <BarChart data={aciertosDificultad}  >
               <CartesianGrid strokeDasharray="3 3"  />
-              <XAxis dataKey="dif"  />
+              <XAxis dataKey="dif"  angle={-30} textAnchor="end"  tick={{ fontSize: 8 }}/>
               <YAxis  domain={[0, 100]} />
               <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" }} />
               <Legend />
@@ -157,7 +149,7 @@ const PanelGraficas = ({
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={aciertosDificultad}>
               <CartesianGrid strokeDasharray="3 3"  />
-              <XAxis dataKey="dif"  />
+              <XAxis dataKey="dif"  angle={-30} textAnchor="end"  tick={{ fontSize: 8 }}/>
               <YAxis />
               <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" }} />
               <Legend  />
@@ -207,7 +199,7 @@ const PanelGraficas = ({
               <h2 className="text-sl font-semibold mb-2 text-center">
                 {t("reports.graph3_title")} 
               </h2>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%"  height={frecuenciaAciertoTemaporAsignatura[as].length * 40 + 50}>
                 <BarChart
                   layout="vertical"
                   data={frecuenciaAciertoTemaporAsignatura[as]}
@@ -235,7 +227,7 @@ const PanelGraficas = ({
               <h2 className="text-sl font-semibold mb-2 text-center">
                 {t("reports.graph4_title")}
               </h2>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={frecuenciaAciertoTemaporAsignatura[as].length * 40 + 50}>
                 <BarChart
                   layout="vertical"
                   data={frecuenciaAciertoTemaporAsignatura[as]}
@@ -299,18 +291,18 @@ const PanelGraficas = ({
               <h2 className="text-sl font-semibold mb-2 text-center">
                 {t("reports.graph5_title")} {tema}
               </h2>
-              <ResponsiveContainer width="100%" height={440}>
-                <BarChart
-                  layout="vertical"
-                  data={frecuenciaAciertoSubtemaporTema[tema]}
-                >
+                <ResponsiveContainer width="100%" height={frecuenciaAciertoSubtemaporTema[tema].length * 40 + 50}>
+                  <BarChart
+                    layout="vertical"
+                    data={frecuenciaAciertoSubtemaporTema[tema]}
+                  >
                   <CartesianGrid strokeDasharray="3 3"  />
                   <XAxis type="number"  domain={[0, 100]} />
                   <YAxis
                     dataKey="subtema"
                     type="category"
                     tick={{ fontSize: 8, textAnchor: "end" }}
-                    width={200}
+                    width={100}
                   />
                   <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" } } />
                   <Legend />
@@ -318,7 +310,7 @@ const PanelGraficas = ({
                     dataKey="porcentaje"
                     fill="#86cb98"
                     name={t("reports.porcentaje_acierto")}
-                    barSize={60}
+                    barSize={40}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -327,7 +319,7 @@ const PanelGraficas = ({
               <h2 className="text-sl font-semibold mb-2 text-center">
                 {t("reports.graph6_title")} {tema}
               </h2>
-              <ResponsiveContainer width="100%" height={440}>
+              <ResponsiveContainer width="100%" height={frecuenciaAciertoSubtemaporTema[tema].length * 40 + 50}>
                 <BarChart
                   layout="vertical"
                   data={frecuenciaAciertoSubtemaporTema[tema]}
@@ -338,7 +330,7 @@ const PanelGraficas = ({
                     dataKey="subtema"
                     type="category"
                     tick={{ fontSize: 8 }}
-                    width={200}
+                    width={100}
                   />
                   <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" }} />
                   <Legend  />

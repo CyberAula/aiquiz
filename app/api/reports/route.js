@@ -136,7 +136,6 @@ export async function GET(req) {
           let dateFilter = {};
           if (fechaInicio) dateFilter.$gte = new Date(fechaInicio);
           if (fechaFin) {
-            // Para incluir todo el día de fechaFin, ajusta a las 23:59:59
             let fin = new Date(fechaFin);
             fin.setHours(23, 59, 59, 999);
             dateFilter.$lte = fin;
@@ -144,8 +143,8 @@ export async function GET(req) {
           filtros.$or = [
             { createdAt: dateFilter },
             { created_at: dateFilter },
-            { updated_at: dateFilter },
-            { updatedAt: dateFilter }
+            // { updated_at: dateFilter },
+            // { updatedAt: dateFilter }
           ];
       }
 
