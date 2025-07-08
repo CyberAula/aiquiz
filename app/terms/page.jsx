@@ -3,26 +3,26 @@
 export default function Terms() {
     return (
         <div className="container">
-            <h1>Términos de Uso y Condiciones Legales - AIquiz ETSIT</h1>
+            <h1>Términos de Uso y Condiciones Legales - AIQUIZ</h1>
             <p>
-                Bienvenido a AIquiz ETSIT (https://servicios-ging.dit.upm.es/aiquiz), una plataforma web para crear y realizar escape rooms educativas. Los siguientes Términos de Uso y Condiciones Legales (en adelante "Términos y Condiciones") rigen el acceso y uso de esta plataforma y los servicios proporcionados por ella. Al acceder o utilizar AIquiz ETSIT, usted acepta estos Términos y Condiciones, así como la Política de Privacidad
-                de la plataforma. Si no está de acuerdo con estos Términos y Condiciones o con la Política de Privacidad, le pedimos que no utilice AIquiz ETSIT.
+                Bienvenido a AIQUIZ  (https://servicios-ging.dit.upm.es/aiquiz), una plataforma web para crear y realizar cuestionarios utilizando IA generativa. Los siguientes Términos de Uso y Condiciones Legales (en adelante "Términos y Condiciones") rigen el acceso y uso de esta plataforma y los servicios proporcionados por ella. Al acceder o utilizar AIQUIZ, usted acepta estos Términos y Condiciones, así como la Política de Privacidad
+                de la plataforma. Si no está de acuerdo con estos Términos y Condiciones o con la Política de Privacidad, le pedimos que no utilice AIQUIZ.
             </p>
-            <h2>1. Definición de Términos Clave</h2>
+            <b><h2>1. Definición de Términos Clave</h2></b>
             <ul>
                 <li>Autor: usuario registrado que tiene permisos para crear, subir y alojar contenido en la plataforma.</li>
-                <li>Contenido: cualquier texto, información, escape room, elemento de una escape room, recurso, página web, imagen o archivo de cualquier tipo.</li>
-                <li>Plataforma: se refiere a la plataforma web llamada AIquiz ETSIT accesible en https://servicios-ging.dit.upm.es/aiquiz y los servicios proporcionados por ella.</li>
+                <li>Contenido: cualquier texto, información, recurso o archivo de cualquier tipo.</li>
+                <li>Plataforma: se refiere a la plataforma web llamada AIQUIZ accesible en https://servicios-ging.dit.upm.es/aiquiz y los servicios proporcionados por ella.</li>
                 <li>Proveedor: se refiere al grupo de investigación GING (Grupo Internet de Nueva Generación) de la Universidad Politécnica de Madrid.</li>
                 <li>Usuario: cualquier persona que acceda a la plataforma, independientemente de que se haya registrado o no.</li>
                 <li>Usuario registrado: cualquier persona que acceda a la plataforma y que se haya registrado en la misma.</li>
             </ul>
-            <h2>2. Proveedor de la Plataforma</h2>
+            <b><h2>2. Proveedor de la Plataforma</h2></b>
             <p>La plataforma es operada y gestionada por el grupo de investigación GING (Grupo Internet de Nueva Generación) de la Universidad Politécnica de Madrid.</p>
-            <h2>3. Condiciones de Uso</h2>
+            <b><h2>3. Condiciones de Uso</h2></b>
             <ul>
                 <li>La plataforma estará disponible en la URL https://servicios-ging.dit.upm.es/aiquiz y su utilización será de carácter gratuito.</li>
-                <li>Cualquier usuario puede registrarse en la plataforma. Sin embargo, el registro como autor está reservado únicamente a personas expresamente autorizadas por el proveedor. El proveedor se reserva el derecho de revocar esta autorización en cualquier momento y a su entera discreción, sin que ello genere derecho a indemnización o compensación alguna para el usuario afectado.</li>
+                <li>Cualquier usuario puede utilzar gratuitamente la plataforma como alumno. Sin embargo, el registro como profesor está reservado únicamente a personas expresamente autorizadas por el proveedor. El proveedor se reserva el derecho de revocar esta autorización en cualquier momento y a su entera discreción, sin que ello genere derecho a indemnización o compensación alguna para el usuario afectado.</li>
                 <li>Los usuarios se comprometen a utilizar la plataforma y el contenido ofrecido de acuerdo con las leyes, la moral, las buenas costumbres y el orden público.</li>
                 <li>La información proporcionada por los usuarios relativa a sus cuentas de usuario deberá ser veraz, exacta y completa.</li>
                 <li>El nombre de usuario no podrá consistir en una palabra o expresión que coincida con alguna marca, nombre comercial, denominación social o publicitaria o nombre artístico de terceros, protegidas todas ellas por las leyes de propiedad industrial e intelectual, ni podrá ser injurioso, racista, xenófobo o atentar de manera general contra la integridad de terceros o contra la moral y las buenas costumbres.</li>
@@ -40,13 +40,13 @@ export default function Terms() {
                 <li>El proveedor podrá interrumpir o suspender de manera temporal el acceso a la plataforma, sin que este hecho suponga reclamación o indemnización alguna.</li>
                 <li>El proveedor podrá, en cualquier momento, finalizar el servicio ofrecido por la plataforma de manera definitiva y borrar todos los datos almacenados en la misma, sin que por este hecho pueda exigírsele responsabilidad alguna.</li>
             </ul>
-            <h2>4. Jurisdicción</h2>
+            <b><h2>4. Jurisdicción</h2></b>
             <p>Estos Términos y Condiciones se rigen por las leyes de España y de la Unión Europea (UE). Cualquier disputa, controversia o reclamación derivada de o relacionada con estos Términos y Condiciones, o con el uso de la plataforma, se someterá exclusivamente a la jurisdicción de los Juzgados y Tribunales de la ciudad de Madrid, salvo en los casos en que no sea posible por aplicación de la ley. En caso de duda, prevalecerá siempre la legislación aplicable en España.</p>
-            <h2>5. Actualizaciones de los Términos y Condiciones</h2>
+            <b><h2>5. Actualizaciones de los Términos y Condiciones</h2></b>
             <p>Nos reservamos el derecho de actualizar estos Términos y Condiciones en el futuro. El acceso o uso continuado de la plataforma tras la entrada en vigor de cualquier modificación implicará su aceptación. Notificaremos cualquier cambio significativo en estos Términos y Condiciones o en la Política de Privacidad a través de correo electrónico o mediante la propia plataforma.</p>
             <p>
                 <strong>Última actualización:</strong>
-                31 de marzo de 2025.
+                20 de abril de 2025.
             </p>
             <style jsx>{`
                 html {

@@ -20,7 +20,7 @@ await dbConnect();
 // Manejar las solicitudes HTTP POST
 export async function POST(request) {
     try {
-        const { language, difficulty, topic, numQuestions, studentEmail, subject } = await request.json();
+        const { topic, difficulty, subTopic, numQuestions, studentEmail, subject } = await request.json();
 
         // Cargamos variables y objetos de configuración
 
@@ -37,7 +37,7 @@ export async function POST(request) {
         let subjectIndex = await existingStudent?.subjects?.findIndex(s => s.subjectName === subject);
 
         // SOLICITUD A LA API de promptManager para obtener el prompt final
-        let finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, language, difficulty, topic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
+        let finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
 
         // SOLICITUD A LA API de modelManager para asignar un modelo de LLM al alumno
         const assignedModel = await assignAIModel(abcTestingConfig, has_abctesting, existingStudent, studentSubjectData, subjectIndex);

@@ -1,8 +1,8 @@
 import dbConnect from "../../utils/dbconnect.js";
 import { NextResponse } from 'next/server';
 
-import { language } from '../../constants/language';
-import { subjectNames } from '../../constants/language';
+import {subjects} from '../../constants/subjects';
+
 import Question from '../../models/Question.js';
 
 //to get student track record
@@ -20,19 +20,18 @@ export async function POST(request) {
     try {
         const { subject } = await request.json();
         //get subject name
-        const subjectName = subjectNames[subject];
-
+        const subjectName = subjects[subject]?.name
         //first get data from database MongoDB
 
-        //get all languages for subject
-        const languages = language[subject];
-        //transform languages into array of string of languages
-        const languagesArray = languages.map(lang => lang.label);
+        //get all topics for subject
+        const topics = subjects[subject]?.topics;
+        //transform topics into array of string of topics
+        const topicsArray = topics.map(lang => lang.label);
         //get all questions for the subject
-        const numQuestionsTotal = await Question.countDocuments({ language: { $in: languagesArray } });
+        const numQuestionsTotal = await Question.countDocuments({ topic: { $in: topicsArray } });
         console.log("numQuestionsTotal: ", numQuestionsTotal);
 
-        let questionsReported = await Question.find({ language: { $in: languagesArray }, studentReport: true });
+        let questionsReported = await Question.find({ topic: { $in: topicsArray }, studentReport: true });
 
         console.log("numQuestionsReported: ", questionsReported.length);
 
@@ -48,7 +47,7 @@ export async function POST(request) {
         }
 
         //count questions right, this is answer is the same as the student answer
-        let questionsRight = await Question.find({ language: { $in: languagesArray }, studentReport: false, $expr: { $eq: ["$answer", "$studentAnswer"] } });
+        let questionsRight = await Question.find({ topic: { $in: topicsArray }, studentReport: false, $expr: { $eq: ["$answer", "$studentAnswer"] } });
         console.log("numQuestionsRight: ", questionsRight.length);
 
         //get 20 questions right randomly chosen from the array
@@ -63,7 +62,7 @@ export async function POST(request) {
         }
 
         //count questions wrong, this is answer is different from the student answer
-        let questionsWrong = await Question.find({ language: { $in: languagesArray }, studentReport: false, $expr: { $ne: ["$answer", "$studentAnswer"] }});
+        let questionsWrong = await Question.find({ topic: { $in: topicsArray }, studentReport: false, $expr: { $ne: ["$answer", "$studentAnswer"] }});
         console.log("numQuestionsWrong: ", questionsWrong.length);
 
         //get 5 questions wrong randomly chosen from the array
@@ -80,9 +79,9 @@ export async function POST(request) {
 
         //now ask AI to generate insights:
         let newPrompt = `De un banco de preguntas para la asignatura "${subjectName}" de un grado de ingeniería de la Universidad Politécnica de Madrid, se han respondido ${numQuestionsTotal} preguntas. `;
-        //transform languages into array of string of languages
-        const languagesNamesArray = languages.map(lang => lang.label);
-        newPrompt += `Las preguntas son sobre ${languagesNamesArray.join(", ")}. `;
+        //transform topics into array of string of topics
+        const topicsNamesArray = topics.map(lang => lang.label);
+        newPrompt += `Las preguntas son sobre ${topicsNamesArray.join(", ")}. `;
 
         newPrompt += `Se han respondido ${samplequestionsRight.length} preguntas correctamente, que son las siguientes: `;
         for (let i = 0; i < samplequestionsRight.length; i++) {
@@ -122,7 +121,7 @@ export async function POST(request) {
         let response2 = '';
         if(samplequestionsReported.length > 0){
             let newPrompt2 = `De un banco de preguntas para la asignatura "${subjectName}" de un grado de ingeniería de la Universidad Politécnica de Madrid, se han respondido ${numQuestionsTotal} preguntas. `;
-            newPrompt2 += `Las preguntas son sobre ${languagesNamesArray.join(", ")}. `;
+            newPrompt2 += `Las preguntas son sobre ${topicsNamesArray.join(", ")}. `;
             newPrompt2 += `Los estudiantes además de responder las preguntas pueden reportar las incorrectas. `;
             newPrompt2 += `Se han reportado como incorrectas ${samplequestionsReported.length} preguntas, que son las siguientes: `;
             for (let i = 0; i < samplequestionsReported.length; i++) {

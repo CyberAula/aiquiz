@@ -148,28 +148,6 @@ body {
         }
     } 
 }
-#cdps {
-    @apply bg-cdps-100/70 hover:bg-cdps-100 ;
-    .subject-acronym {
-       @apply  text-purple-400/60
-    };
-    &:hover {
-        .subject-acronym {
-            @apply  text-purple-500/80 transition
-        }
-    } 
-}
-#prg {
-    @apply bg-prg-100/70 hover:bg-prg-100 ;
-    .subject-acronym {
-       @apply text-gray-400/50
-    };
-    &:hover {
-        .subject-acronym {
-            @apply text-gray-500/70 transition
-        }
-    } 
-}
 
 .bg-grid {
   width: 100vw;

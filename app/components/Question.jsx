@@ -8,7 +8,7 @@ import CheckOutlined from "@mui/icons-material/CheckOutlined";
 
 const basePath = nextConfig.basePath || '';
 
-const Question = ({ numQuestions, question, order, addSubmission, addReport, setNumCorrect, language, subject, topic, difficulty }) => {
+const Question = ({ numQuestions, question, order, addSubmission, addReport, setNumCorrect, topic, subject, subTopic, difficulty }) => {
     const { t, i18n } = useTranslation();
 
     //console.log('order:', order);
@@ -86,9 +86,9 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
           "_id": ObjectId("5f3f8e3e3e3e3e3e3e3e3e3e"),
           "id": 394823782738,
           "subject": "CORE",
-          "language": "JavaScript",
+          "topic": "JavaScript",
           "difficulty": "intermedio",
-          "topic": "asincronía",
+          "subTopic": "asincronía",
           "query": "¿Qué método se utiliza para ejecutar una función después de cierto tiempo en JavaScript?",
           "choices": [
               "setTimeout()",
@@ -145,9 +145,9 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         const data = {};
         data.id = id;
         data.subject = subject;
-        data.language = language;
-        data.difficulty = difficulty;
         data.topic = topic;
+        data.difficulty = difficulty;
+        data.subTopic = subTopic;
         data.query = query;
         data.choices = choices;
         data.answer = answer;        

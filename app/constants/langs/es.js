@@ -17,6 +17,7 @@ export const es = {
         title: "Asignatura: ",
         description: "¡Realiza tantos cuestionarios como desees sobre los temas del curso!",
         topic: "Tema",
+        preSubtopic: "Subtema anterior",
         choose: "Elige un tema",
         choose2: "Elige el tema que deseas repasar",
         subtopic: "Subtema",
@@ -54,6 +55,7 @@ export const es = {
         testof: "Test de",
         about: "sobre",
         subjectof: "Nombre de la asignatura:",
+        finish: "Finalizar",
     },
     question: {
         answer: "Responder",
@@ -65,7 +67,7 @@ export const es = {
     },
     endscreen: {
         title: "Nota:",
-        back: "Volver al inicio",
+        back: "Volver a la asignatura",
         repeat: "Repetir test"
     },
     dashboard: {

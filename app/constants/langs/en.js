@@ -16,6 +16,7 @@ export const en = {
         title: "Subject: ",
         description: "Take as many quizzes as you want on topics of the course!",
         topic: "Topic",
+        preSubtopic: "Last subtopic",
         choose: "Choose a topic",
         choose2: "Choose the topic you want to review",
         subtopic: "Subtopic",
@@ -53,6 +54,7 @@ export const en = {
         testof: "Test of",
         about: "about",
         subjectof: "Course name: ",
+        finish: "Finish",
     },
     question: {
         answer: "Answer",
@@ -64,7 +66,7 @@ export const en = {
     },
     endscreen: {
         title: "Grade:",
-        back: "Back to start",
+        back: "Back to the subject",
         repeat: "Repeat test"
     },
     dashboard: {

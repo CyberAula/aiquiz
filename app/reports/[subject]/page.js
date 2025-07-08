@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Link from 'next/link';
 import urljoin from "url-join";
 
-import { language } from '../../constants/language';
-import { topics } from '../../constants/topics';
+
+import { subjects } from '../../constants/subjects';
 
 import Footer from "../../components/ui/Footer";
 import Header from "../../components/ui/Header";
@@ -153,7 +153,10 @@ const SubjectPage = ({ params: { subject } }) => {
 
         //Fetch frecuencia y acierto por tema
         let arrayNAporTema = {};
-        let subjectTemas = language[subject].map((lang) => lang.label);
+        let subjectTemas = [];
+        if (subjects[subject] && subjects[subject].topics) {
+          subjectTemas = subjects[subject].topics.map(topic => topic.label);
+        }
         
             await Promise.all(
               subjectTemas.map(async (tema) => {
@@ -184,46 +187,50 @@ const SubjectPage = ({ params: { subject } }) => {
 
 
         ////Fetch frecuencia y acierto por subtema
-        let arrayNAporSubtema = {};
-        let subjectTemas2 = language[subject].map((lang) => lang.value);
-      
-        await Promise.all(
-          subjectTemas2.map(async (tema) => {
+        let arrayNAporSubtema={};
+            if (subjects[subject] && subjects[subject].topics) {
+              await Promise.all(
+                subjects[subject].topics.map(async (topic) => {
+                  const tema = topic.value;
+                  if (!arrayNAporSubtema[tema]) {
+                    arrayNAporSubtema[tema] = [];
+                  }
+                  if (topic.subtopics) {
+                    await Promise.all(
+                      topic.subtopics.map(async (sub) => {
+                        const subtema = sub.title;
+                        const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&asignatura=${subject}&&fechaInicio=${fechaInicio1}&&fechaFin=${fechaFin1}`));
+                        const nTemaFrencuencia = (await responseTemaFrecuencia.json()).count;
+
+                        const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&acierto=true&&asignatura=${subject}&&fechaInicio=${fechaInicio1}&&fechaFin=${fechaFin1}`));
+                        const nTemaAcierto = (await responseTemaAcierto.json()).count;
+
+                        if (!responseTemaFrecuencia.ok || !responseTemaAcierto.ok)
+                          throw new Error("Error cargando datos frecuencia y acierto por subtema");
+
+                        let porcentaje = (nTemaAcierto * 100) / nTemaFrencuencia;
+                        if (nTemaFrencuencia === 0) {
+                          porcentaje = 0;
+                        }
+
+
+                        arrayNAporSubtema[tema].push({
+                          subtema: subtema,
+                          npreg: nTemaFrencuencia,
+                          acierto: nTemaAcierto,
+                          porcentaje: porcentaje.toFixed(2)
+                        });
+                      })
+                    );
+                  }
+                })
+              );
+            }
             
-            let SubtemasArray = topics[tema].map((t) => t);
-            
-            await Promise.all(
-              SubtemasArray.map(async (subtema) => {
-                
-                
-                const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&asignatura=${subject}&&fechaInicio=${fechaInicio1}&&fechaFin=${fechaFin1}`));
-                const nTemaFrencuencia = (await responseTemaFrecuencia.json()).count;
-
-                const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&acierto=true&&asignatura=${subject}&&fechaInicio=${fechaInicio1}&&fechaFin=${fechaFin1}`));
-                const nTemaAcierto = (await responseTemaAcierto.json()).count;
-                
-                if (!responseTemaFrecuencia.ok || !responseTemaAcierto.ok)
-                throw new Error("Error cargando datos frecuencia y acierto por tema");
-
-                let porcentaje = (nTemaAcierto * 100) / nTemaFrencuencia;
-                if (nTemaFrencuencia === 0) {
-                  porcentaje = 0;
-                }
-
-                if (!arrayNAporSubtema[tema]) {
-                  arrayNAporSubtema[tema] = [];
-                }
-                
-
-                arrayNAporSubtema[tema].push({subtema: subtema, npreg: nTemaFrencuencia, acierto: nTemaAcierto, porcentaje: porcentaje.toFixed(2)});
-              })
-            );
-           
-          })
-        );
-        console.log(arrayNAporSubtema)
-        setfrecuenciaAciertoSubtemaporTema(ordenarPorcentajeAcierto(arrayNAporSubtema));
+            setfrecuenciaAciertoSubtemaporTema(ordenarPorcentajeAcierto(arrayNAporSubtema));
        
+
+
 
         // //Fetch uso por meses
         
@@ -430,7 +437,10 @@ const SubjectPage = ({ params: { subject } }) => {
 
         //Fetch frecuencia y acierto por tema
         let arrayNAporTema = {};
-        let subjectTemas = language[subject].map((lang) => lang.label);
+        let subjectTemas = [];
+        if (subjects[subject] && subjects[subject].topics) {
+          subjectTemas = subjects[subject].topics.map(topic => topic.label);
+        }
         
             await Promise.all(
               subjectTemas.map(async (tema) => {
@@ -461,46 +471,45 @@ const SubjectPage = ({ params: { subject } }) => {
 
 
         ////Fetch frecuencia y acierto por subtema
-        let arrayNAporSubtema = {};
-        let subjectTemas2 = language[subject].map((lang) => lang.value);
-      
-        await Promise.all(
-          subjectTemas2.map(async (tema) => {
-            
-            let SubtemasArray = topics[tema].map((t) => t);
-            
-            await Promise.all(
-              SubtemasArray.map(async (subtema) => {
-                
-                
-                const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&asignatura=${subject}&&fechaInicio=${fechaInicio2}&&fechaFin=${fechaFin2}`));
-                const nTemaFrencuencia = (await responseTemaFrecuencia.json()).count;
+        let arrayNAporSubtema={};
+        if (subjects[subject] && subjects[subject].topics) {
+          await Promise.all(
+            subjects[subject].topics.map(async (topic) => {
+              const tema = topic.label;
+              if (!arrayNAporSubtema[tema]) {
+                arrayNAporSubtema[tema] = [];
+              }
+              if (topic.subtopics) {
+                await Promise.all(
+                  topic.subtopics.map(async (sub) => {
+                    const subtema = sub.title;
+                    const responseTemaFrecuencia = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&asignatura=${subject}&&fechaInicio=${fechaInicio1}&&fechaFin=${fechaFin1}`));
+                    const nTemaFrencuencia = (await responseTemaFrecuencia.json()).count;
 
-                const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&acierto=true&&asignatura=${subject}&&fechaInicio=${fechaInicio2}&&fechaFin=${fechaFin2}`));
-                const nTemaAcierto = (await responseTemaAcierto.json()).count;
-                
-                if (!responseTemaFrecuencia.ok || !responseTemaAcierto.ok)
-                throw new Error("Error cargando datos frecuencia y acierto por tema");
+                    const responseTemaAcierto = await fetch(urljoin(basePath, `/api/reports?subtema=${subtema.toLowerCase()}&&count=true&&acierto=true&&asignatura=${subject}&&fechaInicio=${fechaInicio1}&&fechaFin=${fechaFin1}`));
+                    const nTemaAcierto = (await responseTemaAcierto.json()).count;
 
-                let porcentaje = (nTemaAcierto * 100) / nTemaFrencuencia;
-                if (nTemaFrencuencia === 0) {
-                  porcentaje = 0;
-                }
+                    if (!responseTemaFrecuencia.ok || !responseTemaAcierto.ok)
+                      throw new Error("Error cargando datos frecuencia y acierto por subtema");
 
-                if (!arrayNAporSubtema[tema]) {
-                  arrayNAporSubtema[tema] = [];
-                }
-                
+                    let porcentaje = (nTemaAcierto * 100) / nTemaFrencuencia;
+                    if (nTemaFrencuencia === 0) {
+                      porcentaje = 0;
+                    }
 
-                arrayNAporSubtema[tema].push({subtema: subtema, npreg: nTemaFrencuencia, acierto: nTemaAcierto, porcentaje: porcentaje.toFixed(2)});
-              })
-            );
-           
-          })
-        );
-        console.log(arrayNAporSubtema)
+                    arrayNAporSubtema[tema].push({
+                      subtema: subtema,
+                      npreg: nTemaFrencuencia,
+                      acierto: nTemaAcierto,
+                      porcentaje: porcentaje.toFixed(2)
+                    });
+                  })
+                );
+              }
+            })
+          );
+        }
         setFrecuenciaAciertoSubtemaporTemaComparador(ordenarPorcentajeAcierto(arrayNAporSubtema));
-       
 
         // //Fetch uso por meses
         
