@@ -191,7 +191,7 @@ const SubjectPage = ({ params: { subject } }) => {
             if (subjects[subject] && subjects[subject].topics) {
               await Promise.all(
                 subjects[subject].topics.map(async (topic) => {
-                  const tema = topic.value;
+                  const tema = topic.label;
                   if (!arrayNAporSubtema[tema]) {
                     arrayNAporSubtema[tema] = [];
                   }
