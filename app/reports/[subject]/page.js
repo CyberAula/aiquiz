@@ -644,7 +644,7 @@ const SubjectPage = ({ params: { subject } }) => {
       <Header />
       <div className="container-content" >
 
-       <button className='btn-sm-icon btn-ghost flex mb-4' onClick={handleBack}>
+          <button className='btn-sm-icon btn-ghost flex mb-4' onClick={handleBack}>
           <HiArrowLeft sx={{fontSize: 18}} className='mt-1'/>
           {t('quizpage.back')}
           </button>

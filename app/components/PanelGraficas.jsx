@@ -51,6 +51,7 @@ const PanelGraficas = ({
           className="border rounded px-2 py-1"
         />
       </div>
+      
     </div>
 
     

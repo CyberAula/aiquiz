@@ -34,7 +34,7 @@ export async function GET(req) {
           $elemMatch: {
             $nin: [
               'Redacción confusa',
-              'Opcionesrepetidas',
+              'Opciones repetidas',
               'Opciones mal formuladas',
               'Varias opciones correctas',
               'Ninguna opción correcta',
@@ -69,11 +69,11 @@ export async function GET(req) {
     }
     
     if (searchParams.get('tema')) {
-      filtros.language = searchParams.get('tema');
+      filtros.topic = searchParams.get('tema');
     }
 
     if (searchParams.get('subtema')) {
-      filtros.topic = searchParams.get('subtema').toLowerCase();
+      filtros.subTopic = searchParams.get('subtema').toLowerCase();
     }
 
 
