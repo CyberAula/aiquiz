@@ -85,5 +85,49 @@ export const es = {
     },
     footer: {
         title: "Universidad Politécnica de Madrid - Grupo de Internet de Nueva Generación",
+    },
+    reports: {
+        title: "Reportes",
+        comparator: "Comparador",
+        scomparator: "Salir del comparator",
+        fechainicio: "Fecha inicio",
+        fechafin: "Fecha Fin",
+        description: "Escoge la asignatura de la que quieras obtener estadísticas",
+        subtitle0: "Preguntas reportadas",
+        subtitle1: "Evaluar reportadas",
+        pregreport1: "Número de preguntas reportadas",
+        pregreport2: "Número de preguntas reportadas evaluadas",
+        pregreport3: "Número de preguntas reportadas sin evaluar",
+        graph0_title: " Motivos de reporte",
+        porcentaje: "Porcentaje",
+        subtitle2: "Frecuencia y Porcentaje de acierto según Dificultad",
+        dificultad: "Dificultad",
+        preguntas: "Preguntas",
+        acierto: "Acierto",
+        porcentaje_acierto: "Porcentaje Acierto",
+        numero_preguntas: "Número de Preguntas",
+        graph1_title: "Porcentaje aciertos por Dificultad",
+        graph2_title: "Frecuencia de preguntas por Dificultad",
+        subtitle3: "Frecuencia y Acierto por cada Tema de",
+        graph3_title: "Porcentaje aciertos por cada Tema",
+        graph4_title: "Frecuencia de preguntas por cada Tema",
+        tema: "Tema",
+        subtitle4: "Frecuencia y Acierto de cada Subtema por Temas",
+        graph5_title: "Porcentaje aciertos por cada Subtema de",
+        graph6_title: "Frecuencia de preguntas por cada Subtema de",
+        subtema: "Subtema",
+        subtitle5: "¿Cuándo se ha utilizado más la aplicación?",
+        pormeses: "Número de preguntas respondidas",
+        
+
+    },
+
+    pregreports: {
+        opt: "OPCIONES",
+        exp: "EXPLICACIÓN",
+        ans: "RESPUESTA CORRECTA",
+        title: "Evaluar pregunta",
+        button: "Enviar evaluación"
     }
+
 };

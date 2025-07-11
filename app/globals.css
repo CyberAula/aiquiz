@@ -16,6 +16,11 @@ body {
  z-index: 0;  
 }
 
+.container-layout-reports{
+ @apply relative max-w-[1400px] mx-auto sm:mx-16 my-auto xl:mx-auto sm:my-4 bg-white rounded-md min-h-[93vh] 2xl:min-h-[80vh] flex flex-col;
+ z-index: 0;  
+}
+
 
 .container-content {
   @apply my-3 px-4 md:my-6 md:px-12

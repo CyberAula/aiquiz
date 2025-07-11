@@ -71,6 +71,14 @@ const questionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    teacherReport: {
+        type: String,
+        required: false,
+    },
+    teacherComments:{
+        type: Array,
+        required: false,
+    }
 
 }, { timestamps: true }); // Habilitamos `createdAt` y `updatedAt`
 

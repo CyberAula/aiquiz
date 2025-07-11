@@ -85,5 +85,48 @@ export const en = {
     },
     footer: {
         title: "Universidad Politécnica de Madrid - Next Generation Internet Group",
+    },
+    reports: {
+        title: "Reports",
+        comparator: "Comparator",
+        scomparator: "Exit comparator",
+        fechainicio: "Start date",
+        fechafin: "End date",
+        description: "Choose the subject you want to get statistics for",
+        subtitle0: "Reported questions",
+        subtitle1: "Evaluate reported questions",
+        pregreport1: "Number of reported questions",
+        pregreport2: "Number of reported questions evaluated",
+        pregreport3: "Number of reported questions without evaluation",
+        graph0_title: "Reporting reasons",
+        porcentaje: "Percentage",
+        subtitle2: "Frequency and Percentage of success according to Difficulty",
+        dificultad: "Difficulty",
+        preguntas: "Questions",
+        acierto: "Success",
+        porcentaje_acierto: "Success percentage",
+        numero_preguntas: "Number of questions",
+        graph1_title: "Percentage of success by difficulty",
+        graph2_title: "Frequency of questions by difficulty",
+        subtitle3: "Frequency and Success for each Language of",
+        graph3_title: "Percentage of success by each Language",
+        graph4_title: "Frequency of questions by each Language",
+        tema: "Language",
+        subtitle4: "Frequency and Success of each Topic by Languages",
+        graph5_title: "Percentage of success by each Topic of",
+        graph6_title: "Frequency of questions by each Topic of",
+        subtema: "Topic",
+        subtitle5: "When has the application been used the most?",
+        pormeses: "Number of questions answered",
+    },
+
+    pregreports: {
+        opt: "OPTIONS",
+        exp: "EXPLANATION",
+        ans: "CORRECT ANSWER",
+        title: "Evaluate question",
+        button: "Send evaluation"
     }
+
+
 };
