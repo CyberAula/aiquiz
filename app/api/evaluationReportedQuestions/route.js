@@ -17,20 +17,15 @@ export async function POST(request) {
         if (questions.length > 0) {
             console.log("Question already exists, we update it (maybe it was answered or reported)");
            
-            // Accedemos al primer resultado
+            // We acceed the question
             let question = questions[0];
             console.log("question before update: ",question);
-            // Añadimos los nuevos campos
+            // We add the new fields
             question.teacherReport = teacherReport;
             question.teacherComments = teacherComments;
 
-            // Guardamos el documento actualizado
+            // We save the new document
             await question.save();
-
-            const questionUpdat = await Question.find({id: id});
-            const questionUpdate = questionUpdat[0];
-
-            console.log("question updated: ",questionUpdate);
           }
         
         return NextResponse.json({"msg":"question evaluated"});
