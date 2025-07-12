@@ -29,6 +29,7 @@ const ReportPruebaPage = () => {
                       className="subject-button "
                       href={{ pathname: "/reports/CORE" }}
                       id="core"
+                      prefetch={false}
                     >
                       <p>Computación en Red </p>
                       <p className="subject-acronym ">CORE</p>
@@ -37,6 +38,7 @@ const ReportPruebaPage = () => {
                       className="subject-button "
                       href={{ pathname: "/reports/IBDN" }}
                       id="ibdn"
+                      prefetch={false}
                     >
                       <p> Ingeniería de Big Data en la Nube</p>
                       <p className="subject-acronym ">IBDN</p>
@@ -45,6 +47,7 @@ const ReportPruebaPage = () => {
                       className="subject-button "
                       href={{ pathname: "/reports/TECW" }}
                       id="tecw"
+                      prefetch={false}
                     >
                       <p> Tecnologías Web </p>
                       <p className="subject-acronym ">TECW</p>
@@ -61,6 +64,7 @@ const ReportPruebaPage = () => {
                       className="subject-button"
                       href={{ pathname: "/reports/IWEB" }}
                       id="iweb"
+                      prefetch={false}
                     >
                       <p>Ingeniería Web</p>
                       <p className="subject-acronym ">IWEB</p>

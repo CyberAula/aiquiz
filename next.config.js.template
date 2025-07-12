@@ -11,6 +11,7 @@ const nextConfig = {
     env: {
       BASIC_AUTH_USER: "admin", //admin user
       BASIC_AUTH_PASSWORD: "admin",
+      OPENAI_API_KEY: "YOUR_API_KEY", // for the dashboard
       MONGODB_URI: "mongodb://aiquiz-mongo:27017/aiquiz3",
       HOST_SERVER: "127.0.0.1",
       PORT_SERVER: "3000",
