@@ -58,6 +58,25 @@ const SubjectPage = ({ params: { subject } }) => {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [reloadTrigger, setReloadTrigger] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // Update selected comments when teacher comment changes
+  useEffect(() => {
+    const spanishComments = getSpanishComments();
+    const comments = checkedState.reduce(
+      (sum, currentState, index) => {
+        if (currentState === true) {
+          // If it's the "Otro" option (last index), use the teacher comment content
+          if (index === spanishComments.length - 1) {
+            return [...sum, teacherComment || spanishComments[index]];
+          }
+          return [...sum, spanishComments[index]];
+        }
+        return sum;
+      },
+      []
+    );
+    setSelectedComments(comments);
+  }, [teacherComment, checkedState]);
   const pageSize = 50;
   const totalPages = Math.ceil(totalReported / pageSize);
   const [filterEvaluated, setFilterEvaluated] = useState('noevaluadas'); // 'noevaluadas' o 'todas'
@@ -102,20 +121,6 @@ const SubjectPage = ({ params: { subject } }) => {
     );
 
     setCheckedState(updatedCheckedState);
-    
-    let commentsPlusTeacherComment = [...getSpanishComments(), teacherComment];
-
-    const comments = updatedCheckedState.reduce(
-      (sum, currentState, index) => {
-        if (currentState === true) {
-          return [...sum, commentsPlusTeacherComment[index]];
-        }
-        return sum;
-      },
-      []
-    );
-    console.log(comments)
-    setSelectedComments(comments);
   };
 
   const router = useRouter()
@@ -404,34 +409,27 @@ const SubjectPage = ({ params: { subject } }) => {
                                         style={{ marginRight: "6px" }}
                                       />
                                       {name}
+                                      {/* Show textarea only for "Otro" option */}
+                                      {name === t("evaluationComments.otro") && (
+                                        <>
+                                          <br></br>
+                                          <textarea
+                                            style={{
+                                              marginLeft: "22px",
+                                              width: "100%",
+                                              height: "100px",
+                                              resize: "none",
+                                            }}
+                                            onChange={(e) => {
+                                              setTeacherComment(e.target.value);
+                                            }}
+                                          ></textarea>
+                                        </>
+                                      )}
                                     </label>
                                   </div>
                                 );
                               })}
-
-                              <label>
-                                <input
-                                  type="checkbox"
-                                  value={"Otro"}
-                                  checked={checkedState[8]}
-                                  onChange={() => handleOnChange(8)}
-                                  style={{ marginRight: "6px" }}
-                                />
-                                {t("pregreports.otro")}
-                                <br></br>
-                                <textarea
-                                  style={{
-                                    marginLeft: "22px",
-                                    width: "100%",
-                                    height: "100px",
-                                    resize: "none",
-                                  }}
-                                  onChange={(e) => {
-                                    setTeacherComment(e.target.value),
-                                      handleOnChange();
-                                  }}
-                                ></textarea>
-                              </label>
                             </div>
                           </div>
                         )}
