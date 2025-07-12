@@ -48,6 +48,7 @@
     "react-simple-typewriter": "^5.0.1",
     "react-slick": "^0.29.0",
     "react-use": "^17.4.0",
+    "recharts": "^2.15.1",
     "slick-carousel": "^1.8.1",
     "sqlite3": "^5.1.6",
     "url-join": "^5.0.0"

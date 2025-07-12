@@ -3,6 +3,7 @@ import Logo from "../../components/ui/Logo";
 import LangSwitcher from "../../components/LangSwitcher";
 import HomeIcon from "@mui/icons-material/Home";
 import Link from 'next/link';
+import PersonIcon from '@mui/icons-material/Person';
 
 const Header = () => {
   return (
@@ -12,6 +13,11 @@ const Header = () => {
         <LangSwitcher />
         <Link href={{pathname: "/"}}>
           <HomeIcon xs={{ fontSize: 18 }} className="text-gray-600" />
+        </Link>
+        <Link 
+        href={{pathname: "/reports"}}
+        prefetch={false}>        
+          <PersonIcon xs={{ fontSize: 18 }} className="text-gray-600" />
         </Link>
       </div>
     </div>

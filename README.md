@@ -5,10 +5,10 @@
 https://github.com/user-attachments/assets/eb8e601e-a7f7-4b3e-b1ef-d50103a9d144
 
 
-
-Alvaro ya conectado
-
 ## Configuration
+
+Copy `next.config.js.template` to `next.config.js` and configure it.
+Copy `models.json.example` to `models.json` and configure it.
 
 Node 18
 
