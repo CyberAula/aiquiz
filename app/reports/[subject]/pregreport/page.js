@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import urljoin from "url-join";
 
+import {es} from "../../../constants/langs/es"
 
 import Footer from "../../../components/ui/Footer";
 import Header from "../../../components/ui/Header";
@@ -14,27 +15,75 @@ import { HiOutlineXMark } from 'react-icons/hi2'
 
 
 import nextConfig from "../../../../next.config.js";
+import { getEvaluationComments, getSpanishComments } from "../../../constants/evaluationComments.js";
 const basePath = nextConfig.basePath || "";
-const PossibleComments = ["Redacción confusa", "Opciones mal formuladas", "Opciones repetidas", "Varias opciones correctas", "Ninguna opción correcta", "Respuesta marcada incorrecta", "Explicación errónea", "Fuera de temario"]
 
 
 
 const SubjectPage = ({ params: { subject } }) => {
   const { t, i18n } = useTranslation();
+
+  // Calcular fecha de inicio por defecto
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1; // 1-based
+  const currentYear = today.getFullYear();
+  let defaultStartYear;
+  if (currentMonth >= 9) {
+    defaultStartYear = currentYear;
+  } else {
+    defaultStartYear = currentYear - 1;
+  }
+  const defaultFechaInicio = `${defaultStartYear}-09-01`;
+
+  const [fechaInicio, setFechaInicio] = useState(defaultFechaInicio);
+  const [fechaFin, setFechaFin] = useState((new Date()).toISOString().split('T')[0]);
+
+  // Estados locales para fechas temporales
+  const [tempFechaInicio, setTempFechaInicio] = useState(defaultFechaInicio);
+  const [tempFechaFin, setTempFechaFin] = useState((new Date()).toISOString().split('T')[0]);
   
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [reportadas, setReportadas] = useState(null);
+  const [reportadas, setReportadas] = useState([]);
+  const [totalReportadas, setTotalReportadas] = useState(0);
+  const [reportadasSinEvaluar, setReportadasSinEvaluar] = useState(0);
+  const [totalReportadasTodas, setTotalReportadasTodas] = useState(0);
 
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [selectedOption, setSelectedOption] = useState("todo_correcto");
   const [selectedComments, setSelectedComments] = useState([]);
-  const [checkedState, setCheckedState] = useState(new Array(PossibleComments.length + 1 ).fill(false));
+  const [checkedState, setCheckedState] = useState(new Array(getSpanishComments().length).fill(false));
   const [teacherComment, setTeacherComment] = useState(''); 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [reloadTrigger, setReloadTrigger] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 50;
+  const totalPages = Math.ceil(totalReportadas / pageSize);
+  const [filterEvaluadas, setFilterEvaluadas] = useState('noevaluadas'); // 'noevaluadas' o 'todas'
 
+  // Función para traducir los valores de teacherReport
+  const translateTeacherReport = (teacherReport) => {
+    if (teacherReport === "todo_correcto") {
+      return t("pregreports.todoCorrecto");
+    } else if (teacherReport === "fallo") {
+      return t("pregreports.tieneFallo");
+    }
+    return teacherReport;
+  };
+
+  // get from the spanish content the key used for translations
+  const evaluationCommentMap = Object.entries(es.evaluationComments || {}).reduce((acc, [key, value]) => {
+    acc[value] = key;
+    return acc;
+  }, {});
+  const translateEvaluationComment = (comment) => {
+    const key = evaluationCommentMap[comment];
+    if (key && t(`evaluationComments.${key}`) !== `evaluationComments.${key}`) {
+      return t(`evaluationComments.${key}`);
+    }
+    return comment;
+  };
 
   const toggleEvaluation = () => {
     setShowEvaluation(!showEvaluation);
@@ -54,7 +103,7 @@ const SubjectPage = ({ params: { subject } }) => {
 
     setCheckedState(updatedCheckedState);
     
-    let CommentsPlusTeacherComment = [...PossibleComments, teacherComment];
+    let CommentsPlusTeacherComment = [...getSpanishComments(), teacherComment];
 
     const Comments = updatedCheckedState.reduce(
       (sum, currentState, index) => {
@@ -73,6 +122,12 @@ const SubjectPage = ({ params: { subject } }) => {
   const handlePlayAgain = () => {
     router.push(`/reports/${subject}`);
   }
+
+  const handleActualizarFechas = () => {
+    setFechaInicio(tempFechaInicio);
+    setFechaFin(tempFechaFin);
+    setCurrentPage(1);
+  };
 
   const openEvaluationModal = (question) => {
     setSelectedQuestion(question); 
@@ -96,7 +151,7 @@ const SubjectPage = ({ params: { subject } }) => {
             console.error("Failed to save question", await response.text());
         }
 
-    setCheckedState(new Array(PossibleComments.length + 1 ).fill(false));
+    setCheckedState(new Array(getSpanishComments().length).fill(false));
     setSelectedComments([]);
     setTeacherComment(' ');
     setSelectedQuestion(null);
@@ -111,30 +166,43 @@ const SubjectPage = ({ params: { subject } }) => {
     const fetchReports = async () => {
       try {
         setLoading(true);
+        
+        // Fetch total preguntas reportadas
+        const responseTotal = await fetch(urljoin(basePath, `/api/reports?studentReport=true&asignatura=${subject}&count=true&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`));
+        if (!responseTotal.ok)
+          throw new Error("Error cargando total de preguntas reportadas");
+        const resultTotal = await responseTotal.json();
+        setTotalReportadasTodas(resultTotal.count);
 
-        // Fetch preguntas reportadas
-        const responseReportadas = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&NOevaluadas=true`));
-        if (!responseReportadas.ok)
+        // Fetch preguntas reportadas sin evaluar
+        const responseSinEvaluar = await fetch(urljoin(basePath, `/api/reports?studentReport=true&asignatura=${subject}&count=true&NOevaluadas=true&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`));
+        if (!responseSinEvaluar.ok)
+          throw new Error("Error cargando preguntas reportadas sin evaluar");
+        const resultSinEvaluar = await responseSinEvaluar.json();
+        setReportadasSinEvaluar(resultSinEvaluar.count);
+
+        // Fetch preguntas reportadas para la página actual
+        let query = `/api/reports?studentReport=true&asignatura=${subject}&page=${currentPage}&pageSize=${pageSize}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+        if (filterEvaluadas === 'noevaluadas') {
+          query += `&NOevaluadas=true`;
+        }
+        const response = await fetch(urljoin(basePath, query));
+        if (!response.ok)
           throw new Error("Error cargando preguntas reportadas");
-        const resultReportadas = await responseReportadas.json();
-        setReportadas(resultReportadas.preguntas);
-
-        
-        
-        
-
+        const result = await response.json();
+        setReportadas(result.preguntas);
+        setTotalReportadas(result.total ?? result.preguntas.length);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
     fetchReports();
-  }, [reloadTrigger]);
+  }, [reloadTrigger, subject, currentPage, filterEvaluadas, fechaInicio, fechaFin]);
 
-  if (loading) return <p className="text-center text-lg">Cargando datos...</p>;
-  if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
+  if (loading) return <p className="text-center text-lg">{t("pregreports.cargando")}</p>;
+  if (error) return <p className="text-red-500 text-center">{t("pregreports.error")} {error}</p>;
 
  
       
@@ -153,163 +221,253 @@ const SubjectPage = ({ params: { subject } }) => {
           {t("quizpage.back")}
         </button>
 
+        {/* Switch de filtro */}
+        <div className="mb-4 flex gap-4 items-center">
+          <label className="font-semibold">{t("pregreports.ver")}</label>
+          <label className="switch">
+            <div className="switch-wrapper">
+              <input
+                type="checkbox"
+                checked={filterEvaluadas === 'todas'}
+                onChange={e => {
+                  setFilterEvaluadas(e.target.checked ? 'todas' : 'noevaluadas');
+                  setCurrentPage(1);
+                }}
+              />
+              <span className="slider round"></span>
+            </div>
+            <span className="text-sm">
+              {filterEvaluadas === 'todas' ? t("pregreports.todas") : t("pregreports.noEvaluadas")}
+            </span>
+          </label>
+        </div>
+
+        {/* Selector de fechas */}
+        <div className="mb-4 flex gap-4 items-center">
+          <div className="flex gap-2 items-center">
+            <label className="text-sm">{t("pregreports.desde")}</label>
+            <input
+              type="date"
+              value={tempFechaInicio}
+              onChange={(e) => setTempFechaInicio(e.target.value)}
+              className="border rounded px-2 py-1 text-sm"
+            />
+            <label className="text-sm">{t("pregreports.hasta")}</label>
+            <input
+              type="date"
+              value={tempFechaFin}
+              onChange={(e) => setTempFechaFin(e.target.value)}
+              className="border rounded px-2 py-1 text-sm"
+            />
+          </div>
+          <button
+            className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+            onClick={handleActualizarFechas}
+          >
+            {t("pregreports.actualizar")}
+          </button>
+        </div>
+
         {/* 1. Preguntas reportadas */}
         <section className="mb-6 p-4 ">
           <h2 className="text-left text-2xl mb-4 font-semibold">
             {t("reports.subtitle0")}
           </h2>
           <p className="text-sm mb-2">
-            {t("reports.pregreport3")}: {reportadas.length}
+            {t("pregreports.numeroReportadas")} {totalReportadasTodas}
+          </p>
+          <p className="text-sm mb-2">
+            {t("pregreports.numeroSinEvaluar")} {reportadasSinEvaluar}
           </p>
 
           <div className=" border p-2 rounded bg-100">
-            {reportadas.map((pregunta, index) => (
-              <div className="p-1 border-b last:border-b-0">
-                <p className="text-base font-semibold p-1 ">
-                  {" "}
-                  {index + 1}. {pregunta.query}
-                </p>
-                <p className="text-sm p-1">
-                  <span className="font-bold text-yellow-400">OPCIONES:</span>{" "}
-                  {pregunta.choices.join(", ")}
-                </p>
-                <p className="text-sm p-1">
-                  <span className="font-bold text-green-400">
-                    RESPUESTA CORRECTA:
-                  </span>{" "}
-                  {pregunta.choices[pregunta.answer]}
-                </p>
-                <p className="text-sm p-1">
-                  <span className="font-bold text-blue-400">EXPLICACIÓN:</span>{" "}
-                  {pregunta.explanation}
-                </p>
-
-                <button
-                style={{marginBottom: '1rem'}}
-                  onClick={()=>openEvaluationModal(pregunta)}
-                  className="mt-2 p-2 bg-blue-500 text-white rounded"
+            {reportadas.map((pregunta, index) => {
+              console.log(pregunta)
+              const evaluada = pregunta.teacherReport;
+              return (
+                <div
+                  className={`p-1 border-b last:border-b-0${evaluada ? ' bg-gray-100' : ''}`}
+                  key={pregunta.id ? pregunta.id : ((currentPage - 1) * pageSize) + index}
                 >
-                  Evaluar Pregunta
-                </button>
+                  <p className="text-base font-semibold p-1 ">
+                    {((currentPage - 1) * pageSize) + index + 1}. {pregunta.query}
+                  </p>
+                  <p className="text-sm p-1">
+                    <span className="font-bold text-yellow-400">{t("pregreports.opt")}:</span>{" "}
+                    {pregunta.choices.join(", ")}
+                  </p>
+                  <p className="text-sm p-1">
+                    <span className="font-bold text-green-400">
+                      {t("pregreports.ans")}:
+                    </span>{" "}
+                    {pregunta.choices[pregunta.answer]}
+                  </p>
+                  <p className="text-sm p-1">
+                    <span className="font-bold text-blue-400">{t("pregreports.exp")}:</span>{" "}
+                    {pregunta.explanation}
+                  </p>
 
-                
-                {showEvaluation &&  (
-                  <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5">
-                    <div className="bg-white py-3 px-4 md:py-6 md:px-8 w-11/12  md:w-1/2 rounded shadow-lg">
-                      <div className="flex justify-between ">
-                        <h2 className="text-2xl font-semibold mb-2">
-                          <span className="text-lg font-semibold ">
-                            Evaluar pregunta
-                          </span>
-                        </h2>
-                        <button
-                          className="text-text flex mt-1.5 justify-start"
-                          onClick={toggleEvaluation}
-                        >
-                          <HiOutlineXMark size={24} />
-                        </button>
-                      </div>
-
-
-                      <p className="text-base font-semibold p-1 ">
-                      {selectedQuestion.query}
-                      </p>
-                      <p className="text-sm p-1">
-                        <span className="font-bold text-yellow-400">
-                          OPCIONES:
-                        </span>{" "}
-                        {selectedQuestion.choices.join(", ")}
-                      </p>
-                      <p className="text-sm p-1">
-                        <span className="font-bold text-green-400">
-                          RESPUESTA CORRECTA:
-                        </span>{" "}
-                        {selectedQuestion.choices[pregunta.answer]}
-                      </p>
-                      <p className="text-sm p-1">
-                        <span className="font-bold text-blue-400">
-                          EXPLICACIÓN:
-                        </span>{" "}
-                        {selectedQuestion.explanation}
-                      </p>
-
-                      <div className="mb-4">
-                        <label className="block mb-2 font-bold">
-                          ¿Todo correcto o tiene algún fallo?
-                        </label>
-                        <select
-                          value={selectedOption}
-                          onChange={handleOptionChange}
-                          className="border p-2 w-full"
-                        >
-                          <option value="todo_correcto">Todo Correcto</option>
-                          <option value="fallo">
-                            La pregunta tiene algún fallo
-                          </option>
-                        </select>
-                      </div>
-
-                      {selectedOption === "fallo" && (
-                        <div className="toppings-list-item">
-                          <div className="left-section">
-                            {PossibleComments.map((name, index) => {
-                              return (
-                                <div className="toppings-list-item">
-                                  <label>
-                                    <input
-                                      type="checkbox"
-                                      id={`custom-checkbox-${index}`}
-                                      value={name}
-                                      checked={checkedState[index]}
-                                      onChange={() => handleOnChange(index)}
-                                      style={{ marginRight: "6px" }}
-                                    />
-                                    {name}
-                                  </label>
-                                </div>
-                              );
-                            })}
-
-                            <label>
-                              <input
-                                type="checkbox"
-                                value={"Otro"}
-                                checked={checkedState[8]}
-                                onChange={() => handleOnChange(8)}
-                                style={{ marginRight: "6px" }}
-                              />
-                              Otro:
-                              <br></br>
-                              <textarea
-                                style={{
-                                  marginLeft: "22px",
-                                  width: "100%",
-                                  height: "100px",
-                                  resize: "none",
-                                }}
-                                onChange={(e) => {
-                                  setTeacherComment(e.target.value),
-                                    handleOnChange();
-                                }}
-                              ></textarea>
-                            </label>
-                          </div>
-                        </div>
+                  {/* Mostrar explicación de la evaluación si ya fue evaluada */}
+                  {evaluada && (
+                    <div className="mt-2 p-2 rounded bg-gray-200">
+                      <p className="text-sm font-semibold text-gray-700 mb-1">{t("pregreports.evaluacion")}</p>
+                      {pregunta.teacherReport && (
+                        <p className="text-sm text-gray-700 mb-1">{translateTeacherReport(pregunta.teacherReport)}</p>
                       )}
+                      {pregunta.teacherComments && pregunta.teacherComments.length > 0 && (
+                        <ul className="list-disc ml-5 text-sm text-gray-700">
+                          {pregunta.teacherComments.map((c, i) => (
+                            <li key={i}>{translateEvaluationComment(c)}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
 
-                      <div className="text-center">
-                        <button
-                          className="mt-2 p-2 bg-blue-500 text-white rounded"
-                          onClick={submitEvaluation}
-                        >
-                          Enviar evaluación
-                        </button>
+                  <button
+                    style={{marginBottom: '1rem'}}
+                    onClick={()=>openEvaluationModal(pregunta)}
+                    className="mt-2 p-2 bg-blue-500 text-white rounded"
+                  >
+                    {t("pregreports.evaluarPregunta")}
+                  </button>
+
+                  {showEvaluation && selectedQuestion && selectedQuestion.id === pregunta.id && (
+                    <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5">
+                      <div className="bg-white py-3 px-4 md:py-6 md:px-8 w-11/12  md:w-1/2 rounded shadow-lg">
+                        <div className="flex justify-between ">
+                          <h2 className="text-2xl font-semibold mb-2">
+                            <span className="text-lg font-semibold ">
+                              {t("pregreports.title")}
+                            </span>
+                          </h2>
+                          <button
+                            className="text-text flex mt-1.5 justify-start"
+                            onClick={toggleEvaluation}
+                          >
+                            <HiOutlineXMark size={24} />
+                          </button>
+                        </div>
+
+
+                        <p className="text-base font-semibold p-1 ">
+                        {selectedQuestion.query}
+                        </p>
+                        <p className="text-sm p-1">
+                          <span className="font-bold text-yellow-400">
+                            {t("pregreports.opt")}:
+                          </span>{" "}
+                          {selectedQuestion.choices.join(", ")}
+                        </p>
+                        <p className="text-sm p-1">
+                          <span className="font-bold text-green-400">
+                            {t("pregreports.ans")}:
+                          </span>{" "}
+                          {selectedQuestion.choices[pregunta.answer]}
+                        </p>
+                        <p className="text-sm p-1">
+                          <span className="font-bold text-blue-400">
+                            {t("pregreports.exp")}:
+                          </span>{" "}
+                          {selectedQuestion.explanation}
+                        </p>
+
+                        <div className="mb-4">
+                          <label className="block mb-2 font-bold">
+                            {t("pregreports.todoCorrectoFallo")}
+                          </label>
+                          <select
+                            value={selectedOption}
+                            onChange={handleOptionChange}
+                            className="border p-2 w-full"
+                          >
+                            <option value="todo_correcto">{t("pregreports.todoCorrecto")}</option>
+                            <option value="fallo">
+                              {t("pregreports.tieneFallo")}
+                            </option>
+                          </select>
+                        </div>
+
+                        {selectedOption === "fallo" && (
+                          <div className="toppings-list-item">
+                            <div className="left-section">
+                              {getEvaluationComments(t).map((name, index) => {
+                                return (
+                                  <div className="toppings-list-item" key={index}>
+                                    <label>
+                                      <input
+                                        type="checkbox"
+                                        id={`custom-checkbox-${index}`}
+                                        value={name}
+                                        checked={checkedState[index]}
+                                        onChange={() => handleOnChange(index)}
+                                        style={{ marginRight: "6px" }}
+                                      />
+                                      {name}
+                                    </label>
+                                  </div>
+                                );
+                              })}
+
+                              <label>
+                                <input
+                                  type="checkbox"
+                                  value={"Otro"}
+                                  checked={checkedState[8]}
+                                  onChange={() => handleOnChange(8)}
+                                  style={{ marginRight: "6px" }}
+                                />
+                                {t("pregreports.otro")}
+                                <br></br>
+                                <textarea
+                                  style={{
+                                    marginLeft: "22px",
+                                    width: "100%",
+                                    height: "100px",
+                                    resize: "none",
+                                  }}
+                                  onChange={(e) => {
+                                    setTeacherComment(e.target.value),
+                                      handleOnChange();
+                                  }}
+                                ></textarea>
+                              </label>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="text-center">
+                          <button
+                            className="mt-2 p-2 bg-blue-500 text-white rounded"
+                            onClick={submitEvaluation}
+                          >
+                            {t("pregreports.button")}
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {/* Controles de paginación */}
+          <div className="flex justify-center items-center gap-4 mt-4">
+            <button
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              {t("pregreports.anterior")}
+            </button>
+            <span>{t("pregreports.pagina")} {currentPage} {t("pregreports.de")} {totalPages}</span>
+            <button
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              {t("pregreports.siguiente")}
+            </button>
           </div>
         </section>
       </div>

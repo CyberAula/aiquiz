@@ -1,0 +1,20 @@
+/** @type {import('next').NextConfig} */
+
+const nextConfig = {
+   eslint: {
+     // Warning: This allows production builds to successfully complete even if
+     // your project has ESLint errors.
+     ignoreDuringBuilds: true,
+   },
+    basePath: '/aiquiz', //aiquiz is the context for using it with a reverse proxy.
+    reactStrictMode: false,
+    env: {
+      BASIC_AUTH_USER: "admin", //admin user
+      BASIC_AUTH_PASSWORD: "admin",
+      MONGODB_URI: "mongodb://aiquiz-mongo:27017/aiquiz3",
+      HOST_SERVER: "127.0.0.1",
+      PORT_SERVER: "3000",
+    }
+}
+
+module.exports = nextConfig

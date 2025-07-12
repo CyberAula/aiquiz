@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 
 
 import PanelGraficas from "../../components/PanelGraficas";
+import { getEvaluationComments, getSpanishComments } from "../../constants/evaluationComments.js";
 
 import nextConfig from "../../../next.config.js";
 const basePath = nextConfig.basePath || "";
@@ -24,16 +25,29 @@ const basePath = nextConfig.basePath || "";
 const SubjectPage = ({ params: { subject } }) => {
   const { t, i18n } = useTranslation();
   
-  const [loading, setLoading] = useState(true);
+  const [loadingPanel1, setLoadingPanel1] = useState(true);
+  const [loadingPanel2, setLoadingPanel2] = useState(true);
   const [error, setError] = useState(null);
 
   const [comparadorActivo, setComparadorActivo] = useState(false);
  
 
-  const [fechaInicio1, setFechaInicio1] = useState(null);
+  // Calcular fecha de inicio por defecto
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1; // 1-based
+  const currentYear = today.getFullYear();
+  let defaultStartYear;
+  if (currentMonth >= 9) {
+    defaultStartYear = currentYear;
+  } else {
+    defaultStartYear = currentYear - 1;
+  }
+  const defaultFechaInicio = `${defaultStartYear}-09-01`;
+
+  const [fechaInicio1, setFechaInicio1] = useState(defaultFechaInicio);
   const [fechaFin1, setFechaFin1] = useState((new Date()).toISOString().split('T')[0]);
 
-  const [fechaInicio2, setFechaInicio2] = useState(null);
+  const [fechaInicio2, setFechaInicio2] = useState(defaultFechaInicio);
   const [fechaFin2, setFechaFin2] = useState((new Date()).toISOString().split('T')[0]);
 
   const [reportadas, setReportadas] = useState([]);
@@ -72,14 +86,32 @@ const SubjectPage = ({ params: { subject } }) => {
     router.push(`/reports`);
   }
 
+  // Estados locales para fechas temporales
+  const [tempFechaInicio1, setTempFechaInicio1] = useState(fechaInicio1);
+  const [tempFechaFin1, setTempFechaFin1] = useState(fechaFin1);
+  const [tempFechaInicio2, setTempFechaInicio2] = useState(fechaInicio2);
+  const [tempFechaFin2, setTempFechaFin2] = useState(fechaFin2);
 
+  // Triggers para actualizar paneles
+  const [triggerPanel1, setTriggerPanel1] = useState(0);
+  const [triggerPanel2, setTriggerPanel2] = useState(0);
 
+  const handleActualizarPanel1 = () => {
+    setFechaInicio1(tempFechaInicio1);
+    setFechaFin1(tempFechaFin1);
+    setTriggerPanel1(t => t + 1);
+  };
+  const handleActualizarPanel2 = () => {
+    setFechaInicio2(tempFechaInicio2);
+    setFechaFin2(tempFechaFin2);
+    setTriggerPanel2(t => t + 1);
+  };
 
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        setLoading(true);
+        setLoadingPanel1(true);
       
 
         // Fetch preguntas reportadas
@@ -100,7 +132,7 @@ const SubjectPage = ({ params: { subject } }) => {
 
         //Fetch motivos reportes
         let arrayMotivos = [];
-        let comentarios = ["Redacción confusa", "Opciones mal formuladas", "Opciones repetidas", "Varias opciones correctas", "Ninguna opción correcta", "Respuesta marcada incorrecta", "Explicación errónea", "Fuera de temario", "Otro"]
+        let comentarios = getSpanishComments();
         
             await Promise.all(
               comentarios.map(async (motivo) => {
@@ -249,7 +281,7 @@ const SubjectPage = ({ params: { subject } }) => {
                 const dia = current.getDate();
                 const mes = current.getMonth() + 1;
                 const anio = current.getFullYear();
-                const nombreMes = new Intl.DateTimeFormat("es-ES", { month: "long" }).format(current);
+                const nombreMes = new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'es-ES', { month: "long" }).format(current);
                 const etiquetaFecha = `${dia} ${nombreMes} ${anio}`;
 
                 try {
@@ -276,7 +308,7 @@ const SubjectPage = ({ params: { subject } }) => {
               while (current <= end) {
                 const mes = current.getMonth() + 1;
                 const anio = current.getFullYear();
-                const nombreMes = new Intl.DateTimeFormat("es-ES", { month: "long" }).format(current);
+                const nombreMes = new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'es-ES', { month: "long" }).format(current);
                 const etiquetaFecha = `${nombreMes} ${anio}`;
 
                 try {
@@ -313,7 +345,7 @@ const SubjectPage = ({ params: { subject } }) => {
                 ) {
                   if (anio === anioActual && mes > mesActual) break;
 
-                  const nombreMes = new Intl.DateTimeFormat("es-ES", {
+                  const nombreMes = new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'es-ES', {
                     month: "long",
                   }).format(new Date(anio, mes - 1, 1));
 
@@ -347,7 +379,7 @@ const SubjectPage = ({ params: { subject } }) => {
       } catch (err) {
         setError(err.message);
       } finally {
-        setLoading(false);
+        setLoadingPanel1(false);
       }
     };
 
@@ -356,14 +388,14 @@ const SubjectPage = ({ params: { subject } }) => {
     fetchReports();
     
    
-  }, [fechaInicio1, fechaFin1]);
+  }, [triggerPanel1]);
 
    useEffect(() => {
     if (!comparadorActivo) return;
     const fetchComparador = async () => {
       
        try {
-        setLoading(true);
+        setLoadingPanel2(true);
       
 
         // Fetch preguntas reportadas
@@ -384,7 +416,7 @@ const SubjectPage = ({ params: { subject } }) => {
 
         //Fetch motivos reportes
         let arrayMotivos = [];
-        let comentarios = ["Redacción confusa", "Opciones mal formuladas", "Opciones repetidas", "Varias opciones correctas", "Ninguna opción correcta", "Respuesta marcada incorrecta", "Explicación errónea", "Fuera de temario", "Otro"]
+        let comentarios = getSpanishComments();
         
             await Promise.all(
               comentarios.map(async (motivo) => {
@@ -556,7 +588,7 @@ const SubjectPage = ({ params: { subject } }) => {
               while (current <= end) {
                 const mes = current.getMonth() + 1;
                 const anio = current.getFullYear();
-                const nombreMes = new Intl.DateTimeFormat("es-ES", { month: "long" }).format(current);
+                const nombreMes = new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'es-ES', { month: "long" }).format(current);
                 const etiquetaFecha = `${nombreMes} ${anio}`;
 
                 try {
@@ -593,7 +625,7 @@ const SubjectPage = ({ params: { subject } }) => {
                 ) {
                   if (anio === anioActual && mes > mesActual) break;
 
-                  const nombreMes = new Intl.DateTimeFormat("es-ES", {
+                  const nombreMes = new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'es-ES', {
                     month: "long",
                   }).format(new Date(anio, mes - 1, 1));
 
@@ -627,16 +659,15 @@ const SubjectPage = ({ params: { subject } }) => {
       } catch (err) {
         setError(err.message);
       } finally {
-        setLoading(false);
+        setLoadingPanel2(false);
       }
     };
 
  
     fetchComparador();
-  }, [comparadorActivo, fechaInicio2, fechaFin2]);
+  }, [comparadorActivo, triggerPanel2]);
 
 
-  if (loading) return <p className="text-center text-lg">Cargando datos...</p>;
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
   return (
@@ -675,10 +706,10 @@ const SubjectPage = ({ params: { subject } }) => {
         {!comparadorActivo ? (
           <PanelGraficas
             subject={subject}
-            fechaInicio={fechaInicio1}
-            setFechaInicio={setFechaInicio1}
-            fechaFin={fechaFin1}
-            setFechaFin={setFechaFin1}
+            fechaInicio={tempFechaInicio1}
+            setFechaInicio={setTempFechaInicio1}
+            fechaFin={tempFechaFin1}
+            setFechaFin={setTempFechaFin1}
             reportadas={reportadas}
             motivosReportadas={motivosReportadas}
             reportadasCorregidas={reportadasCorregidas}
@@ -688,16 +719,18 @@ const SubjectPage = ({ params: { subject } }) => {
             Temporal={Temporal}
             t={t}
             handlePlayAgain={handleBack}
+            loading={loadingPanel1}
+            onActualizar={handleActualizarPanel1}
           />
         ) : (
           <div className="flex gap-8">
             <div className="w-1/2">
               <PanelGraficas
                 subject={subject}
-                fechaInicio={fechaInicio1}
-                setFechaInicio={setFechaInicio1}
-                fechaFin={fechaFin1}
-                setFechaFin={setFechaFin1}
+                fechaInicio={tempFechaInicio1}
+                setFechaInicio={setTempFechaInicio1}
+                fechaFin={tempFechaFin1}
+                setFechaFin={setTempFechaFin1}
                 reportadas={reportadas}
                 motivosReportadas={motivosReportadas}
                 reportadasCorregidas={reportadasCorregidas}
@@ -707,15 +740,17 @@ const SubjectPage = ({ params: { subject } }) => {
                 Temporal={Temporal}
                 t={t}
                 handlePlayAgain={handleBack}
+                loading={loadingPanel1}
+                onActualizar={handleActualizarPanel1}
               />
             </div>
             <div className="w-1/2 border-l ">
               <PanelGraficas
                 subject={subject}
-                fechaInicio={fechaInicio2}
-                setFechaInicio={setFechaInicio2}
-                fechaFin={fechaFin2}
-                setFechaFin={setFechaFin2}
+                fechaInicio={tempFechaInicio2}
+                setFechaInicio={setTempFechaInicio2}
+                fechaFin={tempFechaFin2}
+                setFechaFin={setTempFechaFin2}
                 reportadas={reportadasComparador}
                 motivosReportadas={motivosReportadasComparador}
                 reportadasCorregidas={reportadasCorregidasComparador}
@@ -725,6 +760,8 @@ const SubjectPage = ({ params: { subject } }) => {
                 Temporal={TemporalComparador}
                 t={t}
                 handlePlayAgain={handleBack}
+                loading={loadingPanel2}
+                onActualizar={handleActualizarPanel2}
               />
             </div>
           </div>

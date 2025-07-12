@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import dbConnect from "../../utils/dbconnect.js";
 import Question from "../../models/Question.js";
+import { getSpanishComments } from "../../constants/evaluationComments.js";
 
 await dbConnect();
 
@@ -18,7 +19,7 @@ export async function GET(req) {
     
     if (searchParams.get('studentReport')) {
       filtros.studentReport = searchParams.get('studentReport');
-      sacarValor = { query: 1, choices: 1, explanation:1, answer:1, id:1};
+      sacarValor = { query: 1, choices: 1, explanation:1, answer:1, id:1, teacherComments:1, teacherReport:1};
     }
 
     if (searchParams.get('evaluadas')) {
@@ -27,21 +28,13 @@ export async function GET(req) {
     
     if (searchParams.get('motivo')) {
       let motivo = searchParams.get('motivo');
-      if(motivo == "Otro"){
+      const spanishComments = getSpanishComments();
+      if(motivo == spanishComments[spanishComments.length - 1]){ // Last item is "Otro"
         filtros.teacherComments = {
           $exists: true,
           $ne: null,
           $elemMatch: {
-            $nin: [
-              'Redacción confusa',
-              'Opciones repetidas',
-              'Opciones mal formuladas',
-              'Varias opciones correctas',
-              'Ninguna opción correcta',
-              'Respuesta marcada incorrecta',
-              'Fuera de temario',
-              'Explicación errónea'
-            ]
+            $nin: spanishComments.slice(0, -1) // Exclude "Otro" from the list
           }
         };
         
@@ -155,9 +148,28 @@ export async function GET(req) {
       return Response.json({ count });
     }
    
+    // Paginación
+    let page = parseInt(searchParams.get('page'), 0);
+    let pageSize = parseInt(searchParams.get('pageSize'), 10);
+    let skip = 0;
+    let limit = 0;
+    let total = undefined;
+    if (!isNaN(page) && !isNaN(pageSize) && page > 0 && pageSize > 0) {
+      skip = (page - 1) * pageSize;
+      limit = pageSize;
+      total = await Question.countDocuments(filtros);
+    }
 
-    const preguntas = await Question.find(filtros, sacarValor);
-    return Response.json({ preguntas });
+    let query = Question.find(filtros, sacarValor);
+    if (limit > 0) {
+      query = query.skip(skip).limit(limit);
+    }
+    const preguntas = await query;
+    if (typeof total === 'number') {
+      return Response.json({ preguntas, total });
+    } else {
+      return Response.json({ preguntas });
+    }
 
   } catch (error) {
     return Response.json({ error: "Error al obtener datos" }, { status: 500 });

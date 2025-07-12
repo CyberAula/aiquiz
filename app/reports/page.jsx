@@ -65,22 +65,6 @@ const ReportPruebaPage = () => {
                       <p>Ingeniería Web</p>
                       <p className="subject-acronym ">IWEB</p>
                     </Link>
-                    <Link
-                      className="subject-button "
-                      href={{ pathname: "/reports/CDPS" }}
-                      id="cdps"
-                    >
-                      <p> Centros de datos y provisión de servicios </p>
-                      <p className="subject-acronym">CDPS</p>
-                    </Link>
-                    <Link
-                      className="subject-button"
-                      href={{ pathname: "/reports/PRG" }}
-                      id="prg"
-                    >
-                      <p> Programación</p>
-                      <p className="subject-acronym">PRG</p>
-                    </Link>
                   </div>
                 </div>
            

@@ -118,6 +118,7 @@ export const en = {
         subtema: "Topic",
         subtitle5: "When has the application been used the most?",
         pormeses: "Number of questions answered",
+        update: "Update"
     },
 
     pregreports: {
@@ -125,7 +126,38 @@ export const en = {
         exp: "EXPLANATION",
         ans: "CORRECT ANSWER",
         title: "Evaluate question",
-        button: "Send evaluation"
+        button: "Send evaluation",
+        ver: "View:",
+        todas: "All",
+        noEvaluadas: "Not evaluated",
+        desde: "From:",
+        hasta: "To:",
+        actualizar: "Update",
+        numeroReportadas: "Number of reported questions:",
+        numeroSinEvaluar: "Number of reported questions without evaluation:",
+        evaluarPregunta: "Evaluate Question",
+        evaluacion: "Evaluation:",
+        todoCorrecto: "All Correct",
+        tieneFallo: "The question has some error",
+        todoCorrectoFallo: "Is everything correct or does it have some error?",
+        otro: "Other:",
+        anterior: "Previous",
+        siguiente: "Next",
+        pagina: "Page",
+        de: "of",
+        cargando: "Loading data...",
+        error: "Error:"
+    },
+    evaluationComments: {
+        redaccionConfusa: "Confusing wording",
+        opcionesMalFormuladas: "Poorly formulated options",
+        opcionesRepetidas: "Repeated options",
+        variasOpcionesCorrectas: "Multiple correct options",
+        ningunaOpcionCorrecta: "No correct option",
+        respuestaMarcadaIncorrecta: "Incorrectly marked answer",
+        explicacionErronea: "Incorrect explanation",
+        fueraDeTemario: "Outside the syllabus",
+        otro: "Other"
     }
 
 

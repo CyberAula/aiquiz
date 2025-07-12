@@ -118,7 +118,7 @@ export const es = {
         subtema: "Subtema",
         subtitle5: "¿Cuándo se ha utilizado más la aplicación?",
         pormeses: "Número de preguntas respondidas",
-        
+        update: "Actualizar"
 
     },
 
@@ -127,7 +127,38 @@ export const es = {
         exp: "EXPLICACIÓN",
         ans: "RESPUESTA CORRECTA",
         title: "Evaluar pregunta",
-        button: "Enviar evaluación"
+        button: "Enviar evaluación",
+        ver: "Ver:",
+        todas: "Todas",
+        noEvaluadas: "No evaluadas",
+        desde: "Desde:",
+        hasta: "Hasta:",
+        actualizar: "Actualizar",
+        numeroReportadas: "Número de preguntas reportadas:",
+        numeroSinEvaluar: "Número de preguntas reportadas sin evaluar:",
+        evaluarPregunta: "Evaluar Pregunta",
+        evaluacion: "Evaluación:",
+        todoCorrecto: "Todo Correcto",
+        tieneFallo: "La pregunta tiene algún fallo",
+        todoCorrectoFallo: "¿Todo correcto o tiene algún fallo?",
+        otro: "Otro:",
+        anterior: "Anterior",
+        siguiente: "Siguiente",
+        pagina: "Página",
+        de: "de",
+        cargando: "Cargando datos...",
+        error: "Error:"
+    },
+    evaluationComments: {
+        redaccionConfusa: "Redacción confusa",
+        opcionesMalFormuladas: "Opciones mal formuladas",
+        opcionesRepetidas: "Opciones repetidas",
+        variasOpcionesCorrectas: "Varias opciones correctas",
+        ningunaOpcionCorrecta: "Ninguna opción correcta",
+        respuestaMarcadaIncorrecta: "Respuesta marcada incorrecta",
+        explicacionErronea: "Explicación errónea",
+        fueraDeTemario: "Fuera de temario",
+        otro: "Otro"
     }
 
 };
