@@ -33,6 +33,8 @@ const ReportPanel = ({
   t,
   loading,
   onUpdate,
+  totalAnsweredAllPeriod,
+  totalAnsweredPeriod,
 }) => {
   const [translatedReasons, setTranslatedReasons] = useState(reportedReasons);
   const [translatedDifficulties, setTranslatedDifficulties] = useState(difficultySuccess);
@@ -101,42 +103,31 @@ const ReportPanel = ({
         </div>
 
 
-
-
-        {/* 1. Reported questions */}
-        <section className="mb-6 p-4 border rounded-lg shadow">
+        {/*  1. When has the application been used more? */}
+        <section className="mb-6 p-4  border rounded-lg shadow">
           <h2 className="text-left text-2xl mb-4 font-semibold">
-            1. {t("reports.subtitle0")}
+            1.  {t("reports.subtitle5")}
           </h2>
-          <p className="text-sm mb-4">
-            {t("reports.pregreport1")}: {reported}
-          </p>
-          <p className="text-sm mb-4">
-            {t("reports.pregreport2")}: {evaluatedReported}
-          </p>
-
-          <h2 className="text-sl font-semibold mt-4 mb-4 text-center">
-            {t("reports.graph0_title")}
-          </h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart layout="vertical" data={translatedReasons}>
-              <CartesianGrid strokeDasharray="3 3"  />
-              <XAxis type="number" domain={[0, 100]} />
-              <YAxis
-                dataKey="motivo"
-                type="category"
-                tick={{ fontSize: 9 }}
-                width={140}
-              />
-              <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" }} />
-              <Legend  />
-              <Bar
-                dataKey="porcentaje"
-                fill="#B57EDC"
-                name={t("reports.porcentaje")}
-                barSize={80}
-              />
-            </BarChart>
+          <ul className="list-disc list-inside mb-2">
+            <li>
+              {t("reports.total_questions")}: {totalAnsweredAllPeriod}
+            </li>
+            <li>
+              {t("reports.total_questions_period")}: {totalAnsweredPeriod}
+              {totalAnsweredAllPeriod > 0 && (
+                <> ({((totalAnsweredPeriod / totalAnsweredAllPeriod) * 100).toFixed(2)}%)</>
+              )}
+            </li>
+          </ul>
+          
+          <ResponsiveContainer width="100%" height={500}>
+            <LineChart data={temporal}>
+              <XAxis dataKey="fecha" angle={-45} textAnchor="end" height={120}    />
+              <YAxis   />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="count" stroke="#B57EDC" strokeWidth={2} dot={false} name={t("reports.pormeses")}/>
+            </LineChart>
           </ResponsiveContainer>
         </section>
 
@@ -394,19 +385,40 @@ const ReportPanel = ({
           ))}
         </section>
 
-        {/*  5. When has the application been used more? */}
-        <section className="mb-6 p-4  border rounded-lg shadow">
+        {/* 5. Reported questions */}
+                <section className="mb-6 p-4 border rounded-lg shadow">
           <h2 className="text-left text-2xl mb-4 font-semibold">
-            5.  {t("reports.subtitle5")}
+            5. {t("reports.subtitle0")}
           </h2>
-          <ResponsiveContainer width="100%" height={500}>
-            <LineChart data={temporal}>
-              <XAxis dataKey="fecha" angle={-45} textAnchor="end" height={120}    />
-              <YAxis   />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="count" stroke="#B57EDC" strokeWidth={2} dot={false} name={t("reports.pormeses")}/>
-            </LineChart>
+          <p className="text-sm mb-4">
+            {t("reports.pregreport1")}: {reported}
+          </p>
+          <p className="text-sm mb-4">
+            {t("reports.pregreport2")}: {evaluatedReported}
+          </p>
+
+          <h2 className="text-sl font-semibold mt-4 mb-4 text-center">
+            {t("reports.graph0_title")}
+          </h2>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart layout="vertical" data={translatedReasons}>
+              <CartesianGrid strokeDasharray="3 3"  />
+              <XAxis type="number" domain={[0, 100]} />
+              <YAxis
+                dataKey="motivo"
+                type="category"
+                tick={{ fontSize: 9 }}
+                width={140}
+              />
+              <Tooltip cursor={{ fill: "rgba(255, 255, 255, 0.2)" }} />
+              <Legend  />
+              <Bar
+                dataKey="porcentaje"
+                fill="#B57EDC"
+                name={t("reports.porcentaje")}
+                barSize={80}
+              />
+            </BarChart>
           </ResponsiveContainer>
         </section>
       </>

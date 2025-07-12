@@ -118,7 +118,9 @@ export const es = {
         subtema: "Subtema",
         subtitle5: "¿Cuándo se ha utilizado más la aplicación?",
         pormeses: "Número de preguntas respondidas",
-        update: "Actualizar"
+        update: "Actualizar",
+        total_questions: "Total de preguntas generadas por la herramienta",
+        total_questions_period: "Total de preguntas generadas en el periódo seleccionado"
 
     },
 

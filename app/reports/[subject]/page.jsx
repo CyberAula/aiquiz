@@ -50,6 +50,9 @@ const SubjectPage = ({ params: { subject } }) => {
   const [startDate2, setStartDate2] = useState(defaultStartDate);
   const [endDate2, setEndDate2] = useState((new Date()).toISOString().split('T')[0]);
 
+  const [totalAnsweredAllPeriod, seTtotalAnsweredAllPeriod] = useState(0);
+
+  const [totalAnsweredPeriod, setTotalAnsweredPeriod] = useState(0);
   const [reported, setReported] = useState([]);
   const [reportedReasons, setReportedReasons] = useState([]);
   const [evaluatedReported, setEvaluatedReported] = useState([]);
@@ -58,6 +61,7 @@ const SubjectPage = ({ params: { subject } }) => {
   const [subtopicSuccessByTopic, setSubtopicSuccessByTopic] = useState([]);
   const [temporal, setTemporal] = useState([]);
 
+  const [totalAnsweredPeriodComparator, setTotalAnsweredPeriodComparator] = useState(0);
   const [reportedComparator, setReportedComparator] = useState([]);
   const [reportedReasonsComparator, setReportedReasonsComparator] = useState([]);
   const [evaluatedReportedComparator, setEvaluatedReportedComparator] = useState([]);
@@ -112,7 +116,25 @@ const SubjectPage = ({ params: { subject } }) => {
     const fetchReports = async () => {
       try {
         setLoadingPanel1(true);
-      
+
+        // Fetch total answered questions for the subject (all time)
+        const responsetotalAnsweredAllPeriod = await fetch(
+          urljoin(basePath, `/api/reports?asignatura=${subject}&&count=true`)
+        );
+        if (!responsetotalAnsweredAllPeriod.ok)
+          throw new Error("Error loading total answered questions");
+        const resulttotalAnsweredAllPeriod = (await responsetotalAnsweredAllPeriod.json()).count;
+        seTtotalAnsweredAllPeriod(resulttotalAnsweredAllPeriod);
+
+        // Fetch total answered questions for the subject in the selected period
+        const responseTotalAnsweredPeriod = await fetch(
+          urljoin(basePath, `/api/reports?asignatura=${subject}&&count=true&&fechaInicio=${startDate1}&&fechaFin=${endDate1}`)
+        );
+        if (!responseTotalAnsweredPeriod.ok)
+          throw new Error("Error loading total answered questions for period");
+        const resultTotalAnsweredPeriod = (await responseTotalAnsweredPeriod.json()).count;
+        setTotalAnsweredPeriod(resultTotalAnsweredPeriod);
+
 
         // Fetch reported questions
         const responseReported = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true&&fechaInicio=${startDate1}&&fechaFin=${endDate1}`));
@@ -397,6 +419,16 @@ const SubjectPage = ({ params: { subject } }) => {
        try {
         setLoadingPanel2(true);
       
+
+        // Fetch total answered questions for the subject in the comparator period
+        const responseTotalAnsweredPeriodComparator = await fetch(
+          urljoin(basePath, `/api/reports?asignatura=${subject}&&count=true&&fechaInicio=${startDate2}&&fechaFin=${endDate2}`)
+        );
+        if (!responseTotalAnsweredPeriodComparator.ok)
+          throw new Error("Error loading total answered questions for comparator period");
+        const resultTotalAnsweredPeriodComparator = (await responseTotalAnsweredPeriodComparator.json()).count;
+        setTotalAnsweredPeriodComparator(resultTotalAnsweredPeriodComparator);
+
 
         // Fetch reported questions
         const responseReported = await fetch(urljoin(basePath,`/api/reports?studentReport=true&&asignatura=${subject}&&count=true&&fechaInicio=${startDate2}&&fechaFin=${endDate2}`));
@@ -713,6 +745,8 @@ const SubjectPage = ({ params: { subject } }) => {
             endDate={tempEndDate1}
             setEndDate={setTempEndDate1}
             reported={reported}
+            totalAnsweredAllPeriod={totalAnsweredAllPeriod}
+            totalAnsweredPeriod={totalAnsweredPeriod}
             reportedReasons={reportedReasons}
             evaluatedReported={evaluatedReported}
             difficultySuccess={difficultySuccess}
@@ -733,6 +767,8 @@ const SubjectPage = ({ params: { subject } }) => {
                 endDate={tempEndDate1}
                 setEndDate={setTempEndDate1}
                 reported={reported}
+                totalAnsweredAllPeriod={totalAnsweredAllPeriod}
+                totalAnsweredPeriod={totalAnsweredPeriod}
                 reportedReasons={reportedReasons}
                 evaluatedReported={evaluatedReported}
                 difficultySuccess={difficultySuccess}
@@ -752,6 +788,8 @@ const SubjectPage = ({ params: { subject } }) => {
                 endDate={tempEndDate2}
                 setEndDate={setTempEndDate2}
                 reported={reportedComparator}
+                totalAnsweredAllPeriod={totalAnsweredAllPeriod}
+                totalAnsweredPeriod={totalAnsweredPeriodComparator}
                 reportedReasons={reportedReasonsComparator}
                 evaluatedReported={evaluatedReportedComparator}
                 difficultySuccess={difficultySuccessComparator}
