@@ -22,7 +22,7 @@ const ReportPruebaPage = () => {
                 </p>
                 <div className="mt-6">
                   <div className="text-left text-base md:text-base  font-normal leading-2">
-                    {/* <h2> Elige la Asignatura:</h2> */}
+                    {/* <h2> Choose the Subject:</h2> */}
                   </div>
                   <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 mt-3 gap-3">
                     <Link

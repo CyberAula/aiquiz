@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import urljoin from "url-join";
 
-import {es} from "../../../constants/langs/es"
+import {es} from "../../../constants/langs/es.js"
 
-import Footer from "../../../components/ui/Footer";
-import Header from "../../../components/ui/Header";
+import Footer from "../../../components/ui/Footer.js";
+import Header from "../../../components/ui/Header.js";
 import { useTranslation } from "react-i18next";
 import { HiArrowLeft } from 'react-icons/hi2'
 import { useRouter } from 'next/navigation'
@@ -23,7 +23,7 @@ const basePath = nextConfig.basePath || "";
 const SubjectPage = ({ params: { subject } }) => {
   const { t, i18n } = useTranslation();
 
-  // Calcular fecha de inicio por defecto
+  // Calculate default start date
   const today = new Date();
   const currentMonth = today.getMonth() + 1; // 1-based
   const currentYear = today.getFullYear();
@@ -33,22 +33,22 @@ const SubjectPage = ({ params: { subject } }) => {
   } else {
     defaultStartYear = currentYear - 1;
   }
-  const defaultFechaInicio = `${defaultStartYear}-09-01`;
+  const defaultStartDate = `${defaultStartYear}-09-01`;
 
-  const [fechaInicio, setFechaInicio] = useState(defaultFechaInicio);
-  const [fechaFin, setFechaFin] = useState((new Date()).toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(defaultStartDate);
+  const [endDate, setEndDate] = useState((new Date()).toISOString().split('T')[0]);
 
-  // Estados locales para fechas temporales
-  const [tempFechaInicio, setTempFechaInicio] = useState(defaultFechaInicio);
-  const [tempFechaFin, setTempFechaFin] = useState((new Date()).toISOString().split('T')[0]);
+  // Local states for temporary dates
+  const [tempStartDate, setTempStartDate] = useState(defaultStartDate);
+  const [tempEndDate, setTempEndDate] = useState((new Date()).toISOString().split('T')[0]);
   
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [reportadas, setReportadas] = useState([]);
-  const [totalReportadas, setTotalReportadas] = useState(0);
-  const [reportadasSinEvaluar, setReportadasSinEvaluar] = useState(0);
-  const [totalReportadasTodas, setTotalReportadasTodas] = useState(0);
+  const [reportedQuestions, setReportedQuestions] = useState([]);
+  const [totalReported, setTotalReported] = useState(0);
+  const [unEvaluatedReported, setUnEvaluatedReported] = useState(0);
+  const [totalAllReported, setTotalAllReported] = useState(0);
 
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [selectedOption, setSelectedOption] = useState("todo_correcto");
@@ -59,10 +59,10 @@ const SubjectPage = ({ params: { subject } }) => {
   const [reloadTrigger, setReloadTrigger] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 50;
-  const totalPages = Math.ceil(totalReportadas / pageSize);
-  const [filterEvaluadas, setFilterEvaluadas] = useState('noevaluadas'); // 'noevaluadas' o 'todas'
+  const totalPages = Math.ceil(totalReported / pageSize);
+  const [filterEvaluated, setFilterEvaluated] = useState('noevaluadas'); // 'noevaluadas' o 'todas'
 
-  // Función para traducir los valores de teacherReport
+  // Function to translate teacherReport values
   const translateTeacherReport = (teacherReport) => {
     if (teacherReport === "todo_correcto") {
       return t("pregreports.todoCorrecto");
@@ -72,7 +72,7 @@ const SubjectPage = ({ params: { subject } }) => {
     return teacherReport;
   };
 
-  // get from the spanish content the key used for translations
+  // Get the key used for translations from the Spanish content
   const evaluationCommentMap = Object.entries(es.evaluationComments || {}).reduce((acc, [key, value]) => {
     acc[value] = key;
     return acc;
@@ -103,19 +103,19 @@ const SubjectPage = ({ params: { subject } }) => {
 
     setCheckedState(updatedCheckedState);
     
-    let CommentsPlusTeacherComment = [...getSpanishComments(), teacherComment];
+    let commentsPlusTeacherComment = [...getSpanishComments(), teacherComment];
 
-    const Comments = updatedCheckedState.reduce(
+    const comments = updatedCheckedState.reduce(
       (sum, currentState, index) => {
         if (currentState === true) {
-          return [...sum, CommentsPlusTeacherComment[index]];
+          return [...sum, commentsPlusTeacherComment[index]];
         }
         return sum;
       },
       []
     );
-    console.log(Comments)
-    setSelectedComments(Comments);
+    console.log(comments)
+    setSelectedComments(comments);
   };
 
   const router = useRouter()
@@ -123,9 +123,9 @@ const SubjectPage = ({ params: { subject } }) => {
     router.push(`/reports/${subject}`);
   }
 
-  const handleActualizarFechas = () => {
-    setFechaInicio(tempFechaInicio);
-    setFechaFin(tempFechaFin);
+  const handleUpdateDates = () => {
+    setStartDate(tempStartDate);
+    setEndDate(tempEndDate);
     setCurrentPage(1);
   };
 
@@ -167,31 +167,31 @@ const SubjectPage = ({ params: { subject } }) => {
       try {
         setLoading(true);
         
-        // Fetch total preguntas reportadas
-        const responseTotal = await fetch(urljoin(basePath, `/api/reports?studentReport=true&asignatura=${subject}&count=true&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`));
+        // Fetch total reported questions
+        const responseTotal = await fetch(urljoin(basePath, `/api/reports?studentReport=true&asignatura=${subject}&count=true&fechaInicio=${startDate}&fechaFin=${endDate}`));
         if (!responseTotal.ok)
-          throw new Error("Error cargando total de preguntas reportadas");
+          throw new Error("Error loading total reported questions");
         const resultTotal = await responseTotal.json();
-        setTotalReportadasTodas(resultTotal.count);
+        setTotalAllReported(resultTotal.count);
 
-        // Fetch preguntas reportadas sin evaluar
-        const responseSinEvaluar = await fetch(urljoin(basePath, `/api/reports?studentReport=true&asignatura=${subject}&count=true&NOevaluadas=true&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`));
-        if (!responseSinEvaluar.ok)
-          throw new Error("Error cargando preguntas reportadas sin evaluar");
-        const resultSinEvaluar = await responseSinEvaluar.json();
-        setReportadasSinEvaluar(resultSinEvaluar.count);
+        // Fetch reported questions without evaluation
+        const responseUnEvaluated = await fetch(urljoin(basePath, `/api/reports?studentReport=true&asignatura=${subject}&count=true&NOevaluadas=true&fechaInicio=${startDate}&fechaFin=${endDate}`));
+        if (!responseUnEvaluated.ok)
+          throw new Error("Error loading un-evaluated reported questions");
+        const resultUnEvaluated = await responseUnEvaluated.json();
+        setUnEvaluatedReported(resultUnEvaluated.count);
 
-        // Fetch preguntas reportadas para la página actual
-        let query = `/api/reports?studentReport=true&asignatura=${subject}&page=${currentPage}&pageSize=${pageSize}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
-        if (filterEvaluadas === 'noevaluadas') {
+        // Fetch reported questions for current page
+        let query = `/api/reports?studentReport=true&asignatura=${subject}&page=${currentPage}&pageSize=${pageSize}&fechaInicio=${startDate}&fechaFin=${endDate}`;
+        if (filterEvaluated === 'noevaluadas') {
           query += `&NOevaluadas=true`;
         }
         const response = await fetch(urljoin(basePath, query));
         if (!response.ok)
-          throw new Error("Error cargando preguntas reportadas");
+          throw new Error("Error loading reported questions");
         const result = await response.json();
-        setReportadas(result.preguntas);
-        setTotalReportadas(result.total ?? result.preguntas.length);
+        setReportedQuestions(result.preguntas);
+        setTotalReported(result.total ?? result.preguntas.length);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -199,7 +199,7 @@ const SubjectPage = ({ params: { subject } }) => {
       }
     };
     fetchReports();
-  }, [reloadTrigger, subject, currentPage, filterEvaluadas, fechaInicio, fechaFin]);
+  }, [reloadTrigger, subject, currentPage, filterEvaluated, startDate, endDate]);
 
   if (loading) return <p className="text-center text-lg">{t("pregreports.cargando")}</p>;
   if (error) return <p className="text-red-500 text-center">{t("pregreports.error")} {error}</p>;
@@ -221,102 +221,102 @@ const SubjectPage = ({ params: { subject } }) => {
           {t("quizpage.back")}
         </button>
 
-        {/* Switch de filtro */}
+        {/* Filter switch */}
         <div className="mb-4 flex gap-4 items-center">
           <label className="font-semibold">{t("pregreports.ver")}</label>
           <label className="switch">
             <div className="switch-wrapper">
               <input
                 type="checkbox"
-                checked={filterEvaluadas === 'todas'}
+                checked={filterEvaluated === 'todas'}
                 onChange={e => {
-                  setFilterEvaluadas(e.target.checked ? 'todas' : 'noevaluadas');
+                  setFilterEvaluated(e.target.checked ? 'todas' : 'noevaluadas');
                   setCurrentPage(1);
                 }}
               />
               <span className="slider round"></span>
             </div>
             <span className="text-sm">
-              {filterEvaluadas === 'todas' ? t("pregreports.todas") : t("pregreports.noEvaluadas")}
+              {filterEvaluated === 'todas' ? t("pregreports.todas") : t("pregreports.noEvaluadas")}
             </span>
           </label>
         </div>
 
-        {/* Selector de fechas */}
+        {/* Date selector */}
         <div className="mb-4 flex gap-4 items-center">
           <div className="flex gap-2 items-center">
             <label className="text-sm">{t("pregreports.desde")}</label>
             <input
               type="date"
-              value={tempFechaInicio}
-              onChange={(e) => setTempFechaInicio(e.target.value)}
+              value={tempStartDate}
+              onChange={(e) => setTempStartDate(e.target.value)}
               className="border rounded px-2 py-1 text-sm"
             />
             <label className="text-sm">{t("pregreports.hasta")}</label>
             <input
               type="date"
-              value={tempFechaFin}
-              onChange={(e) => setTempFechaFin(e.target.value)}
+              value={tempEndDate}
+              onChange={(e) => setTempEndDate(e.target.value)}
               className="border rounded px-2 py-1 text-sm"
             />
           </div>
           <button
             className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
-            onClick={handleActualizarFechas}
+            onClick={handleUpdateDates}
           >
             {t("pregreports.actualizar")}
           </button>
         </div>
 
-        {/* 1. Preguntas reportadas */}
+        {/* 1. Reported questions */}
         <section className="mb-6 p-4 ">
           <h2 className="text-left text-2xl mb-4 font-semibold">
             {t("reports.subtitle0")}
           </h2>
           <p className="text-sm mb-2">
-            {t("pregreports.numeroReportadas")} {totalReportadasTodas}
+            {t("pregreports.numeroReportadas")} {totalAllReported}
           </p>
           <p className="text-sm mb-2">
-            {t("pregreports.numeroSinEvaluar")} {reportadasSinEvaluar}
+            {t("pregreports.numeroSinEvaluar")} {unEvaluatedReported}
           </p>
 
           <div className=" border p-2 rounded bg-100">
-            {reportadas.map((pregunta, index) => {
-              console.log(pregunta)
-              const evaluada = pregunta.teacherReport;
+            {reportedQuestions.map((question, index) => {
+              console.log(question)
+              const evaluated = question.teacherReport;
               return (
                 <div
-                  className={`p-1 border-b last:border-b-0${evaluada ? ' bg-gray-100' : ''}`}
-                  key={pregunta.id ? pregunta.id : ((currentPage - 1) * pageSize) + index}
+                  className={`p-1 border-b last:border-b-0${evaluated ? ' bg-gray-100' : ''}`}
+                  key={question.id ? question.id : ((currentPage - 1) * pageSize) + index}
                 >
                   <p className="text-base font-semibold p-1 ">
-                    {((currentPage - 1) * pageSize) + index + 1}. {pregunta.query}
+                    {((currentPage - 1) * pageSize) + index + 1}. {question.query}
                   </p>
                   <p className="text-sm p-1">
                     <span className="font-bold text-yellow-400">{t("pregreports.opt")}:</span>{" "}
-                    {pregunta.choices.join(", ")}
+                    {question.choices.join(", ")}
                   </p>
                   <p className="text-sm p-1">
                     <span className="font-bold text-green-400">
                       {t("pregreports.ans")}:
                     </span>{" "}
-                    {pregunta.choices[pregunta.answer]}
+                    {question.choices[question.answer]}
                   </p>
                   <p className="text-sm p-1">
                     <span className="font-bold text-blue-400">{t("pregreports.exp")}:</span>{" "}
-                    {pregunta.explanation}
+                    {question.explanation}
                   </p>
 
-                  {/* Mostrar explicación de la evaluación si ya fue evaluada */}
-                  {evaluada && (
+                  {/* Show evaluation explanation if already evaluated */}
+                  {evaluated && (
                     <div className="mt-2 p-2 rounded bg-gray-200">
                       <p className="text-sm font-semibold text-gray-700 mb-1">{t("pregreports.evaluacion")}</p>
-                      {pregunta.teacherReport && (
-                        <p className="text-sm text-gray-700 mb-1">{translateTeacherReport(pregunta.teacherReport)}</p>
+                      {question.teacherReport && (
+                        <p className="text-sm text-gray-700 mb-1">{translateTeacherReport(question.teacherReport)}</p>
                       )}
-                      {pregunta.teacherComments && pregunta.teacherComments.length > 0 && (
+                      {question.teacherComments && question.teacherComments.length > 0 && (
                         <ul className="list-disc ml-5 text-sm text-gray-700">
-                          {pregunta.teacherComments.map((c, i) => (
+                          {question.teacherComments.map((c, i) => (
                             <li key={i}>{translateEvaluationComment(c)}</li>
                           ))}
                         </ul>
@@ -326,13 +326,13 @@ const SubjectPage = ({ params: { subject } }) => {
 
                   <button
                     style={{marginBottom: '1rem'}}
-                    onClick={()=>openEvaluationModal(pregunta)}
+                    onClick={()=>openEvaluationModal(question)}
                     className="mt-2 p-2 bg-blue-500 text-white rounded"
                   >
                     {t("pregreports.evaluarPregunta")}
                   </button>
 
-                  {showEvaluation && selectedQuestion && selectedQuestion.id === pregunta.id && (
+                  {showEvaluation && selectedQuestion && selectedQuestion.id === question.id && (
                     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-5">
                       <div className="bg-white py-3 px-4 md:py-6 md:px-8 w-11/12  md:w-1/2 rounded shadow-lg">
                         <div className="flex justify-between ">
@@ -363,7 +363,7 @@ const SubjectPage = ({ params: { subject } }) => {
                           <span className="font-bold text-green-400">
                             {t("pregreports.ans")}:
                           </span>{" "}
-                          {selectedQuestion.choices[pregunta.answer]}
+                          {selectedQuestion.choices[question.answer]}
                         </p>
                         <p className="text-sm p-1">
                           <span className="font-bold text-blue-400">
@@ -451,7 +451,7 @@ const SubjectPage = ({ params: { subject } }) => {
               );
             })}
           </div>
-          {/* Controles de paginación */}
+          {/* Pagination controls */}
           <div className="flex justify-center items-center gap-4 mt-4">
             <button
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"

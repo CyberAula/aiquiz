@@ -8,8 +8,8 @@ await dbConnect();
 
 export async function GET(req) {
   try {
-    let filtros = { studentReport: false };
-    let sacarValor = {};
+    let filters = { studentReport: false };
+    let selectFields = {};
     
   
 
@@ -18,19 +18,19 @@ export async function GET(req) {
  
     
     if (searchParams.get('studentReport')) {
-      filtros.studentReport = searchParams.get('studentReport');
-      sacarValor = { query: 1, choices: 1, explanation:1, answer:1, id:1, teacherComments:1, teacherReport:1};
+      filters.studentReport = searchParams.get('studentReport');
+      selectFields = { query: 1, choices: 1, explanation:1, answer:1, id:1, teacherComments:1, teacherReport:1};
     }
 
     if (searchParams.get('evaluadas')) {
-        filtros.teacherReport = { $ne: null };
+        filters.teacherReport = { $ne: null };
     }
     
     if (searchParams.get('motivo')) {
-      let motivo = searchParams.get('motivo');
+      let reason = searchParams.get('motivo');
       const spanishComments = getSpanishComments();
-      if(motivo == spanishComments[spanishComments.length - 1]){ // Last item is "Otro"
-        filtros.teacherComments = {
+      if(reason == spanishComments[spanishComments.length - 1]){ // Last item is "Otro"
+        filters.teacherComments = {
           $exists: true,
           $ne: null,
           $elemMatch: {
@@ -40,74 +40,74 @@ export async function GET(req) {
         
       }
       else{
-      filtros.teacherComments = {$in: motivo};
+      filters.teacherComments = {$in: reason};
       }
     }
 
 
     if (searchParams.get('NOevaluadas')) {
-      filtros.teacherReport = {$in: [null, undefined]};
+      filters.teacherReport = {$in: [null, undefined]};
     }
 
     if (searchParams.get('asignatura')) {
-      filtros.subject = searchParams.get('asignatura')
+      filters.subject = searchParams.get('asignatura')
     }
     
     if (searchParams.get('dificultad')) {
-      filtros.difficulty = searchParams.get('dificultad');
+      filters.difficulty = searchParams.get('dificultad');
     }
 
     if(searchParams.get('acierto')==="true"){
-      filtros.$expr =  { $eq: ["$studentAnswer", "$answer"] };
+      filters.$expr =  { $eq: ["$studentAnswer", "$answer"] };
     }
     
     if (searchParams.get('tema')) {
-      filtros.topic = searchParams.get('tema');
+      filters.topic = searchParams.get('tema');
     }
 
     if (searchParams.get('subtema')) {
-      filtros.subTopic = searchParams.get('subtema').toLowerCase();
+      filters.subTopic = searchParams.get('subtema').toLowerCase();
     }
 
 
     if (searchParams.get('temporal') === "true") {
-      let mes = parseInt(searchParams.get('mes'), 10);
-      let anio = parseInt(searchParams.get('anio'), 10);
-      let dia = parseInt(searchParams.get('dia'), 10);
-      console.log(dia)
+      let month = parseInt(searchParams.get('mes'), 10);
+      let year = parseInt(searchParams.get('anio'), 10);
+      let day = parseInt(searchParams.get('dia'), 10);
+      console.log(day)
 
-      if(!isNaN(dia)){
-          filtros.$expr = {
+      if(!isNaN(day)){
+          filters.$expr = {
             $or: [
               {
                 $and: [
-                  { $eq: [{ $year: { $toDate: "$createdAt" } }, anio] },
-                  { $eq: [{ $month: { $toDate: "$createdAt" } }, mes] },
-                  { $eq: [{ $dayOfMonth: { $toDate: "$createdAt" } }, dia] }
+                  { $eq: [{ $year: { $toDate: "$createdAt" } }, year] },
+                  { $eq: [{ $month: { $toDate: "$createdAt" } }, month] },
+                  { $eq: [{ $dayOfMonth: { $toDate: "$createdAt" } }, day] }
                 ]
               },
               {
                 $and: [
-                  { $eq: [{ $year: { $toDate: "$created_at" } }, anio] },
-                  { $eq: [{ $month: { $toDate: "$created_at" } }, mes] },
-                  { $eq: [{ $dayOfMonth: { $toDate: "$created_at" } }, dia] }
+                  { $eq: [{ $year: { $toDate: "$created_at" } }, year] },
+                  { $eq: [{ $month: { $toDate: "$created_at" } }, month] },
+                  { $eq: [{ $dayOfMonth: { $toDate: "$created_at" } }, day] }
                 ]
               }
             ]
           };
       }else{
-         filtros.$expr = {
+         filters.$expr = {
             $or: [
               {
                 $and: [
-                  { $eq: [{ $year: { $toDate: "$createdAt" } }, anio] },
-                  { $eq: [{ $month: { $toDate: "$createdAt" } }, mes] },
+                  { $eq: [{ $year: { $toDate: "$createdAt" } }, year] },
+                  { $eq: [{ $month: { $toDate: "$createdAt" } }, month] },
                 ]
               },
               {
                 $and: [
-                  { $eq: [{ $year: { $toDate: "$created_at" } }, anio] },
-                  { $eq: [{ $month: { $toDate: "$created_at" } }, mes] },
+                  { $eq: [{ $year: { $toDate: "$created_at" } }, year] },
+                  { $eq: [{ $month: { $toDate: "$created_at" } }, month] },
                 ]
               }
             ]
@@ -120,20 +120,20 @@ export async function GET(req) {
       if (searchParams.get('fechaInicio') || searchParams.get('fechaFin')) {
 
 
-        let fechaInicio = searchParams.get('fechaInicio');
-        let fechaFin = searchParams.get('fechaFin');
+        let startDate = searchParams.get('fechaInicio');
+        let endDate = searchParams.get('fechaFin');
 
-        if (fechaInicio === "null" ) fechaInicio = null;
-        if (fechaFin === "null") fechaFin = null;
+        if (startDate === "null" ) startDate = null;
+        if (endDate === "null") endDate = null;
         
           let dateFilter = {};
-          if (fechaInicio) dateFilter.$gte = new Date(fechaInicio);
-          if (fechaFin) {
-            let fin = new Date(fechaFin);
-            fin.setHours(23, 59, 59, 999);
-            dateFilter.$lte = fin;
+          if (startDate) dateFilter.$gte = new Date(startDate);
+          if (endDate) {
+            let end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            dateFilter.$lte = end;
           }
-          filtros.$or = [
+          filters.$or = [
             { createdAt: dateFilter },
             { created_at: dateFilter },
             // { updated_at: dateFilter },
@@ -144,11 +144,11 @@ export async function GET(req) {
     
 
     if (searchParams.get('count') === "true") {
-      const count = await Question.countDocuments(filtros);
+      const count = await Question.countDocuments(filters);
       return Response.json({ count });
     }
    
-    // Paginación
+    // Pagination
     let page = parseInt(searchParams.get('page'), 0);
     let pageSize = parseInt(searchParams.get('pageSize'), 10);
     let skip = 0;
@@ -157,18 +157,18 @@ export async function GET(req) {
     if (!isNaN(page) && !isNaN(pageSize) && page > 0 && pageSize > 0) {
       skip = (page - 1) * pageSize;
       limit = pageSize;
-      total = await Question.countDocuments(filtros);
+      total = await Question.countDocuments(filters);
     }
 
-    let query = Question.find(filtros, sacarValor);
+    let query = Question.find(filters, selectFields);
     if (limit > 0) {
       query = query.skip(skip).limit(limit);
     }
-    const preguntas = await query;
+    const questions = await query;
     if (typeof total === 'number') {
-      return Response.json({ preguntas, total });
+      return Response.json({ preguntas: questions, total });
     } else {
-      return Response.json({ preguntas });
+      return Response.json({ preguntas: questions });
     }
 
   } catch (error) {

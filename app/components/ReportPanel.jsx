@@ -1,4 +1,4 @@
-// PanelGraficas.js
+// ReportPanel.js
 import React, { useState, useEffect } from "react";
 import { getEvaluationComments, getSpanishComments } from "../constants/evaluationComments.js";
 import { DIFFICULTIES } from "../constants/difficulties.js";
@@ -17,50 +17,50 @@ import {
 } from "recharts";
 
 
-const PanelGraficas = ({
+const ReportPanel = ({
   subject,
-  fechaInicio,
-  setFechaInicio,
-  fechaFin,
-  setFechaFin,
-  reportadas,
-  motivosReportadas,
-  reportadasCorregidas,
-  aciertosDificultad,
-  frecuenciaAciertoTemaporAsignatura,
-  frecuenciaAciertoSubtemaporTema,
-  Temporal,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
+  reported,
+  reportedReasons,
+  evaluatedReported,
+  difficultySuccess,
+  topicSuccessBySubject,
+  subtopicSuccessByTopic,
+  temporal,
   t,
   loading,
-  onActualizar,
+  onUpdate,
 }) => {
-  const [motivosTraducidos, setMotivosTraducidos] = useState(motivosReportadas);
-  const [aciertosDificultadTraducidos, setAciertosDificultadTraducidos] = useState(aciertosDificultad);
+  const [translatedReasons, setTranslatedReasons] = useState(reportedReasons);
+  const [translatedDifficulties, setTranslatedDifficulties] = useState(difficultySuccess);
 
-  // Función para traducir los motivos de reporte
-  const traducirMotivos = (motivos) => {
-    const comentariosEspanol = getSpanishComments();
-    const comentariosTraducidos = getEvaluationComments(t);
+  // Function to translate report reasons
+  const translateReasons = (reasons) => {
+    const spanishComments = getSpanishComments();
+    const translatedComments = getEvaluationComments(t);
     
-    return motivos.map(motivo => ({
-      ...motivo,
-      motivo: comentariosTraducidos[comentariosEspanol.indexOf(motivo.motivo)]
+    return reasons.map(reason => ({
+      ...reason,
+      motivo: translatedComments[spanishComments.indexOf(reason.motivo)]
     }));
   };
 
-  // Función para traducir las dificultades
-  const traducirDificultades = (datos) => {
-    return datos.map(item => ({
+  // Function to translate difficulties
+  const translateDifficulties = (data) => {
+    return data.map(item => ({
       ...item,
       dif: DIFFICULTIES[item.dif] ? t(`subject.${DIFFICULTIES[item.dif]}`) : item.dif
     }));
   };
 
-  // Traducir motivos y dificultades solo en el cliente
+  // Translate reasons and difficulties only on client side
   useEffect(() => {
-    setMotivosTraducidos(traducirMotivos(motivosReportadas));
-    setAciertosDificultadTraducidos(traducirDificultades(aciertosDificultad));
-  }, [motivosReportadas, aciertosDificultad, t]);
+    setTranslatedReasons(translateReasons(reportedReasons));
+    setTranslatedDifficulties(translateDifficulties(difficultySuccess));
+  }, [reportedReasons, difficultySuccess, t]);
 
   return (
   <div className="container-content">
@@ -70,11 +70,11 @@ const PanelGraficas = ({
       </div>
     ) : (
       <>
-        {/* Botón Actualizar y Selector de rango de fechas */}
+        {/* Update button and date range selector */}
         <div className="flex flex-col items-center gap-2 mb-6">
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded mb-2"
-            onClick={onActualizar}
+            onClick={onUpdate}
           >
             {t("reports.update")}
           </button>
@@ -83,8 +83,8 @@ const PanelGraficas = ({
               <label className="block mb-1 font-semibold">{t("reports.fechainicio")}:</label>
               <input
                 type="date"
-                value={fechaInicio || ""}
-                onChange={e => setFechaInicio(e.target.value)}
+                value={startDate || ""}
+                onChange={e => setStartDate(e.target.value)}
                 className="border rounded px-2 py-1"
               />
             </div>
@@ -92,8 +92,8 @@ const PanelGraficas = ({
               <label className="block mb-1 font-semibold">{t("reports.fechafin")}:</label>
               <input
                 type="date"
-                value={fechaFin || ""}
-                onChange={e => setFechaFin(e.target.value)}
+                value={endDate || ""}
+                onChange={e => setEndDate(e.target.value)}
                 className="border rounded px-2 py-1"
               />
             </div>
@@ -103,23 +103,23 @@ const PanelGraficas = ({
 
 
 
-        {/* 1. Preguntas reportadas */}
+        {/* 1. Reported questions */}
         <section className="mb-6 p-4 border rounded-lg shadow">
           <h2 className="text-left text-2xl mb-4 font-semibold">
             1. {t("reports.subtitle0")}
           </h2>
           <p className="text-sm mb-4">
-            {t("reports.pregreport1")}: {reportadas}
+            {t("reports.pregreport1")}: {reported}
           </p>
           <p className="text-sm mb-4">
-            {t("reports.pregreport2")}: {reportadasCorregidas}
+            {t("reports.pregreport2")}: {evaluatedReported}
           </p>
 
           <h2 className="text-sl font-semibold mt-4 mb-4 text-center">
             {t("reports.graph0_title")}
           </h2>
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart layout="vertical" data={motivosTraducidos}>
+            <BarChart layout="vertical" data={translatedReasons}>
               <CartesianGrid strokeDasharray="3 3"  />
               <XAxis type="number" domain={[0, 100]} />
               <YAxis
@@ -140,7 +140,7 @@ const PanelGraficas = ({
           </ResponsiveContainer>
         </section>
 
-        {/* 2. Porcentaje acierto segun dificultad */}
+        {/* 2. Success percentage by difficulty */}
         <section className="mb-6 p-4 border rounded-lg shadow">
           <h2 className="text-left text-2xl mb-4 font-semibold">
             2. {t("reports.subtitle2")}
@@ -156,7 +156,7 @@ const PanelGraficas = ({
               </tr>
             </thead>
             <tbody>
-              {aciertosDificultadTraducidos.map((obj, index) => (
+              {translatedDifficulties.map((obj, index) => (
                 <tr key={index} className="text-center border-t">
                   <td className="border p-2">{index + 1}</td>
                   <td className="border p-2">{obj.dif}</td>
@@ -173,7 +173,7 @@ const PanelGraficas = ({
                 {t("reports.graph1_title")}
               </h2>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={aciertosDificultadTraducidos}  >
+                <BarChart data={translatedDifficulties}  >
                   <CartesianGrid strokeDasharray="3 3"  />
                   <XAxis dataKey="dif"  angle={-30} textAnchor="end"  tick={{ fontSize: 8 }}/>
                   <YAxis  domain={[0, 100]} />
@@ -193,7 +193,7 @@ const PanelGraficas = ({
                 {t("reports.graph2_title")}
               </h2>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={aciertosDificultadTraducidos}>
+                <BarChart data={translatedDifficulties}>
                   <CartesianGrid strokeDasharray="3 3"  />
                   <XAxis dataKey="dif"  angle={-30} textAnchor="end"  tick={{ fontSize: 8 }}/>
                   <YAxis />
@@ -211,13 +211,13 @@ const PanelGraficas = ({
           </div>
         </section>
 
-        {/* 3. Frecuencia y Acierto por cada Tema */}
+        {/* 3. Frequency and Success by Topic */}
         <section className="mb-6 p-4 border rounded-lg shadow">
           <h2 className="text-left text-2xl mb-4 font-semibold">
             3. {t("reports.subtitle3")} {subject}
           </h2>
-          {Object.keys(frecuenciaAciertoTemaporAsignatura).map((as) => (
-            <section key={as} >
+          {Object.keys(topicSuccessBySubject).map((subjectKey) => (
+            <section key={subjectKey} >
               <table className="w-full border-collapse border border-gray-300 mb-12">
                 <thead>
                   <tr className="bg-200">
@@ -229,7 +229,7 @@ const PanelGraficas = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {frecuenciaAciertoTemaporAsignatura[as].map((obj, index) => (
+                  {topicSuccessBySubject[subjectKey].map((obj, index) => (
                     <tr key={index} className="text-center border-t">
                       <td className="border p-2">{index + 1}</td>
                       <td className="border p-2">{obj.tema}</td>
@@ -245,10 +245,10 @@ const PanelGraficas = ({
                   <h2 className="text-sl font-semibold mb-2 text-center">
                     {t("reports.graph3_title")}
                   </h2>
-                  <ResponsiveContainer width="100%"  height={frecuenciaAciertoTemaporAsignatura[as].length * 40 + 50}>
+                  <ResponsiveContainer width="100%"  height={topicSuccessBySubject[subjectKey].length * 40 + 50}>
                     <BarChart
                       layout="vertical"
-                      data={frecuenciaAciertoTemaporAsignatura[as]}
+                      data={topicSuccessBySubject[subjectKey]}
                     >
                       <CartesianGrid strokeDasharray="3 3"  />
                       <XAxis type="number"  domain={[0, 100]} />
@@ -273,10 +273,10 @@ const PanelGraficas = ({
                   <h2 className="text-sl font-semibold mb-2 text-center">
                     {t("reports.graph4_title")}
                   </h2>
-                  <ResponsiveContainer width="100%" height={frecuenciaAciertoTemaporAsignatura[as].length * 40 + 50}>
+                  <ResponsiveContainer width="100%" height={topicSuccessBySubject[subjectKey].length * 40 + 50}>
                     <BarChart
                       layout="vertical"
-                      data={frecuenciaAciertoTemaporAsignatura[as]}
+                      data={topicSuccessBySubject[subjectKey]}
                     >
                       <CartesianGrid strokeDasharray="3 3"  />
                       <XAxis type="number" />
@@ -302,14 +302,14 @@ const PanelGraficas = ({
           ))}
         </section>
 
-        {/* 4. Frecuencia y Acierto de cada Subtema por Tema */}
+        {/* 4. Frequency and Success of each Subtopic by Topic */}
         <section className="mb-6 p-4 border rounded-lg shadow">
           <h2 className="text-left text-2xl mb-4 font-semibold">
             4. {t("reports.subtitle4")}
           </h2>
-          {Object.keys(frecuenciaAciertoSubtemaporTema).map((tema) => (
-            <section key={tema} className="mb-6 p-4 border rounded-lg shadow" >
-              <h2 className="text-xl font-semibold mb-4"> - {t("reports.tema")}: {tema}</h2>
+          {Object.keys(subtopicSuccessByTopic).map((topic) => (
+            <section key={topic} className="mb-6 p-4 border rounded-lg shadow" >
+              <h2 className="text-xl font-semibold mb-4"> - {t("reports.tema")}: {topic}</h2>
               <table className="w-full border-collapse border border-gray-300 mb-12">
                 <thead>
                   <tr className="bg-200">
@@ -321,7 +321,7 @@ const PanelGraficas = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {frecuenciaAciertoSubtemaporTema[tema].map((obj, index) => (
+                  {subtopicSuccessByTopic[topic].map((obj, index) => (
                     <tr key={index} className="text-center border-t">
                       <td className="border p-2">{index + 1}</td>
                       <td className="border p-2">{obj.subtema}</td>
@@ -335,12 +335,12 @@ const PanelGraficas = ({
               <div className="flex justify-between mb-4">
                 <div className="w-1/2 p-2">
                   <h2 className="text-sl font-semibold mb-2 text-center">
-                    {t("reports.graph5_title")} {tema}
+                    {t("reports.graph5_title")} {topic}
                   </h2>
-                    <ResponsiveContainer width="100%" height={frecuenciaAciertoSubtemaporTema[tema].length * 40 + 50}>
+                    <ResponsiveContainer width="100%" height={subtopicSuccessByTopic[topic].length * 40 + 50}>
                       <BarChart
                         layout="vertical"
-                        data={frecuenciaAciertoSubtemaporTema[tema]}
+                        data={subtopicSuccessByTopic[topic]}
                       >
                       <CartesianGrid strokeDasharray="3 3"  />
                       <XAxis type="number"  domain={[0, 100]} />
@@ -363,12 +363,12 @@ const PanelGraficas = ({
                 </div>
                 <div className="w-1/2 p-2">
                   <h2 className="text-sl font-semibold mb-2 text-center">
-                    {t("reports.graph6_title")} {tema}
+                    {t("reports.graph6_title")} {topic}
                   </h2>
-                  <ResponsiveContainer width="100%" height={frecuenciaAciertoSubtemaporTema[tema].length * 40 + 50}>
+                  <ResponsiveContainer width="100%" height={subtopicSuccessByTopic[topic].length * 40 + 50}>
                     <BarChart
                       layout="vertical"
-                      data={frecuenciaAciertoSubtemaporTema[tema]}
+                      data={subtopicSuccessByTopic[topic]}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis type="number" />
@@ -394,13 +394,13 @@ const PanelGraficas = ({
           ))}
         </section>
 
-        {/*  5. ¿Cuándo se ha utilizado más la aplicación? */}
+        {/*  5. When has the application been used more? */}
         <section className="mb-6 p-4  border rounded-lg shadow">
           <h2 className="text-left text-2xl mb-4 font-semibold">
             5.  {t("reports.subtitle5")}
           </h2>
           <ResponsiveContainer width="100%" height={500}>
-            <LineChart data={Temporal}>
+            <LineChart data={temporal}>
               <XAxis dataKey="fecha" angle={-45} textAnchor="end" height={120}    />
               <YAxis   />
               <Tooltip />
@@ -415,4 +415,4 @@ const PanelGraficas = ({
   );
 };
 
-export default PanelGraficas;
+export default ReportPanel;
