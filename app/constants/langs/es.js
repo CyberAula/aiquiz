@@ -89,7 +89,7 @@ export const es = {
     reports: {
         title: "Reportes",
         comparator: "Comparador",
-        scomparator: "Salir del comparator",
+        scomparator: "Salir del comparador",
         fechainicio: "Fecha inicio",
         fechafin: "Fecha Fin",
         description: "Escoge la asignatura de la que quieras obtener estadísticas",
