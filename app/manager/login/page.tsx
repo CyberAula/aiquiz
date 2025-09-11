@@ -1,12 +1,13 @@
 // /app/manager/login/page.tsx
 "use client";
 
-import { useState, useContext, FormEvent, ChangeEvent } from "react";
-import { useTranslation } from "react-i18next";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useContext, FormEvent, ChangeEvent } from "react";
+import { useManagerTranslation } from "../hooks/useManagerTranslation";
+import { useRouter, useSearchParams } from "next/navigation";
 import LanguageSwitcher from "../components/common/LanguageSwitcher";
 import { ClientSideContext } from "../I18nProvider";
 import Link from "next/link";
+import useApiRequest from "../hooks/useApiRequest";
 
 interface Credentials {
 	email: string;
@@ -15,15 +16,41 @@ interface Credentials {
 
 const LoginPage = () => {
 	const isClient = useContext(ClientSideContext);
-	const { t } = useTranslation();
+	const { t } = useManagerTranslation();
 	const router = useRouter();
+	const searchParams = useSearchParams();
 
 	const [credentials, setCredentials] = useState<Credentials>({
 		email: "",
 		password: "",
 	});
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState("");
+
+	const [loginError, setLoginError] = useState("");
+	const [successMessage, setSuccessMessage] = useState("");
+
+	// API login
+	const {
+		makeRequest: login,
+		loading,
+		error: apiError,
+	} = useApiRequest("/api/manager/auth/login", "POST", null, false);
+
+	// Actualizar el error de login si hay error en la API
+	useEffect(() => {
+		if (apiError) {
+			setLoginError(t("login.loginError"));
+		}
+	}, [apiError, t]);
+
+	// Comprobar si viene de la aceptación de invitación o restablecimiento de contraseña
+	useEffect(() => {
+		const message = searchParams.get('message');
+		if (message === 'invitation-accepted') {
+			setSuccessMessage(t("success.accountActivated"));
+		} else if (message === 'password-reset-success') {
+			setSuccessMessage(t("success.passwordReset"));
+		}
+	}, [searchParams]);
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -35,59 +62,21 @@ const LoginPage = () => {
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
-		setLoading(true);
-		setError("");
-
-		const dataToSend = {
-			email: credentials.email,
-			password: credentials.password,
-		};
-
-		console.log("📤 Enviando datos a la API:", dataToSend);
-		console.log("📍 Endpoint: /api/auth/login (POST)");
+		setLoginError("");
 
 		try {
-			// TODO: Reemplazar con llamada real a la API cuando esté implementada
-			// const response = await fetch('/api/auth/login', {
-			//   method: 'POST',
-			//   headers: {
-			//     'Content-Type': 'application/json',
-			//   },
-			//   body: JSON.stringify(dataToSend),
-			// });
-			// const data = await response.json();
+			const response = await login(credentials);
 
-			// Simulación de respuesta exitosa con JWT
-			const mockResponse = {
-				success: true,
-				token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkNhcmxvcyBHb256YWxleiIsImlhdCI6MTUxNjIzOTAyMn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-			};
-
-			console.log("📥 Respuesta simulada de la API:", mockResponse);
-
-			// Simular retardo de red
-			setTimeout(() => {
-				if (mockResponse.success) {
-					// Guardar token JWT en localStorage
-					localStorage.setItem("jwt_token", mockResponse.token);
-					console.log(
-						"🔐 Token JWT almacenado en localStorage:",
-						mockResponse.token
-					);
-
-					// Redireccionar a la página de asignaturas
-					console.log("🔀 Redireccionando a: /manager/subjects");
-					router.push("/manager/subjects");
-				} else {
-					setError(t("login.loginError"));
-					console.error("❌ Error de autenticación");
-				}
-				setLoading(false);
-			}, 1000);
+			if (response.success) {
+				// Guardar token JWT en localStorage
+				localStorage.setItem("jwt_token", response.token);
+				router.push("/manager/subjects");
+			} else {
+				setLoginError(t("login.loginError"));
+			}
 		} catch (error) {
 			console.error("❌ Error durante el login:", error);
-			setError(t("login.loginError"));
-			setLoading(false);
+			setLoginError(t("login.loginError"));
 		}
 	};
 
@@ -151,9 +140,15 @@ const LoginPage = () => {
 							/>
 						</div>
 
-						{error && (
+						{loginError && (
 							<div className="mb-4 p-2 bg-red-100 text-red-700 rounded-md text-sm">
-								{error}
+								{loginError}
+							</div>
+						)}
+
+						{successMessage && (
+							<div className="mb-4 p-2 bg-green-100 text-green-700 rounded-md text-sm">
+								{successMessage}
 							</div>
 						)}
 

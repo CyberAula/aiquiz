@@ -1,229 +1,116 @@
-// /app/manager/subjects/[id]/page.tsx
+// /app/manager/subjects/[id]/page.tsx (actualizado)
 "use client";
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useTranslation } from "react-i18next";
+import { useManagerTranslation } from "../../hooks/useManagerTranslation";
+import useApiRequest from "../../hooks/useApiRequest";
+import { useClipboard } from "../../hooks/useClipboard";
+import { Topic, useSubject } from "../../contexts/SubjectContext";
 
-// Importamos solo los componentes realmente necesarios
-import TopicsTab from "../../components/topics/TopicsTab";
-import ProfessorsTab from "../../components/topics/ProfessorsTab";
-import SettingsTab from "../../components/topics/SettingsTab";
-import InviteModal from "../../components/topics/InviteModal";
-import EditTopicModal from "../../components/topics/EditTopicModal";
-
-// Interfaces
-interface SubTopic {
-	id: string;
-	title: string;
-}
-
-interface Topic {
-	id: string;
-	title: string;
-	description: string;
-	subtopics: SubTopic[];
-}
-
-interface Professor {
-	id: string;
-	name: string;
-	email: string;
-}
-
-interface Subject {
-	id: string;
-	title: string;
-	acronym: string;
-	description: string;
-	topics: Topic[];
-	professors: Professor[];
-}
+// Importamos los componentes
+import TopicsTab from "../../components/subject/TopicsTab";
+import ProfessorsTab from "../../components/subject/ProfessorsTab";
+import SettingsTab from "../../components/subject/SettingsTab";
+import InviteModal from "../../components/subject/InviteModal";
+import EditTopicModal from "../../components/subject/EditTopicModal";
+import AddTopicModal from "../../components/subject/AddTopicModal";
+import SubjectDetailSidebar from "../../components/common/SubjectDetailSidebar";
+import ConfirmationModal from "../../components/common/ConfirmationModal"; // Importación del nuevo componente
 
 export default function SubjectDetailPage() {
 	const { id } = useParams();
 	const router = useRouter();
-	const { t } = useTranslation();
+	const { t } = useManagerTranslation();
+	const { copied, copyToClipboard } = useClipboard();
 
-	const [subject, setSubject] = useState<Subject | null>(null);
-	const [loading, setLoading] = useState(true);
+	// Usar el hook useSubject en lugar del contexto directo
+	const { subject, loading, setSubject, refetchSubject } = useSubject();
+
+	// Obtener información del usuario actual del localStorage
+	const getCurrentUser = () => {
+		try {
+			const token = localStorage.getItem('jwt_token');
+			if (!token) return null;
+			
+			// Decodificar el JWT básico (sin verificación, solo para obtener la info)
+			const payload = JSON.parse(atob(token.split('.')[1]));
+			return {
+				id: payload.userId,
+				role: payload.role || 'professor'
+			};
+		} catch (error) {
+			console.error('Error obteniendo usuario actual:', error);
+			return null;
+		}
+	};
+
+	// Estados para UI
 	const [activeTab, setActiveTab] = useState("topics");
-	const [copied, setCopied] = useState(false);
-
-	// Datos para la pantalla de ajustes
 	const [editMode, setEditMode] = useState(false);
-	const [editedSubject, setEditedSubject] = useState<Subject | null>(null);
+	const [editedSubject, setEditedSubject] = useState(subject);
 	const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 	const [showInviteModal, setShowInviteModal] = useState(false);
+	const [showAddTopicModal, setShowAddTopicModal] = useState(false);
+	const [deletingTopicId, setDeletingTopicId] = useState<string>("");
 
+	// Estados para modales de confirmación
+	const [showDeleteSubjectModal, setShowDeleteSubjectModal] = useState(false);
+	const [showDeleteTopicModal, setShowDeleteTopicModal] = useState(false);
+	const [showDeleteProfessorModal, setShowDeleteProfessorModal] =
+		useState(false);
+	const [itemToDelete, setItemToDelete] = useState<string>("");
+
+	// Sincronizar estado local cuando cambia el subject en el contexto
 	useEffect(() => {
-		const fetchSubjectDetails = async () => {
-			setLoading(true);
-			try {
-				// Simulamos la carga de datos
-				console.log(`📤 Simulando petición GET a /api/subjects/${id}`);
-
-				// Uso de setTimeout para simular el tiempo de carga
-				setTimeout(() => {
-					// Datos simulados con UUIDs
-					const mockData = {
-						id: "550e8400-e29b-41d4-a716-446655440000",
-						title: "Computación en red (CORE)",
-						acronym: "CORE",
-						description:
-							"Una red de computadoras, red de ordenadores o red informática es un conjunto de equipos nodos y software conectados entre sí por medio de dispositivos físicos que envían y reciben impulsos eléctricos, ondas electromagnéticas o cualquier otro medio para el transporte de datos, con la finalidad de compartir información, recursos y ofrecer servicios.",
-						topics: [
-							{
-								id: "7e9d5eb7-9058-4754-b325-062ace8c2249",
-								title: "HTTP",
-								description:
-									"El protocolo de transferencia de hipertexto (en inglés: Hypertext Transfer (...)) Ver descripción",
-								subtopics: [
-									{
-										id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-										title: "URLs",
-									},
-									{
-										id: "f47ac10b-58cc-4372-a567-0e02b2c3d480",
-										title: "Formato peticiones HTTP",
-									},
-									{
-										id: "f47ac10b-58cc-4372-a567-0e02b2c3d481",
-										title: "Cabeceras HTTP",
-									},
-									{
-										id: "f47ac10b-58cc-4372-a567-0e02b2c3d482",
-										title: "Métodos POST, PUT GET, DELETE, HEAD",
-									},
-									{
-										id: "f47ac10b-58cc-4372-a567-0e02b2c3d483",
-										title: "Códigos de respuesta",
-									},
-									{
-										id: "f47ac10b-58cc-4372-a567-0e02b2c3d484",
-										title: "Caché web",
-									},
-									{
-										id: "f47ac10b-58cc-4372-a567-0e02b2c3d485",
-										title: "Gestión de estado: parámetros ocultos, cookies, sesión",
-									},
-								],
-							},
-							{
-								id: "6b86b273-6e81-4e47-a252-08a2c3d53778",
-								title: "HTML",
-								description:
-									"HTML es un lenguaje de marcado que posibilita definir la estructura de (...)",
-								subtopics: [
-									{
-										id: "d4735e3a-5caa-4bd7-9db8-c40f4c8a3480",
-										title: "Declaración de variables",
-									},
-									{
-										id: "d4735e3a-5caa-4bd7-9db8-c40f4c8a3481",
-										title: "Tipos de datos operadores y expresiones",
-									},
-									{
-										id: "d4735e3a-5caa-4bd7-9db8-c40f4c8a3482",
-										title: "Bucles y condicionales",
-									},
-									{
-										id: "d4735e3a-5caa-4bd7-9db8-c40f4c8a3483",
-										title: "Uso de break y continue",
-									},
-									{
-										id: "d4735e3a-5caa-4bd7-9db8-c40f4c8a3484",
-										title: "Clases y objetos",
-									},
-									{
-										id: "d4735e3a-5caa-4bd7-9db8-c40f4c8a3485",
-										title: "Comandos try, catch y finally",
-									},
-									{
-										id: "d4735e3a-5caa-4bd7-9db8-c40f4c8a3486",
-										title: "Manejo de excepciones",
-									},
-								],
-							},
-							{
-								id: "ef2d127d-ea53-4e70-804d-bff65e45c8a7",
-								title: "CSS",
-								description:
-									"CSS es un lenguaje de diseño gráfico para definir y crear la presentación de documentos.",
-								subtopics: [],
-							},
-						],
-						professors: [
-							{
-								id: "37e1a2c3-d1c0-4f1c-a5d8-f72f3391e32a",
-								name: "Carlos González",
-								email: "cgonzalez@upm.es",
-							},
-							{
-								id: "0cae5fb4-4819-4a06-bba2-aa98b3a8425e",
-								name: "Marina Yeros",
-								email: "myeros@upm.es",
-							},
-						],
-					};
-
-					console.log(
-						`📥 Respuesta simulada recibida para asignatura ${id}`
-					);
-					setSubject(mockData);
-					setEditedSubject(mockData);
-					setLoading(false);
-				}, 800);
-			} catch (error) {
-				console.error("Error fetching subject details:", error);
-				setLoading(false);
-			}
-		};
-
-		if (id) {
-			fetchSubjectDetails();
+		if (subject) {
+			setEditedSubject(subject);
 		}
-	}, [id]);
+	}, [subject]);
+
+	// API para añadir profesor
+	const { makeRequest: addProfessor, loading: addingProfessor } =
+		useApiRequest(`/api/manager/subjects/${id}/professors`, "POST", null, false);
+
+	// API para eliminar profesor
+	const { makeRequest: removeProfessor, loading: removingProfessor } =
+		useApiRequest("", "DELETE", null, false);
+
+	// API para añadir tema
+	const { makeRequest: addTopic, loading: addingTopic } = useApiRequest(
+		`/api/manager/subjects/${id}/topics`,
+		"POST",
+		null,
+		false
+	);
+
+	// API para editar tema
+	const { makeRequest: editTopic, loading: editingTopicLoading } =
+		useApiRequest("", "PATCH", null, false);
+
+	// API para eliminar tema
+	const { makeRequest: deleteTopic, loading: deletingTopic } = useApiRequest(
+		`/api/manager/subjects/${id}/topics`,
+		"DELETE",
+		null,
+		false
+	);
+
+	// API para guardar cambios de la asignatura
+	const { makeRequest: saveSubject, loading: savingSubject } = useApiRequest(
+		`/api/manager/subjects/${id}`,
+		"PUT",
+		null,
+		false
+	);
+
+	// API para eliminar la asignatura
+	const { makeRequest: deleteSubjectRequest, loading: deletingSubject } =
+		useApiRequest(`/api/manager/subjects/${id}`, "DELETE", null, false);
 
 	const handleTabChange = (tab: string) => {
 		setActiveTab(tab);
-	};
-
-	// Función para copiar la URL al portapapeles
-	const copyToClipboard = (text: string) => {
-		if (navigator.clipboard) {
-			navigator.clipboard
-				.writeText(text)
-				.then(() => {
-					setCopied(true);
-					// Reset copied state after 2 seconds
-					setTimeout(() => setCopied(false), 2000);
-				})
-				.catch((error) => {
-					console.error("Error copying to clipboard:", error);
-					setCopied(false);
-				});
-		} else {
-			// Fallback for browsers that don't support clipboard API
-			try {
-				const textArea = document.createElement("textarea");
-				textArea.value = text;
-				textArea.style.position = "fixed";
-				document.body.appendChild(textArea);
-				textArea.focus();
-				textArea.select();
-				const successful = document.execCommand("copy");
-				document.body.removeChild(textArea);
-				setCopied(successful);
-				if (successful) {
-					setTimeout(() => setCopied(false), 2000);
-				}
-			} catch (error) {
-				console.error("Fallback: Error copying to clipboard:", error);
-				setCopied(false);
-			}
-		}
 	};
 
 	const handleCopySubjectUrl = () => {
@@ -249,128 +136,147 @@ export default function SubjectDetailPage() {
 		setEditedSubject((prev) => (prev ? { ...prev, [name]: value } : null));
 	};
 
-	const handleSaveChanges = () => {
+	const handleSaveChanges = async () => {
 		if (!editedSubject) return;
 
-		console.log(`📤 Simulando petición PUT a /api/subjects/${id}`);
-		console.log("Datos enviados:", editedSubject);
-
-		// Simular guardado exitoso
-		setTimeout(() => {
-			console.log(`📥 Respuesta simulada: actualización exitosa`);
-			setSubject(editedSubject);
-			setEditMode(false);
-		}, 800);
-	};
-
-	const handleAddProfessor = (name: string, email: string) => {
-		console.log(
-			`📤 Simulando petición POST a /api/subjects/${id}/professors`
-		);
-		console.log("Datos enviados:", { name, email });
-
-		// Simular añadir profesor
-		setTimeout(() => {
-			console.log(`📥 Respuesta simulada: profesor añadido exitosamente`);
-			if (subject) {
-				const newProfessor = {
-					id: `professor-${Date.now()}`,
-					name,
-					email,
-				};
-
-				const updatedSubject = {
-					...subject,
-					professors: [...subject.professors, newProfessor],
-				};
-
-				setSubject(updatedSubject);
-				if (editedSubject) {
-					setEditedSubject(updatedSubject);
-				}
+		try {
+			const response = await saveSubject(editedSubject);
+			if (response.success) {
+				refetchSubject(); // Usar refetchSubject del contexto
+				setEditMode(false);
 			}
-		}, 800);
+		} catch (error) {
+			console.error("Error al actualizar la asignatura:", error);
+		}
 	};
 
-	const handleRemoveProfessor = (professorId: string) => {
-		console.log(
-			`📤 Simulando petición DELETE a /api/subjects/${id}/professors/${professorId}`
-		);
+	const handleAddProfessor = async (name: string, email: string) => {
+		if (!subject) return;
 
-		// Simular eliminar profesor
-		setTimeout(() => {
-			console.log(
-				`📥 Respuesta simulada: profesor eliminado exitosamente`
+		try {
+			const response = await addProfessor({ name, email });
+			if (response.success) {
+				refetchSubject(); // Usar refetchSubject del contexto
+				setShowInviteModal(false);
+			}
+		} catch (error) {
+			console.error("Error al añadir profesor:", error);
+		}
+	};
+
+	// Confirmar eliminación de profesor
+	const handleConfirmDeleteProfessor = (professorId: string) => {
+		setItemToDelete(professorId);
+		setShowDeleteProfessorModal(true);
+	};
+
+	const handleRemoveProfessor = async () => {
+		if (!subject || !itemToDelete) return;
+
+		try {
+			const response = await removeProfessor(
+				null,
+				false,
+				`/api/manager/subjects/${id}/professors/${itemToDelete}`
 			);
-			if (subject) {
-				const updatedSubject = {
-					...subject,
-					professors: subject.professors.filter(
-						(p) => p.id !== professorId
-					),
-				};
-
-				setSubject(updatedSubject);
-				if (editedSubject) {
-					setEditedSubject(updatedSubject);
-				}
+			if (response.success) {
+				refetchSubject(); // Usar refetchSubject del contexto
+				setShowDeleteProfessorModal(false);
+				setItemToDelete("");
 			}
-		}, 800);
+		} catch (error) {
+			console.error("Error al eliminar profesor:", error);
+		}
 	};
 
-	const handleAddTopic = () => {
-		console.log(`📤 Simulando petición POST a /api/subjects/${id}/topics`);
-		console.log("Datos enviados: Nuevo tema");
-
-		// Simular añadir tema
-		setTimeout(() => {
-			console.log(`📥 Respuesta simulada: tema añadido exitosamente`);
-			if (subject) {
-				const newTopic = {
-					id: `topic-${Date.now()}`,
-					title: t("subjectDetail.newTopic"),
-					description: "",
-					subtopics: [],
-				};
-
-				const updatedSubject = {
-					...subject,
-					topics: [...subject.topics, newTopic],
-				};
-
-				setSubject(updatedSubject);
-				if (editedSubject) {
-					setEditedSubject(updatedSubject);
-				}
-			}
-		}, 800);
+	const handleAddTopicRequest = () => {
+		setShowAddTopicModal(true);
 	};
 
-	const handleEditTopic = (topicId: string, newTitle: string) => {
-		console.log(
-			`📤 Simulando petición PATCH a /api/subjects/${id}/topics/${topicId}`
-		);
-		console.log("Datos enviados:", { title: newTitle });
+	const handleAddTopicConfirm = async (title: string, description: string) => {
+		if (!subject) return;
 
-		// Simular editar tema
-		setTimeout(() => {
-			console.log(`📥 Respuesta simulada: tema actualizado exitosamente`);
-			if (subject) {
-				const updatedTopics = subject.topics.map((topic) =>
-					topic.id === topicId ? { ...topic, title: newTitle } : topic
-				);
+		try {
+			const newTopic = {
+				title: title.trim(),
+				description: description?.trim() || "",
+			};
 
-				const updatedSubject = {
-					...subject,
-					topics: updatedTopics,
-				};
-
-				setSubject(updatedSubject);
-				if (editedSubject) {
-					setEditedSubject(updatedSubject);
-				}
+			const response = await addTopic(newTopic, true); // Forzar nueva llamada
+			if (response.success) {
+				refetchSubject(); // Usar refetchSubject del contexto
+				setShowAddTopicModal(false);
 			}
-		}, 800);
+		} catch (error) {
+			console.error("Error al añadir tema:", error);
+		}
+	};
+
+	const handleEditTopicRequest = async (
+		topicId: string,
+		newTitle: string
+	) => {
+		if (!subject) return;
+
+		try {
+			const response = await editTopic(
+				{ title: newTitle },
+				false,
+				`/api/manager/subjects/${id}/topics/${topicId}`
+			);
+
+			if (response.success) {
+				refetchSubject(); // Usar refetchSubject del contexto
+				setEditingTopic(null);
+			}
+		} catch (error) {
+			console.error("Error al actualizar tema:", error);
+		}
+	};
+
+	// Confirmar eliminación de tema
+	const handleConfirmDeleteTopic = (topicId: string) => {
+		setItemToDelete(topicId);
+		setShowDeleteTopicModal(true);
+	};
+
+	const handleDeleteTopicRequest = async () => {
+		if (!subject || !itemToDelete) return;
+
+		try {
+			setDeletingTopicId(itemToDelete);
+			const response = await deleteTopic(
+				null,
+				false,
+				`/api/manager/subjects/${id}/topics/${itemToDelete}`
+			);
+
+			if (response.success) {
+				refetchSubject(); // Usar refetchSubject del contexto
+				setShowDeleteTopicModal(false);
+				setItemToDelete("");
+			}
+		} catch (error) {
+			console.error("Error al eliminar tema:", error);
+		} finally {
+			setDeletingTopicId("");
+		}
+	};
+
+	// Confirmar eliminación de asignatura
+	const handleConfirmDeleteSubject = () => {
+		setShowDeleteSubjectModal(true);
+	};
+
+	const handleDeleteSubject = async () => {
+		try {
+			const response = await deleteSubjectRequest();
+			if (response.success) {
+				router.push("/manager/subjects");
+			}
+		} catch (error) {
+			console.error("Error al eliminar asignatura:", error);
+		}
 	};
 
 	if (loading) {
@@ -405,168 +311,234 @@ export default function SubjectDetailPage() {
 	}
 
 	return (
-		<div className="p-6 sm:p-8">
-			{/* Breadcrumbs y título */}
-			<div className="mb-6">
-				<div className="flex items-center text-sm text-gray-500 mb-2">
-					<Link
-						href="/manager/subjects"
-						className="hover:text-gray-700"
-					>
-						{t("navigation.subjects")}
-					</Link>
-					<span className="mx-2">&gt;</span>
-					<Link
-						href={`/manager/subjects/${id}`}
-						className="hover:text-gray-700"
-					>
-						{subject.title}
-					</Link>
-				</div>
+		<>
+			{/* Sidebar fijo en el lado izquierdo */}
+			<div className="fixed top-16 left-0 bottom-0 w-64 z-40">
+				<SubjectDetailSidebar
+					subjectId={subject.id}
+					subjectTitle={subject.title}
+					topics={subject.topics}
+				/>
+			</div>
 
-				<div className="flex items-center justify-between">
-					<h1 className="text-3xl font-bold flex items-center">
-						{subject.title}
-						<button
-							onClick={handleCopySubjectUrl}
-							className="ml-2 focus:outline-none"
-							title={
-								copied
-									? t("subjectDetail.copied")
-									: t("subjectDetail.copyLink")
-							}
+			<div className="p-6 sm:p-8">
+				{/* Breadcrumbs y título */}
+				<div className="mb-6">
+					<div className="flex items-center text-sm text-gray-500 mb-2">
+						<Link
+							href="/manager/subjects"
+							className="hover:text-gray-700"
 						>
-							<svg
-								className={`w-6 h-6 ${
+							{t("navigation.subjects")}
+						</Link>
+						<span className="mx-2">&gt;</span>
+						<Link
+							href={`/manager/subjects/${id}`}
+							className="hover:text-gray-700"
+						>
+							{subject.title}
+						</Link>
+					</div>
+
+					<div className="flex items-center justify-between">
+						<h1 className="text-3xl font-bold flex items-center">
+							{subject.title}
+							<button
+								onClick={handleCopySubjectUrl}
+								className="ml-2 focus:outline-none"
+								title={
 									copied
-										? "text-green-500"
-										: "text-gray-500 hover:text-gray-700"
-								}`}
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
+										? t("subjectDetail.copied")
+										: t("subjectDetail.copyLink")
+								}
 							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-								/>
-							</svg>
-						</button>
-					</h1>
+								<svg
+									className={`w-6 h-6 ${
+										copied
+											? "text-green-500"
+											: "text-gray-500 hover:text-gray-700"
+									}`}
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth="2"
+										d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+									/>
+								</svg>
+							</button>
+						</h1>
+					</div>
+
+					<p className="text-gray-700 mt-2">
+						{subject.description.length > 150
+							? subject.description.substring(0, 150) + "..."
+							: subject.description}
+					</p>
 				</div>
 
-				<p className="text-gray-700 mt-2">
-					{subject.description.length > 150
-						? subject.description.substring(0, 150) + "..."
-						: subject.description}
-				</p>
-			</div>
-
-			{/* Tabs de navegación */}
-			<div className="border-b border-gray-200 mb-6">
-				<nav className="-mb-px flex space-x-8">
-					<button
-						onClick={() => handleTabChange("topics")}
-						className={`py-4 px-1 ${
-							activeTab === "topics"
-								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
-								: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-						}`}
-					>
-						{t("subjectDetail.topics")}
-					</button>
-					<button
-						onClick={() => handleTabChange("professors")}
-						className={`py-4 px-1 ${
-							activeTab === "professors"
-								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
-								: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-						}`}
-					>
-						{t("subjectDetail.professors")}
-					</button>
-					<button
-						onClick={() => handleTabChange("settings")}
-						className={`py-4 px-1 ${
-							activeTab === "settings"
-								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
-								: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-						}`}
-					>
-						{t("subjectDetail.settings")}
-					</button>
-				</nav>
-			</div>
-
-			{/* Contenido de las tabs */}
-			<div className="mt-6">
-				{activeTab === "topics" && (
-					<TopicsTab
-						subjectId={subject.id}
-						topics={subject.topics}
-						handleAddTopic={handleAddTopic}
-					/>
-				)}
-
-				{activeTab === "professors" && (
-					<>
+				{/* Tabs de navegación */}
+				<div className="border-b border-gray-200 mb-6">
+					<nav className="-mb-px flex space-x-8">
 						<button
-							className="mb-6 bg-gray-800 text-white py-2 px-4 rounded-md flex items-center"
-							onClick={() => setShowInviteModal(true)}
+							onClick={() => handleTabChange("topics")}
+							className={`py-4 px-1 ${
+								activeTab === "topics"
+									? "border-b-2 border-indigo-500 font-medium text-indigo-600"
+									: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+							}`}
 						>
-							<svg
-								className="w-5 h-5 mr-1"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-								/>
-							</svg>
-							{t("subjectDetail.inviteProfessor")}
+							{t("subjectDetail.topics")}
 						</button>
+						<button
+							onClick={() => handleTabChange("professors")}
+							className={`py-4 px-1 ${
+								activeTab === "professors"
+									? "border-b-2 border-indigo-500 font-medium text-indigo-600"
+									: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+							}`}
+						>
+							{t("subjectDetail.professors")}
+						</button>
+						<button
+							onClick={() => handleTabChange("settings")}
+							className={`py-4 px-1 ${
+								activeTab === "settings"
+									? "border-b-2 border-indigo-500 font-medium text-indigo-600"
+									: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+							}`}
+						>
+							{t("subjectDetail.settings")}
+						</button>
+					</nav>
+				</div>
 
-						<ProfessorsTab
-							professors={subject.professors}
-							onRemoveProfessor={handleRemoveProfessor}
+				{/* Contenido de las tabs */}
+				<div className="mt-6">
+					{activeTab === "topics" && (
+						<TopicsTab
+							subjectId={subject.id}
+							topics={subject.topics}
+							handleAddTopic={handleAddTopicRequest}
+							handleDeleteTopic={handleConfirmDeleteTopic} // Cambiado para usar la confirmación
+							isLoading={addingTopic}
+							deletingTopicId={deletingTopicId}
 						/>
+					)}
 
-						{showInviteModal && (
-							<InviteModal
-								onClose={() => setShowInviteModal(false)}
-								onInvite={handleAddProfessor}
+					{activeTab === "professors" && (
+						<>
+							<button
+								className="mb-6 bg-gray-800 text-white py-2 px-4 rounded-md flex items-center"
+								onClick={() => setShowInviteModal(true)}
+								disabled={addingProfessor}
+							>
+								<svg
+									className="w-5 h-5 mr-1"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth="2"
+										d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+									/>
+								</svg>
+								{t("subjectDetail.inviteProfessor")}
+							</button>
+
+							<ProfessorsTab
+								professors={subject.professors}
+								administrators={subject.administrators || []}
+								currentUser={getCurrentUser()}
+								onRemoveProfessor={handleConfirmDeleteProfessor} // Cambiado para usar la confirmación
+								isLoading={removingProfessor}
 							/>
-						)}
-					</>
-				)}
 
-				{activeTab === "settings" && (
-					<SettingsTab
-						subject={subject}
-						editMode={editMode}
-						editedSubject={editedSubject!}
-						onEditToggle={handleEditToggle}
-						onInputChange={handleInputChange}
-						onSaveChanges={handleSaveChanges}
-						onEditTopic={handleEditTopic}
-					/>
-				)}
+							{showInviteModal && (
+								<InviteModal
+									onClose={() => setShowInviteModal(false)}
+									onInvite={handleAddProfessor}
+									isLoading={addingProfessor}
+								/>
+							)}
+						</>
+					)}
 
-				{/* Modales */}
-				{editingTopic && (
-					<EditTopicModal
-						topic={editingTopic}
-						onClose={() => setEditingTopic(null)}
-						onSave={handleEditTopic}
+					{activeTab === "settings" && editedSubject && (
+						<SettingsTab
+							subject={subject}
+							editMode={editMode}
+							editedSubject={editedSubject}
+							onEditToggle={handleEditToggle}
+							onInputChange={handleInputChange}
+							onSaveChanges={handleSaveChanges}
+							onEditTopic={handleEditTopicRequest}
+							onDeleteTopic={handleConfirmDeleteTopic} // Cambiado para usar la confirmación
+							onDeleteSubject={handleConfirmDeleteSubject} // Cambiado para usar la confirmación
+							isLoading={savingSubject || deletingSubject}
+							isDeletingTopic={Boolean(deletingTopicId)}
+						/>
+					)}
+
+					{/* Modales */}
+					{editingTopic && (
+						<EditTopicModal
+							topic={editingTopic}
+							onClose={() => setEditingTopic(null)}
+							onSave={handleEditTopicRequest}
+							isLoading={editingTopicLoading}
+						/>
+					)}
+
+					{showAddTopicModal && (
+						<AddTopicModal
+							onClose={() => setShowAddTopicModal(false)}
+							onAdd={handleAddTopicConfirm}
+							isLoading={addingTopic}
+						/>
+					)}
+
+					{/* Modales de confirmación */}
+					<ConfirmationModal
+						isOpen={showDeleteSubjectModal}
+						title={t("confirmation.deleteSubject.title")}
+						message={t("confirmation.deleteSubject.message")}
+						confirmButtonText={t("common.delete")}
+						onConfirm={handleDeleteSubject}
+						onCancel={() => setShowDeleteSubjectModal(false)}
+						isLoading={deletingSubject}
+						isDanger={true}
 					/>
-				)}
+
+					<ConfirmationModal
+						isOpen={showDeleteTopicModal}
+						title={t("confirmation.deleteTopic.title")}
+						message={t("confirmation.deleteTopic.message")}
+						confirmButtonText={t("common.delete")}
+						onConfirm={handleDeleteTopicRequest}
+						onCancel={() => setShowDeleteTopicModal(false)}
+						isLoading={deletingTopic}
+						isDanger={true}
+					/>
+
+					<ConfirmationModal
+						isOpen={showDeleteProfessorModal}
+						title={t("confirmation.deleteProfessor.title")}
+						message={t("confirmation.deleteProfessor.message")}
+						confirmButtonText={t("common.delete")}
+						onConfirm={handleRemoveProfessor}
+						onCancel={() => setShowDeleteProfessorModal(false)}
+						isLoading={removingProfessor}
+						isDanger={true}
+					/>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }

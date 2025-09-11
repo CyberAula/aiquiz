@@ -1,39 +1,43 @@
-"use client";
-
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
 import { en } from "./constants/langs/en";
 import { es } from "./constants/langs/es";
 
-// init i18next
-// detect user language
-// learn more: https://github.com/i18next/i18next-browser-languageDetector
-// for all options read: https://www.i18next.com/overview/configuration-options
-// pass the i18n instance to react-i18next.
-i18n.use(initReactI18next)
-	.use(LanguageDetector)
-	.init({
-		debug: true,
-		supportedLngs: ["en", "es"],
-		fallbackLng: "es", // Set the fallback language to Spanish
-		resources: {
-			en: {
-				translation: en,
-			},
-			es: {
-				translation: es,
-			},
+// Importar traducciones del manager
+import managerEsJSON from "./manager/languages/es.json";
+import managerEnJSON from "./manager/languages/en.json";
+
+// Consolidar recursos de traducciones
+const resources = {
+	en: {
+		translation: {
+			...en,
+			manager: managerEnJSON
 		},
-		interpolation: {
-			escapeValue: false, // not needed for react as it escapes by default
+	},
+	es: {
+		translation: {
+			...es,
+			manager: managerEsJSON
 		},
-		detection: {
-			// order and from where user language should be detected
-			order: ["localStorage", "navigator"],
-			// keys or params to lookup language from
-			lookupLocalStorage: "i18nextLng",
-		},
-	});
+	},
+};
+
+// Inicializar i18n de forma síncrona
+i18n.use(initReactI18next).init({
+	debug: false,
+	lng: "es", // Idioma por defecto
+	supportedLngs: ["en", "es"],
+	fallbackLng: "es",
+	resources,
+	interpolation: {
+		escapeValue: false,
+	},
+	defaultNS: "translation",
+	ns: ["translation"],
+	react: {
+		useSuspense: false,
+	},
+});
 
 export default i18n;

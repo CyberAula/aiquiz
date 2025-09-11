@@ -78,5 +78,10 @@ export const es = {
     },
     footer: {
         title: "Universidad Politécnica de Madrid - Grupo de Internet de Nueva Generación",
+    },
+    common: {
+        loading: "Cargando...",
+        error: "Error",
+        notFound: "No encontrado"
     }
 };

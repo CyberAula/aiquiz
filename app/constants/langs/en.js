@@ -79,4 +79,9 @@ export const en = {
 	footer: {
 		title: "Universidad Politécnica de Madrid - Next Generation Internet Group",
 	},
+	common: {
+		loading: "Loading...",
+		error: "Error",
+		notFound: "Not found"
+	}
 };

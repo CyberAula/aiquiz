@@ -24,9 +24,11 @@ function QuizPageFun() {
     const topic = params.get('topic')
     const numQuestions = Number(params.get('numQuestions'))
     const subject = params.get('subject')
+    const subtopicId = params.get('subtopicId')
 
     const [quiz, setQuiz] = useState([])
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const [numSubmitted, setNumSubmitted] = useState(0)
     const [numReported, setNumReported] = useState(0)
@@ -54,6 +56,8 @@ function QuizPageFun() {
         let responseText = '';
 
         try {
+            console.log("[Quiz] Enviando petición para generar", numQuestions, "preguntas");
+            
             const response = await fetch('api/questions', {
                 method: 'POST',
                 headers: {
@@ -65,12 +69,21 @@ function QuizPageFun() {
                     topic,
                     numQuestions,
                     studentEmail,
-                    subject
+                    subject,
+                    subtopicId
                 }),
             })
 
             if (!response.ok) {
-                throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+                // Intenta leer el cuerpo de la respuesta para más detalles del error
+                let errorDetails = `${response.status} ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    errorDetails = errorData.message || errorData.error || errorDetails;
+                } catch {
+                    // Si no se puede parsear como JSON, usar el status text
+                }
+                throw new Error(`Failed to fetch data: ${errorDetails}`);
             }
 
             console.log("--------------------------------------------------");
@@ -106,15 +119,26 @@ function QuizPageFun() {
             // Ajusta el texto de la respuesta para que sea un JSON válido
             let jsonResponse = JSON.parse(responseText.replace(/^\[|\]$/g, '').trim());
             const allQuestions = jsonResponse.questions;
-            console.log('All Questions ->', allQuestions);
+            
+            console.log("[Quiz] Respuesta del servidor procesada:");
+            console.log("  Total de preguntas recibidas:", allQuestions?.length || 0);
+            console.log("  Preguntas solicitadas:", numQuestions);
+            console.log("  Primeras 2 preguntas:", allQuestions?.slice(0, 2));
             console.log("--------------------------------------------------");
 
+            if (!allQuestions || allQuestions.length === 0) {
+                throw new Error("No se recibieron preguntas del servidor");
+            }
 
-            // Ajustar el número de preguntas mostradas en el cuestionario
-            const questionsToShow = allQuestions.slice(0, numQuestions);
-            setQuiz(questionsToShow); // Establecer el estado de quiz con las preguntas a mostrar                
+            // Usar todas las preguntas recibidas, no limitar por numQuestions
+            setQuiz(allQuestions);                
         } catch (err) {
-            console.log('Quiz Page:', err)
+            console.log('[Quiz Page] Error generating questions:', err.message);
+            console.log('[Quiz Page] Full error:', err);
+            
+            // Establecer el error en el estado
+            setError(err.message);
+            
             //save error log to file
             const errorLog = {
                 date: new Date().toISOString(),
@@ -207,9 +231,27 @@ function QuizPageFun() {
             {/* renderiza barra de progreso */}
             <motion.div className='progress-bar' style={{ scaleX }} />
 
-            {isLoading ? 
-             <div className="bg-blue-200"><LoadingScreen responseStream={responseStream} /></div> : 
-            <div className='container-layout'>
+            {error ? 
+                <div className='container-layout'>
+                    <div className='bg-white rounded-md pb-4'>
+                        <Header/>
+                        <div className='margin-items-container'>
+                            <div className="text-center py-12">
+                                <h2 className="text-2xl font-bold text-red-600 mb-4">Error generando el quiz</h2>
+                                <p className="text-gray-700 mb-4">{error}</p>
+                                <button 
+                                    onClick={handlePlayAgain}
+                                    className="btn-quizz btn-md"
+                                >
+                                    Volver e intentar de nuevo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            : isLoading ? 
+                <div className="bg-blue-200"><LoadingScreen responseStream={responseStream} /></div> : 
+                <div className='container-layout'>
             <div className='bg-white rounded-md pb-4'>
                 <Header/>
                 <div className='margin-items-container flex justify-between gap-3 pb-5'>

@@ -1,18 +1,36 @@
 "use client";
 
-import { useState, useContext, FormEvent, ChangeEvent } from "react";
-import { useTranslation } from "react-i18next";
+import { useState, useContext, FormEvent, ChangeEvent, useEffect } from "react";
+import { useManagerTranslation } from "../hooks/useManagerTranslation";
 import { ClientSideContext } from "../I18nProvider";
 import LanguageSwitcher from "../components/common/LanguageSwitcher";
 import Link from "next/link";
+import useApiRequest from "../hooks/useApiRequest";
 
 const RecoveryPasswordPage = () => {
 	const isClient = useContext(ClientSideContext);
-	const { t } = useTranslation();
+	const { t } = useManagerTranslation();
 
 	const [email, setEmail] = useState<string>("");
-	const [loading, setLoading] = useState<boolean>(false);
 	const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
+	const [recoveryError, setRecoveryError] = useState<string>("");
+
+	// API recuperación
+	const {
+		makeRequest: sendRecoveryEmail,
+		loading,
+		error: apiError,
+	} = useApiRequest("/api/auth/recovery", "POST", null, false);
+
+	// Actualizar el error si hay error en la API
+	useEffect(() => {
+		if (apiError) {
+			setRecoveryError(
+				t("recovery.errorSending") ||
+					"Error al enviar el email de recuperación"
+			);
+		}
+	}, [apiError, t]);
 
 	const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setEmail(e.target.value);
@@ -20,13 +38,29 @@ const RecoveryPasswordPage = () => {
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
-		setLoading(true);
-		console.log("Email enviado:", email);
-		// TODO: Implementar llamada real a la API
-		setTimeout(() => {
-			setIsEmailSent(true);
-			setLoading(false);
-		}, 1000);
+		setRecoveryError("");
+
+		try {
+			const response = await sendRecoveryEmail({ email });
+
+			if (response.success) {
+				setIsEmailSent(true);
+			} else {
+				setRecoveryError(
+					t("recovery.errorSending") ||
+						"Error al enviar el email de recuperación"
+				);
+			}
+		} catch (error) {
+			console.error(
+				"Error durante la recuperación de contraseña:",
+				error
+			);
+			setRecoveryError(
+				t("recovery.errorSending") ||
+					"Error al enviar el email de recuperación"
+			);
+		}
 	};
 
 	// Pantalla de confirmación después de enviar el correo
@@ -108,6 +142,12 @@ const RecoveryPasswordPage = () => {
 								required
 							/>
 						</div>
+
+						{recoveryError && (
+							<div className="mb-4 p-2 bg-red-100 text-red-700 rounded-md text-sm">
+								{recoveryError}
+							</div>
+						)}
 
 						<div className="flex gap-4 mb-2">
 							<button

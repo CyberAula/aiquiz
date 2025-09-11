@@ -1,0 +1,2069 @@
+openapi: 3.0.0
+info:
+  title: AIQuiz API
+  description: Complete API documentation for the AIQuiz educational platform with AI-powered question generation and RAG-enabled document processing
+  version: 1.0.0
+  contact:
+    name: AIQuiz Team
+servers:
+  - url: /api
+    description: Development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/manager/auth/login
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+        error:
+          type: string
+          description: Detailed error (development only)
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        faculty:
+          type: string
+        department:
+          type: string
+        role:
+          type: string
+          enum: [admin, professor]
+        lastLogin:
+          type: string
+          format: date-time
+
+    Subject:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        acronym:
+          type: string
+        description:
+          type: string
+        administrators:
+          type: array
+          items:
+            type: string
+        professors:
+          type: array
+          items:
+            type: string
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+
+    Topic:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        subject:
+          type: string
+        subtopics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subtopic'
+
+    Subtopic:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        topic:
+          type: string
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+
+    Question:
+      type: object
+      properties:
+        _id:
+          type: string
+        text:
+          type: string
+        type:
+          type: string
+        difficulty:
+          type: string
+          enum: [Fácil, Medio, Avanzado]
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+              isCorrect:
+                type: boolean
+        explanation:
+          type: string
+        verified:
+          type: boolean
+        generated:
+          type: boolean
+        llmModel:
+          type: string
+        topicRef:
+          type: string
+        subtopic:
+          type: string
+
+    File:
+      type: object
+      properties:
+        _id:
+          type: string
+        fileName:
+          type: string
+        originalName:
+          type: string
+        mimeType:
+          type: string
+        size:
+          type: number
+        fileType:
+          type: string
+          enum: [document, image, video, other]
+        subtopic:
+          type: string
+        ragProcessed:
+          type: boolean
+        ragDocumentId:
+          type: string
+        ragStats:
+          type: object
+
+    Questionnaire:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        questions:
+          type: array
+          items:
+            type: string
+        topic:
+          type: string
+        createdBy:
+          type: string
+
+    Student:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        answers:
+          type: array
+          items:
+            type: object
+
+paths:
+  # Authentication Endpoints
+  /manager/auth/login:
+    post:
+      summary: Manager authentication
+      description: Authenticate manager and get JWT token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /manager/auth/me:
+    get:
+      summary: Get current user profile
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    
+    put:
+      summary: Update current user profile
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                faculty:
+                  type: string
+                department:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /manager/auth/recovery:
+    post:
+      summary: Request password recovery
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Recovery email sent
+
+  /manager/auth/reset-password:
+    post:
+      summary: Reset password with token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - newPassword
+              properties:
+                token:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password reset successful
+
+  /manager/auth/validate-reset-token:
+    post:
+      summary: Validate password reset token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Token is valid
+
+  /manager/auth/validate-invitation:
+    post:
+      summary: Validate invitation token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Token is valid
+
+  /manager/auth/accept-invitation:
+    post:
+      summary: Accept invitation and create account
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - password
+                - name
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+                faculty:
+                  type: string
+                department:
+                  type: string
+      responses:
+        '201':
+          description: Account created successfully
+
+  # Subject Management
+  /subjects:
+    get:
+      summary: Get all subjects for quiz application
+      description: Get subjects with populated topics and subtopics for public quiz
+      tags:
+        - Public Subjects
+      responses:
+        '200':
+          description: List of subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subject'
+
+  /subjects/{acronym}:
+    get:
+      summary: Get subject by acronym
+      tags:
+        - Public Subjects
+      parameters:
+        - name: acronym
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subject information
+        '404':
+          description: Subject not found
+
+  /manager/subjects:
+    get:
+      summary: Get all subjects for management
+      tags:
+        - Manager Subjects
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Create new subject
+      tags:
+        - Manager Subjects
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - acronym
+              properties:
+                title:
+                  type: string
+                acronym:
+                  type: string
+                description:
+                  type: string
+                professors:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Subject created successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /manager/subjects/{id}:
+    get:
+      summary: Get subject by ID
+      tags:
+        - Manager Subjects
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subject details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subject'
+        '404':
+          description: Subject not found
+
+    put:
+      summary: Update subject
+      tags:
+        - Manager Subjects
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                acronym:
+                  type: string
+                description:
+                  type: string
+                professors:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Subject updated successfully
+
+    delete:
+      summary: Delete subject (admin only)
+      tags:
+        - Manager Subjects
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subject deleted successfully
+        '403':
+          description: Admin role required
+
+  # Professor Management
+  /manager/subjects/{id}/professors:
+    get:
+      summary: Get subject professors
+      tags:
+        - Professor Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of professors
+
+    post:
+      summary: Invite professor to subject
+      tags:
+        - Professor Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Invitation sent
+
+  /manager/subjects/{id}/professors/{profId}:
+    delete:
+      summary: Remove professor from subject
+      tags:
+        - Professor Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: profId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Professor removed
+
+  # Topic Management
+  /manager/subjects/{id}/topics:
+    get:
+      summary: Get topics for subject
+      tags:
+        - Topic Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of topics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Topic'
+
+    post:
+      summary: Create new topic
+      tags:
+        - Topic Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Topic created successfully
+
+  /manager/subjects/{id}/topics/{topicId}:
+    get:
+      summary: Get topic details
+      tags:
+        - Topic Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Topic details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+
+    put:
+      summary: Update topic
+      tags:
+        - Topic Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Topic updated successfully
+
+    delete:
+      summary: Delete topic
+      tags:
+        - Topic Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Topic deleted successfully
+
+  # Subtopic Management
+  /manager/subjects/{id}/topics/{topicId}/subtopics:
+    get:
+      summary: Get subtopics for topic
+      tags:
+        - Subtopic Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of subtopics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subtopic'
+
+    post:
+      summary: Create new subtopic
+      tags:
+        - Subtopic Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Subtopic created successfully
+
+  /manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}:
+    get:
+      summary: Get subtopic details
+      tags:
+        - Subtopic Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: subtopicId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subtopic details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subtopic'
+
+    put:
+      summary: Update subtopic
+      tags:
+        - Subtopic Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: subtopicId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Subtopic updated successfully
+
+    delete:
+      summary: Delete subtopic
+      tags:
+        - Subtopic Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: subtopicId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subtopic deleted successfully
+
+  # File Management with RAG
+  /manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files:
+    get:
+      summary: Get files for subtopic
+      tags:
+        - File Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: subtopicId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of files
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/File'
+
+    post:
+      summary: Upload file with RAG processing
+      description: Upload PDF file with automatic RAG processing for semantic search
+      tags:
+        - File Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: subtopicId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF file (max 50MB)
+                description:
+                  type: string
+                  description: Optional file description
+      responses:
+        '201':
+          description: File uploaded and processed successfully
+        '400':
+          description: Invalid file or upload error
+
+  /manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files/{fileId}:
+    get:
+      summary: Get file details
+      tags:
+        - File Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: subtopicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+
+    delete:
+      summary: Delete file and RAG data
+      tags:
+        - File Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: subtopicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File deleted successfully
+
+  /manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files/{fileId}/download:
+    get:
+      summary: Download file
+      tags:
+        - File Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: subtopicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  # Video Management
+  /manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/videos:
+    get:
+      summary: Get videos for subtopic
+      tags:
+        - Video Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: subtopicId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of videos
+
+    post:
+      summary: Add video with transcription
+      tags:
+        - Video Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: subtopicId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: YouTube video URL
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Video added and transcription started
+
+  # Question Management
+  /questions:
+    get:
+      summary: Get quiz questions (public)
+      description: Get questions for quiz application
+      tags:
+        - Quiz Questions
+      parameters:
+        - name: subject
+          in: query
+          schema:
+            type: string
+        - name: topic
+          in: query
+          schema:
+            type: string
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+            enum: [facil, intermedio, avanzado]
+      responses:
+        '200':
+          description: List of questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Question'
+
+    post:
+      summary: Generate AI questions
+      description: Generate quiz questions using LLM with optional RAG context
+      tags:
+        - Quiz Questions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - language
+                - difficulty
+                - topic
+                - numQuestions
+                - studentEmail
+                - subject
+              properties:
+                language:
+                  type: string
+                  enum: [es, en]
+                difficulty:
+                  type: string
+                  enum: [facil, intermedio, avanzado]
+                topic:
+                  type: string
+                numQuestions:
+                  type: integer
+                  minimum: 1
+                  maximum: 20
+                studentEmail:
+                  type: string
+                  format: email
+                subject:
+                  type: string
+                subtopicId:
+                  type: string
+                  description: Optional subtopic for RAG context
+      responses:
+        '200':
+          description: Questions generated successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Question'
+        '400':
+          description: Invalid request parameters
+
+  /manager/subjects/{id}/topics/{topicId}/questions:
+    get:
+      summary: Get questions for topic management
+      tags:
+        - Manager Questions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: verified
+          in: query
+          schema:
+            type: string
+            enum: [true, false, all]
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+            enum: [Fácil, Medio, Avanzado]
+        - name: generated
+          in: query
+          schema:
+            type: string
+            enum: [true, false, all]
+      responses:
+        '200':
+          description: List of questions with filters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Question'
+
+    post:
+      summary: Create manual question
+      tags:
+        - Manager Questions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+                - type
+                - difficulty
+                - choices
+              properties:
+                text:
+                  type: string
+                type:
+                  type: string
+                difficulty:
+                  type: string
+                  enum: [Fácil, Medio, Avanzado]
+                choices:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                      isCorrect:
+                        type: boolean
+                explanation:
+                  type: string
+      responses:
+        '201':
+          description: Question created successfully
+
+    patch:
+      summary: Update question verification status
+      tags:
+        - Manager Questions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - questionId
+                - action
+              properties:
+                questionId:
+                  type: string
+                action:
+                  type: string
+                  enum: [verify, reject, reset]
+      responses:
+        '200':
+          description: Question status updated
+
+  /manager/subjects/{id}/topics/{topicId}/generate-questions:
+    post:
+      summary: Generate questions for topic (manager)
+      tags:
+        - Manager Questions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - difficulty
+                - numQuestions
+                - language
+              properties:
+                difficulty:
+                  type: string
+                  enum: [Fácil, Medio, Avanzado]
+                numQuestions:
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+                language:
+                  type: string
+                  enum: [es, en]
+                useRag:
+                  type: boolean
+                  description: Use RAG context from subtopics
+                subtopicIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Specific subtopics for RAG context
+      responses:
+        '200':
+          description: Questions generated successfully
+
+  /manager/subjects/{id}/topics/{topicId}/questions/download:
+    get:
+      summary: Download questions as file
+      tags:
+        - Manager Questions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [pdf, json, csv]
+            default: pdf
+        - name: verified
+          in: query
+          schema:
+            type: string
+            enum: [true, false, all]
+            default: all
+      responses:
+        '200':
+          description: Questions file download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  # Questionnaire Management
+  /manager/subjects/{id}/topics/{topicId}/questionnaires:
+    get:
+      summary: Get questionnaires for topic
+      tags:
+        - Questionnaires
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of questionnaires
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Questionnaire'
+
+    post:
+      summary: Create new questionnaire
+      tags:
+        - Questionnaires
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - questions
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                questions:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of question IDs
+      responses:
+        '201':
+          description: Questionnaire created successfully
+
+  /manager/subjects/{id}/topics/{topicId}/questionnaires/{questionnaireId}:
+    get:
+      summary: Get questionnaire details
+      tags:
+        - Questionnaires
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: questionnaireId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Questionnaire details with populated questions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Questionnaire'
+
+    put:
+      summary: Update questionnaire
+      tags:
+        - Questionnaires
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: questionnaireId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                questions:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Questionnaire updated successfully
+
+    delete:
+      summary: Delete questionnaire
+      tags:
+        - Questionnaires
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: questionnaireId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Questionnaire deleted successfully
+
+  /manager/subjects/{id}/topics/{topicId}/questionnaires/{questionnaireId}/download:
+    get:
+      summary: Download questionnaire
+      tags:
+        - Questionnaires
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: questionnaireId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [pdf, xml, json]
+            default: pdf
+        - name: includeAnswers
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Questionnaire file download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  # RAG and Search
+  /manager/rag/search:
+    post:
+      summary: Semantic search through documents
+      description: Search through uploaded documents using RAG
+      tags:
+        - RAG Search
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  description: Search query
+                limit:
+                  type: integer
+                  default: 5
+                  description: Number of results to return
+                subjectId:
+                  type: string
+                  description: Filter by subject
+                topicId:
+                  type: string
+                  description: Filter by topic
+                subtopicId:
+                  type: string
+                  description: Filter by subtopic
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        content:
+                          type: string
+                        score:
+                          type: number
+                        metadata:
+                          type: object
+
+  # Quiz and Student Data
+  /answer:
+    post:
+      summary: Submit quiz answer or report question
+      description: Save student answer and optionally report problematic questions
+      tags:
+        - Quiz Interaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - questionId
+                - studentEmail
+              properties:
+                questionId:
+                  type: string
+                studentEmail:
+                  type: string
+                  format: email
+                selectedAnswer:
+                  type: integer
+                  description: Index of selected answer (if not reporting)
+                isCorrect:
+                  type: boolean
+                timeSpent:
+                  type: number
+                  description: Time spent on question in seconds
+                reported:
+                  type: boolean
+                  description: Whether question is being reported
+                reportReason:
+                  type: string
+                  description: Reason for reporting (if reported=true)
+                subject:
+                  type: string
+                topic:
+                  type: string
+                difficulty:
+                  type: string
+                questionData:
+                  type: object
+                  description: Complete question data for storage
+      responses:
+        '200':
+          description: Answer saved successfully
+        '400':
+          description: Invalid request data
+
+  /student:
+    post:
+      summary: Get or create student data
+      tags:
+        - Student Data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Student data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+
+  /dashboard:
+    post:
+      summary: Get dashboard analytics
+      description: Get analytics data for subject dashboard
+      tags:
+        - Analytics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - subject
+              properties:
+                subject:
+                  type: string
+      responses:
+        '200':
+          description: Dashboard analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalQuestions:
+                    type: integer
+                  totalAnswers:
+                    type: integer
+                  avgScore:
+                    type: number
+                  topicStats:
+                    type: array
+                    items:
+                      type: object
+
+  /survey:
+    post:
+      summary: Submit survey response
+      tags:
+        - Survey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                studentEmail:
+                  type: string
+                  format: email
+                responses:
+                  type: object
+                  description: Survey responses
+      responses:
+        '200':
+          description: Survey submitted successfully
+
+  # Account Management
+  /account/password:
+    put:
+      summary: Change account password
+      tags:
+        - Account Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password changed successfully
+        '401':
+          description: Current password is incorrect
+
+  # Health and Monitoring
+  /manager/health:
+    get:
+      summary: Health check endpoint
+      tags:
+        - System Health
+      responses:
+        '200':
+          description: System health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok, error]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  services:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                      rag:
+                        type: string
+                      llm:
+                        type: string
+
+  /manager/swagger:
+    get:
+      summary: Get Swagger documentation
+      tags:
+        - Documentation
+      responses:
+        '200':
+          description: Swagger JSON specification
+
+  /error-log:
+    post:
+      summary: Log client-side errors
+      tags:
+        - Error Logging
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                stack:
+                  type: string
+                userAgent:
+                  type: string
+                url:
+                  type: string
+                timestamp:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Error logged successfully
+
+  # Public Authentication (Student)
+  /auth:
+    post:
+      summary: Student authentication
+      description: Simple authentication for students
+      tags:
+        - Student Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  description: Optional password for enhanced security
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  student:
+                    $ref: '#/components/schemas/Student'
+
+  components:
+    responses:
+      BadRequest:
+        description: Bad request - validation error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+      
+      Unauthorized:
+        description: Unauthorized - invalid or missing token
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+      
+      Forbidden:
+        description: Forbidden - insufficient permissions
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+      
+      NotFound:
+        description: Resource not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+
+tags:
+  - name: Authentication
+    description: Manager authentication and user management
+  - name: Student Authentication
+    description: Student authentication for quiz access
+  - name: Public Subjects
+    description: Public subject endpoints for quiz application
+  - name: Manager Subjects
+    description: Subject management for administrators and professors
+  - name: Professor Management
+    description: Professor invitation and management
+  - name: Topic Management
+    description: Topic creation and management within subjects
+  - name: Subtopic Management
+    description: Subtopic management and organization
+  - name: File Management
+    description: File upload and RAG processing for educational content
+  - name: Video Management
+    description: Video content management with transcription
+  - name: Quiz Questions
+    description: AI-powered question generation for quizzes
+  - name: Manager Questions
+    description: Question management and verification for professors
+  - name: Questionnaires
+    description: Questionnaire creation and export functionality
+  - name: RAG Search
+    description: Semantic search through educational documents
+  - name: Quiz Interaction
+    description: Student quiz interaction and answer submission
+  - name: Student Data
+    description: Student profile and progress management
+  - name: Analytics
+    description: Educational analytics and dashboard data
+  - name: Survey
+    description: Student feedback and survey collection
+  - name: Account Management
+    description: User account and password management
+  - name: System Health
+    description: System monitoring and health checks
+  - name: Documentation
+    description: API documentation endpoints
+  - name: Error Logging
+    description: Client-side error logging and monitoring

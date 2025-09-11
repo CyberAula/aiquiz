@@ -1,47 +1,26 @@
 // /app/manager/subjects/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useManagerTranslation } from "../hooks/useManagerTranslation";
 import Link from "next/link";
 import SubjectCard, {
 	SubjectCardProps,
 } from "../components/subject/SubjectCard";
-import mockSubjects from "../data/subjects.json";
+import useApiRequest from "../hooks/useApiRequest";
+import { LoadingSpinner, FadeIn } from "../components/common/AnimatedComponents";
 
 interface Subject extends SubjectCardProps {}
 
 export default function SubjectsPage() {
-	const { t } = useTranslation();
-	const [subjects, setSubjects] = useState<Subject[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
+	const { t } = useManagerTranslation();
 
-	useEffect(() => {
-		const fetchSubjects = async () => {
-			setIsLoading(true);
-			try {
-				// TODO: Reemplazar con llamada real a la API cuando esté implementada
-				// const response = await fetch('/api/subjects', {
-				//   headers: {
-				//     'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-				//   }
-				// });
-				// const data = await response.json();
+	// Usar el hook personalizado para gestionar la petición
+	const {
+		data: subjects = [],
+		loading: isLoading,
+		error,
+	} = useApiRequest("/api/manager/subjects", "GET", [], true);
 
-				// Usar los datos de mock desde el archivo JSON
-				// Simular retardo de red
-				setTimeout(() => {
-					setSubjects(mockSubjects);
-					setIsLoading(false);
-				}, 1000);
-			} catch (error) {
-				console.error("Error fetching subjects:", error);
-				setIsLoading(false);
-			}
-		};
-
-		fetchSubjects();
-	}, []);
 
 	return (
 		<div>
@@ -74,21 +53,28 @@ export default function SubjectsPage() {
 
 			{isLoading ? (
 				<div className="flex justify-center items-center h-64">
-					<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+					<LoadingSpinner size="xl" />
+				</div>
+			) : error ? (
+				<div className="text-center py-8 text-red-500">
+					<p>{t("errors.loadSubjects")}</p>
 				</div>
 			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-					{subjects.map((subject) => (
-						<SubjectCard
-							key={subject.id}
-							id={subject.id}
-							title={subject.title}
-							description={subject.description}
-							administrator={subject.administrator}
-							topics={subject.topics}
-						/>
-					))}
-				</div>
+				<FadeIn>
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+						{subjects.map((subject, index) => (
+							<FadeIn key={subject.id} delay={index * 100}>
+								<SubjectCard
+									id={subject.id}
+									title={subject.title}
+									description={subject.description}
+									administrator={subject.administrator}
+									topics={subject.topics}
+								/>
+							</FadeIn>
+						))}
+					</div>
+				</FadeIn>
 			)}
 		</div>
 	);

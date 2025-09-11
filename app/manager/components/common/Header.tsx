@@ -1,24 +1,54 @@
-// /app/manager/components/Header.tsx
+// /app/manager/components/common/Header.tsx
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { useTranslation } from "react-i18next";
+import { useManagerTranslation } from "../../hooks/useManagerTranslation";
 
-const Header = () => {
-	const { t, i18n } = useTranslation();
+/**
+ * Componente de cabecera principal para la aplicación
+ */
+const Header: React.FC = () => {
+	const { t, i18n } = useManagerTranslation();
 	const pathname = usePathname();
 	const router = useRouter();
 
-	const handleLanguageChange = (lang: string) => {
+	/**
+	 * Cambia el idioma de la aplicación
+	 * @param lang Código del idioma ('en' o 'es')
+	 */
+	const handleLanguageChange = (lang: string): void => {
 		i18n.changeLanguage(lang);
 	};
 
-	const handleLogout = () => {
+	/**
+	 * Cierra la sesión del usuario y redirige a la página de login
+	 */
+	const handleLogout = (): void => {
 		console.log("🔐 Eliminando token JWT del localStorage");
 		localStorage.removeItem("jwt_token");
 		console.log("🔀 Redireccionando a la página de login");
 		router.push("/manager/login");
+	};
+
+	/**
+	 * Determina si un enlace está activo basado en la ruta actual
+	 * @param path Ruta a comprobar
+	 */
+	const isActive = (path: string): boolean => {
+		return pathname.includes(path);
+	};
+
+	/**
+	 * Genera la clase CSS para un enlace de navegación
+	 * @param path Ruta a comprobar
+	 */
+	const getLinkClassName = (path: string): string => {
+		return `inline-flex items-center h-full px-1 border-b-2 text-sm font-medium ${
+			isActive(path)
+				? "border-gray-900 text-gray-900"
+				: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+		}`;
 	};
 
 	return (
@@ -37,21 +67,13 @@ const Header = () => {
 						<div className="hidden sm:ml-6 sm:flex sm:space-x-8 h-full">
 							<Link
 								href="/manager/dashboard"
-								className={`inline-flex items-center h-full px-1 border-b-2 text-sm font-medium ${
-									pathname.includes("/dashboard")
-										? "border-gray-900 text-gray-900"
-										: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-								}`}
+								className={getLinkClassName("/dashboard")}
 							>
 								{t("navigation.dashboard")}
 							</Link>
 							<Link
 								href="/manager/subjects"
-								className={`inline-flex items-center h-full px-1 border-b-2 text-sm font-medium ${
-									pathname.includes("/subjects")
-										? "border-gray-900 text-gray-900"
-										: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-								}`}
+								className={getLinkClassName("/subjects")}
 							>
 								{t("navigation.subjects")}
 							</Link>
@@ -84,11 +106,7 @@ const Header = () => {
 
 						<Link
 							href="/manager/account"
-							className={`inline-flex items-center h-full px-1 border-b-2 text-sm font-medium ${
-								pathname.includes("/account")
-									? "border-gray-900 text-gray-900"
-									: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-							}`}
+							className={getLinkClassName("/account")}
 						>
 							{t("navigation.account")}
 						</Link>

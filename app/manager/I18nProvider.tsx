@@ -2,7 +2,7 @@
 
 import { useState, useEffect, createContext, ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
-import i18n from "./i18n";
+import i18n from "../i18n";
 
 // Crear un contexto para controlar si estamos en el cliente
 export const ClientSideContext = createContext(false);
