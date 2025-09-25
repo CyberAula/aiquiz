@@ -95,17 +95,16 @@ await dbConnect();
 
 // Manejar las solicitudes HTTP POST
 export async function POST(request) {
-	let language, difficulty, topic, numQuestions, studentEmail, subject, subtopicId;
-	
+	let topic, difficulty, subTopic, numQuestions, studentEmail, subject;
+
 	try {
 		const requestData = await request.json();
-		language = requestData.language;
-		difficulty = requestData.difficulty;
 		topic = requestData.topic;
+		difficulty = requestData.difficulty;
+		subTopic = requestData.subTopic;
 		numQuestions = requestData.numQuestions;
 		studentEmail = requestData.studentEmail;
 		subject = requestData.subject;
-		subtopicId = requestData.subtopicId;
 
 		// DEBUG: Log para verificar el número de preguntas recibido
 		console.log("[DEBUG] Parámetros recibidos en /api/questions:");
@@ -142,30 +141,31 @@ export async function POST(request) {
 		let finalPrompt = await fillPrompt(
 			abcTestingConfig,
 			has_abctesting,
-			language,
-			difficulty,
 			topic,
+			difficulty,
+			subTopic,
 			numQuestions,
 			studentEmail,
 			existingStudent,
 			studentSubjectData,
-			subjectIndex
+			subjectIndex,
+			subject
 		);
 
 		// 🔍 INTEGRACIÓN RAG UNIFICADA: Usar el mismo sistema que los profesores
-		questionsLogger.progress("Iniciando búsqueda RAG unificada", { subtopicId, topic });
+		questionsLogger.progress("Iniciando búsqueda RAG unificada", { subTopic, topic });
 		const ragManager = await initializeUnifiedRAG();
 		let ragContent = { hasContent: false, content: '', stats: {} };
-		
-		if (ragManager && subtopicId) {
+
+		if (ragManager && subTopic) {
 			ragContent = await searchUnifiedRAGContent(
 				ragManager,
 				topic,
-				null, // No tenemos subtopic title desde estudiantes
-				null, // No tenemos topicId desde estudiantes  
-				subtopicId
+				subTopic, // Usar subTopic en lugar de subtopicId
+				null, // No tenemos topicId desde estudiantes
+				null // subtopicId no disponible en main
 			);
-			
+
 			questionsLogger.info('Búsqueda RAG unificada completada:', {
 				hasContent: ragContent.hasContent,
 				contentLength: ragContent.stats.contentLength,
@@ -214,11 +214,11 @@ export async function POST(request) {
 				code: llmError.code
 			});
 			console.error("[LLM Manager Error]:", llmError);
-			
+
 			// Determinar el tipo de error y devolver respuesta apropiada al usuario
 			let errorMessage = "Error generando preguntas";
 			let errorDetails = "Error desconocido del sistema";
-			
+
 			if (llmError.status === 401) {
 				errorMessage = "Error de autenticación";
 				errorDetails = "Hay un problema con la configuración de las claves de API. Por favor, contacta al administrador del sistema.";
@@ -237,7 +237,7 @@ export async function POST(request) {
 			} else {
 				errorDetails = llmError.message || "Error interno del sistema";
 			}
-			
+
 			return new Response(JSON.stringify({
 				error: errorMessage,
 				message: errorDetails,
@@ -253,12 +253,12 @@ export async function POST(request) {
 						subject: subject
 					}
 				})
-			}), { 
+			}), {
 				status: llmError.status || 500,
 				headers: { 'Content-Type': 'application/json' }
 			});
 		}
-		
+
 		// Si llegamos aquí, el LLM respondió pero puede ser una respuesta corrupta
 		questionsLogger.debug("Validando respuesta del LLM", {
 			hasResponse: !!responseLlmManager,
@@ -266,7 +266,7 @@ export async function POST(request) {
 			responseLength: responseLlmManager?.length || 0,
 			responsePreview: responseLlmManager?.substring?.(0, 100) + '...' || 'No preview available'
 		});
-		
+
 		// Validar que recibimos una respuesta válida del LLM
 		if (!responseLlmManager || typeof responseLlmManager !== 'string') {
 			questionsLogger.error("Respuesta del LLM es inválida o vacía");
@@ -276,19 +276,19 @@ export async function POST(request) {
 				code: 'invalid_llm_response',
 				status: 500,
 				timestamp: new Date().toISOString()
-			}), { 
+			}), {
 				status: 500,
 				headers: { 'Content-Type': 'application/json' }
 			});
 		}
-		
+
 		// Formatear la respuesta de la API
 		const formattedResponse = responseLlmManager
 			.replace(/^\[|\]$/g, "")
 			.replace(/```json/g, "")
 			.replace(/```/g, "")
 			.trim();
-		
+
 		// Validar que la respuesta formateada no esté vacía
 		if (!formattedResponse) {
 			questionsLogger.error("Respuesta formateada del LLM está vacía");
@@ -298,12 +298,12 @@ export async function POST(request) {
 				code: 'empty_llm_response',
 				status: 500,
 				timestamp: new Date().toISOString()
-			}), { 
+			}), {
 				status: 500,
 				headers: { 'Content-Type': 'application/json' }
 			});
 		}
-		
+
 		// Intentar parsear como JSON para validar la estructura
 		try {
 			const parsedResponse = JSON.parse(formattedResponse);
@@ -328,16 +328,16 @@ export async function POST(request) {
 						responsePreview: formattedResponse.substring(0, 200)
 					}
 				})
-			}), { 
+			}), {
 				status: 500,
 				headers: { 'Content-Type': 'application/json' }
 			});
 		}
 
-		// Guardar preguntas generadas en el manager si tenemos subtopicId
-		if (subtopicId) {
+		// Guardar preguntas generadas en el manager si tenemos subTopic
+		if (subTopic) {
 			try {
-				await saveQuestionsToManager(formattedResponse, assignedModel, finalPrompt, subtopicId, topic, difficulty);
+				await saveQuestionsToManager(formattedResponse, assignedModel, finalPrompt, subTopic, topic, difficulty);
 			} catch (saveError) {
 				questionsLogger.warn("Error guardando preguntas en manager:", saveError.message);
 				// No fallar la respuesta principal por un error de guardado
@@ -348,7 +348,7 @@ export async function POST(request) {
 			responseLength: formattedResponse.length,
 			responsePreview: formattedResponse.substring(0, 100) + '...'
 		});
-		
+
 		return new Response(formattedResponse);
 	} catch (error) {
 		questionsLogger.error("Error general en POST /api/questions:", {
@@ -360,13 +360,13 @@ export async function POST(request) {
 		console.error("[Questions API Error]:", {
 			error: error.message,
 			stack: error.stack,
-			params: { language, difficulty, topic, numQuestions, subject, studentEmail }
+			params: { topic, difficulty, subTopic, numQuestions, subject, studentEmail }
 		});
 		return new Response(JSON.stringify({
 			error: "Error generating questions",
 			message: error.message,
 			details: error.status ? `Status: ${error.status}` : "Unknown error"
-		}), { 
+		}), {
 			status: 500,
 			headers: { 'Content-Type': 'application/json' }
 		});

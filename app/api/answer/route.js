@@ -105,9 +105,11 @@ export async function POST(request) {
 			language,
 			difficulty,
 			topic,
+			subTopic,
 			query,
 			choices,
 			answer,
+			correct,
 			explanation,
 			studentEmail,
 			studentAnswer,
@@ -117,7 +119,7 @@ export async function POST(request) {
 			md5Prompt,
 			prompt,
 		} = await request.json();
-		//console.log("received params: ",id, subject, language, difficulty, topic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, llmModel, ABC_Testing, prompt);
+		//console.log("received params: ",id, subject, language, difficulty, topic, subTopic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, llmModel, ABC_Testing, prompt);
 
 		//check if question exists in database by id
 		const questions = await Question.find({ id: id });
@@ -132,6 +134,7 @@ export async function POST(request) {
 				{
 					studentEmail: studentEmail,
 					studentAnswer: studentAnswer,
+					correct: correct,
 					studentReport: studentReport,
 				}
 			);
@@ -143,9 +146,11 @@ export async function POST(request) {
 				language,
 				difficulty,
 				topic,
+				subTopic,
 				query,
 				choices,
 				answer,
+				correct,
 				explanation,
 				studentEmail,
 				studentAnswer,

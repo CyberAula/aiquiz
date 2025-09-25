@@ -61,17 +61,17 @@ import { NextResponse } from "next/server";
  *         description: Server error
  */
 
-//POST /API/ERROR-LOG
-//api path to create a new error log "/api/error-log" passing neccesary data (see POST in page.js)
+//POST /aiquiz/API/ERROR-LOG
+//api path to create a new error log "/aiquiz/api/error-log" passing neccesary data (see POST in page.js)
 //and save it to a file
 export async function POST(request) {
 	try {
 		const {
 			date,
 			studentEmail,
-			language,
-			difficulty,
 			topic,
+			difficulty,
+			subTopic,
 			numQuestions,
 			error,
 			cleanedResponse,
@@ -83,9 +83,9 @@ export async function POST(request) {
 			error,
 			date,
 			studentEmail,
-			language,
-			difficulty,
 			topic,
+			difficulty,
+			subTopic,
 			numQuestions
 		);
 		//save error to file
@@ -95,9 +95,9 @@ export async function POST(request) {
 		const errorFull = {
 			date: date,
 			studentEmail: studentEmail,
-			language: language,
-			difficulty: difficulty,
 			topic: topic,
+			difficulty: difficulty,
+			subTopic: subTopic,
 			numQuestions: numQuestions,
 			error: error,
 			cleanedResponse: cleanedResponse,

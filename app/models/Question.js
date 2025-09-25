@@ -42,7 +42,7 @@ const questionSchema = new Schema({
         type: String,
         required: false, // Opcional para preguntas del manager
     },
-    language: {
+    topic: {
         type: String,
         required: false, // Opcional para preguntas del manager
     },
@@ -51,7 +51,7 @@ const questionSchema = new Schema({
         required: true,
         enum: ["facil", "intermedio", "avanzado", "Fácil", "Medio", "Avanzado"], // Ambos formatos
     },
-    topic: {
+    subTopic: {
         type: String,
         required: false, // String para quiz, ObjectId para manager
     },
@@ -96,6 +96,10 @@ const questionSchema = new Schema({
         type: Number,
         required: false,
     },
+    correct: {
+        type: Boolean,
+        required: true,
+    },
     studentReport: {
         type: Boolean,
         default: false,
@@ -124,7 +128,17 @@ const questionSchema = new Schema({
         required: false,
         trim: true,
     },
-    
+
+    // Campos de evaluación del profesor (de main)
+    teacherReport: {
+        type: String,
+        required: false,
+    },
+    teacherComments: {
+        type: Array,
+        required: false,
+    },
+
     // Gestión del manager (nuevos campos)
     createdBy: {
         type: Schema.Types.ObjectId,
@@ -147,7 +161,7 @@ const questionSchema = new Schema({
         type: String,
         trim: true,
     }],
-    
+
     // Estadísticas de uso (del manager)
     usageCount: {
         type: Number,
@@ -161,15 +175,15 @@ const questionSchema = new Schema({
         type: Number,
         default: 0,
     },
-    
+
     // Campo para distinguir el origen
     source: {
         type: String,
         enum: ["quiz", "manager", "generated"],
         default: "quiz",
     },
-    
-}, { 
+
+}, {
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
@@ -293,7 +307,7 @@ export default mongoose.models.Question || mongoose.model('Question', questionSc
     "id": 394823782738,
     "text": "¿Qué método se utiliza para ejecutar una función después de cierto tiempo en JavaScript?",
     "subject": "PRG",
-    "language": "JavaScript", 
+    "language": "JavaScript",
     "difficulty": "intermedio",
     "topic": "asincronía",
     "choices": ["setTimeout()", "wait()", "delay()", "executeAfter()"],

@@ -69,10 +69,10 @@ export async function POST(request) {
 		// En caso de que no haya contestado a la encuesta ya, se comprueba si ha contestado a 20 o más preguntas para mostrarla
 		if (survey === false) {
 			// Contamos cuantas preguntas hay en la base de datos que haya contestado el alumno y sean de esa asignatura
-			let questionsAnswered = await Question.find({
-				studentEmail,
-				subject,
-			}).countDocuments();
+			let questionsAnswered = await Question.countDocuments({
+				studentEmail: studentEmail,
+				subject: subject
+			});
 			console.log("questionsAnswered", questionsAnswered);
 			// Si ha contestado a 20 o más preguntas, se le habilita la encuesta
 			if (questionsAnswered >= aiquizConfig.numQuestionsForSurvey) {

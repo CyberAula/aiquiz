@@ -73,12 +73,12 @@ const DashboardPage = () => {
           </h2>
           <div className='grid grid-cols-4 mt-3 gap-3'>
             {subjects.map((subject) => (
-              <Link  
+              <Link
                 key={subject._id}
-                className="subject-button" 
-                id={subject.acronym.toLowerCase()} 
+                className="subject-button"
+                id={subject.acronym.toLowerCase()}
                 href={{pathname: `/dashboard/subject/${subject.acronym}`}}
-              > 
+              >
                 <p>{subject.name}</p>
                 <p className="subject-acronym">{subject.acronym}</p>
               </Link>
