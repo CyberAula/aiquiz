@@ -11,7 +11,6 @@ await dbConnect();
 // console.log('[promptManager.js] Database connected successfully');
 // console.log("--------------------------------------------------");
 
-<<<<<<< HEAD
 // Prompts predefinidos para el manager
 const MANAGER_PROMPTS = {
     GENERATE_MANAGER_QUESTIONS: `Genera exactamente {count} preguntas de opción múltiple sobre el tema "{topic}"{subtopic} con nivel de dificultad {difficulty}.

@@ -327,6 +327,7 @@ function QuizPageFun() {
                         </div>
                         <Footer />
                     </div>
+                }
             </div>
         </div>
 
