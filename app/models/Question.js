@@ -71,6 +71,10 @@ const questionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    pull_id: {
+        type: Number,
+        required: false,
+    },
     teacherReport: {
         type: String,
         required: false,

@@ -115,6 +115,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         let ABC_Testing = false;
         let md5Prompt = '';
         let prompt = '';
+        let pull_id = null;
 
         const urlStudent = urljoin(basePath, `/api/student`);
         const responseStudent = await fetch(urlStudent, {
@@ -138,6 +139,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
             ABC_Testing = subjectData.ABC_Testing;
             md5Prompt = subjectData.md5Prompt;
             prompt = subjectData.prompt;
+            pull_id = subjectData.pull_id;
         }
 
         
@@ -157,6 +159,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.ABC_Testing = ABC_Testing;
         data.md5Prompt = md5Prompt;
         data.prompt = prompt;
+        data.pull_id = pull_id;
         if (report) {
             data.studentReport = true;
             data.studentAnswer = selectedChoiceIndex; //if reported, we can use the state to keep what the user selected or -1 if nothing selected

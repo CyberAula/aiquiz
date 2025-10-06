@@ -31,10 +31,12 @@ export async function POST(request) {
         // Comprobaos si existe el alumno en la base de datos,
         // si existe pero no tiene la asignatura, la añadimos,
         // si no existe, lo creamos y se devuelve el objeto del alumno
+        // En los 3 casos controlamos el pull_id del cuestionario
         let existingStudent = await getAndEnsureStudentAndSubject(studentEmail, subject, has_abctesting);
 
         let studentSubjectData = await existingStudent?.subjects?.find(s => s.subjectName === subject);
         let subjectIndex = await existingStudent?.subjects?.findIndex(s => s.subjectName === subject);
+
 
         // SOLICITUD A LA API de promptManager para obtener el prompt final
         let finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
@@ -51,6 +53,7 @@ export async function POST(request) {
         const responseLlmManager = await getModelResponse(assignedModel, finalPrompt);
         // Formatear la respuesta de la API
         const formattedResponse = responseLlmManager.replace(/^\[|\]$/g, '').replace(/```json/g, '').replace(/```/g, '').trim();
+
 
         return new Response(formattedResponse);
 
@@ -80,6 +83,7 @@ const isABCTestingActive = (config) => {
 const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesting) => {
     try {
         let student = await Student.findOne({ studentEmail });
+        let newPull_id = hashToNumber(studentEmail, subject); // Asignamos un pull_id inicial basado en el hash del email
 
         if (!student || student === null) {
             // Si el estudiante no existe, lo creamos con la asignatura
@@ -91,7 +95,8 @@ const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesti
                     ABC_Testing: has_abctesting,
                     survey: false,
                     md5Prompt: null,
-                    prompt: null
+                    prompt: null,
+                    pull_id: newPull_id
                 }]
             });
             await student.save();
@@ -101,8 +106,18 @@ const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesti
             return student;
         }
 
-        // Si el estudiante ya tiene la asignatura, salimos sin hacer nada ni mostrar logs
+        // Si el estudiante ya tiene la asignatura, salimos unicamente cambiando el pull_id
         if (student.subjects.some(s => s.subjectName === subject)) {
+            let pull_id = student.subjects.find(s => s.subjectName === subject).pull_id;
+            if (pull_id === null) {
+                // Si el pull_id es null, lo inicializamos con el hash del email
+                student.subjects.find(s => s.subjectName === subject).pull_id = newPull_id;
+                await student.save();
+            } else {
+                // Si ya tiene pull_id aumentamos en 1 su valor
+                student.subjects.find(s => s.subjectName === subject).pull_id = pull_id + 1;
+                await student.save();
+            }
             return student;
         }
 
@@ -113,7 +128,8 @@ const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesti
             ABC_Testing: has_abctesting,
             survey: false,
             md5Prompt: null,
-            prompt: null
+            prompt: null,
+            pull_id: newPull_id
         });
         await student.save();
         console.log("--------------------------------------------------------");
@@ -125,5 +141,24 @@ const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesti
         console.error('Error asegurando la existencia del estudiante y su asignatura:', error.message);
         console.error(error);
     }
+};
+
+// Función para generar un número único basado en hash y componentes aleatorios
+const hashToNumber = (studentEmail, subject) => {
+    // Mezcla los datos base
+    const baseString = `${studentEmail}-${subject}-${Date.now()}-${Math.random()}`;
+
+    // Crea un hash SHA-256 del string base
+    const hashBuffer = new TextEncoder().encode(baseString);
+    let hash = 0;
+    for (let i = 0; i < hashBuffer.length; i++) {
+        hash = (hash * 31 + hashBuffer[i]) % 1_000_000_000_000; // 12 dígitos
+    }
+
+    // Añadimos un aleatorio adicional para evitar coincidencias simultáneas
+    const randomComponent = Math.floor(Math.random() * 1_000_000);
+    const uniqueId = Number(`${hash}${randomComponent}`.slice(0, 15)); // máx. 15 dígitos seguros
+
+    return uniqueId;
 };
 
