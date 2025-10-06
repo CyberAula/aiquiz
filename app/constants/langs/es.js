@@ -86,6 +86,11 @@ export const es = {
     footer: {
         title: "Universidad Politécnica de Madrid - Grupo de Internet de Nueva Generación",
     },
+    common: {
+        loading: "Cargando...",
+        error: "Error",
+        notFound: "No encontrado"
+    },
     reports: {
         title: "Reportes",
         comparator: "Comparador",
@@ -121,9 +126,7 @@ export const es = {
         update: "Actualizar",
         total_questions: "Total de preguntas generadas por la herramienta",
         total_questions_period: "Total de preguntas generadas en el periódo seleccionado"
-
     },
-
     pregreports: {
         opt: "OPCIONES",
         exp: "EXPLICACIÓN",
@@ -162,5 +165,4 @@ export const es = {
         fueraDeTemario: "Fuera de temario",
         otro: "Otro"
     }
-
 };

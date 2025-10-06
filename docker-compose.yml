@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   aiquiz-web:
     container_name: aiquiz-web
@@ -8,24 +8,54 @@ services:
       - 3000:3000
     depends_on:
       - aiquiz-mongo
+      - aiquiz-qdrant
     networks:
       - martell
     restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://aiquiz-mongo:27017/aiquiz
+      - QDRANT_HOST=aiquiz-qdrant
+      - QDRANT_PORT=6333
+
   aiquiz-mongo:
     image: mongo:5.0.30
     container_name: aiquiz-mongo
     volumes:
-      - data:/data/db
+      - mongo_data:/data/db
     ports:
       - 27017:27017
     networks:
       - martell
     restart: unless-stopped
 
+  aiquiz-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: aiquiz-qdrant
+    ports:
+      - "6333:6333"      # API REST
+      - "6334:6334"      # gRPC API
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__LOG_LEVEL=INFO
+      - QDRANT__STORAGE__STORAGE_PATH=/qdrant/storage
+    restart: unless-stopped
+    networks:
+      - martell
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
 volumes:
-  data:
+  mongo_data:
+  qdrant_data:
 
 networks:
   martell:
-    external: true
-    name: martell
+    driver: bridge

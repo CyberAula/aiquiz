@@ -40,3 +40,15 @@ models.json
 errors.log
 
 .vscode
+
+# RAG data and backups
+app/lib/rag/data.backup/
+uploads/
+test-*
+*.backup
+
+# pdf-parse dependency test file (required for library to work)
+/test/
+
+/transcriptions/
+.env

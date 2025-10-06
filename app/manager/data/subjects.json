@@ -1,0 +1,42 @@
+[
+	{
+		"id": "550e8400-e29b-41d4-a716-446655440000",
+		"title": "Programación",
+		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et doloralin (...)",
+		"administrator": "Carlos Gonzalez",
+		"topics": [
+			"Java",
+			"Bucles y condicionales",
+			"Clases y objetos",
+			"Break and continue"
+		]
+	},
+	{
+		"id": "7e9d5eb7-9058-4754-b325-062ace8c2249",
+		"title": "Computación en red (CORE)",
+		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et doloralin (...)",
+		"administrator": "Carlos Gonzalez",
+		"topics": ["HTTP", "HTML", "CSS", "JavaScript"]
+	},
+	{
+		"id": "6b86b273-6e81-4e47-a252-08a2c3d53778",
+		"title": "Ingeniería Web",
+		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et doloralin (...)",
+		"administrator": "Marina Yeros",
+		"topics": ["React", "Angular", "Vue", "Node.js"]
+	},
+	{
+		"id": "ef2d127d-ea53-4e70-804d-bff65e45c8a7",
+		"title": "Tecnologías Web",
+		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et doloralin (...)",
+		"administrator": "Luis Sánchez",
+		"topics": ["REST API", "GraphQL", "Express", "MongoDB"]
+	},
+	{
+		"id": "d4735e3a-5caa-4bd7-9db8-c40f4c8a3480",
+		"title": "Centros de Datos",
+		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et doloralin (...)",
+		"administrator": "Ana Martín",
+		"topics": ["Python", "Docker", "Kubernetes", "Cloud Computing"]
+	}
+]

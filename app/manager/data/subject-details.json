@@ -1,0 +1,96 @@
+{
+	"id": "550e8400-e29b-41d4-a716-446655440000",
+	"title": "Computación en red (CORE)",
+	"acronym": "CORE",
+	"description": "Una red de computadoras, red de ordenadores o red informática es un conjunto de equipos nodos y software conectados entre sí por medio de dispositivos físicos que envían y reciben impulsos eléctricos, ondas electromagnéticas o cualquier otro medio para el transporte de datos, con la finalidad de compartir información, recursos y ofrecer servicios.",
+	"topics": [
+		{
+			"id": "7e9d5eb7-9058-4754-b325-062ace8c2249",
+			"title": "HTTP",
+			"description": "El protocolo de transferencia de hipertexto (en inglés: Hypertext Transfer (...)) Ver descripción",
+			"subtopics": [
+				{
+					"id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+					"title": "URLs"
+				},
+				{
+					"id": "f47ac10b-58cc-4372-a567-0e02b2c3d480",
+					"title": "Formato peticiones HTTP"
+				},
+				{
+					"id": "f47ac10b-58cc-4372-a567-0e02b2c3d481",
+					"title": "Cabeceras HTTP"
+				},
+				{
+					"id": "f47ac10b-58cc-4372-a567-0e02b2c3d482",
+					"title": "Métodos POST, PUT GET, DELETE, HEAD"
+				},
+				{
+					"id": "f47ac10b-58cc-4372-a567-0e02b2c3d483",
+					"title": "Códigos de respuesta"
+				},
+				{
+					"id": "f47ac10b-58cc-4372-a567-0e02b2c3d484",
+					"title": "Caché web"
+				},
+				{
+					"id": "f47ac10b-58cc-4372-a567-0e02b2c3d485",
+					"title": "Gestión de estado: parámetros ocultos, cookies, sesión"
+				}
+			]
+		},
+		{
+			"id": "6b86b273-6e81-4e47-a252-08a2c3d53778",
+			"title": "HTML",
+			"description": "HTML es un lenguaje de marcado que posibilita definir la estructura de (...)",
+			"subtopics": [
+				{
+					"id": "d4735e3a-5caa-4bd7-9db8-c40f4c8a3480",
+					"title": "Declaración de variables"
+				},
+				{
+					"id": "d4735e3a-5caa-4bd7-9db8-c40f4c8a3481",
+					"title": "Tipos de datos operadores y expresiones"
+				},
+				{
+					"id": "d4735e3a-5caa-4bd7-9db8-c40f4c8a3482",
+					"title": "Bucles y condicionales"
+				},
+				{
+					"id": "d4735e3a-5caa-4bd7-9db8-c40f4c8a3483",
+					"title": "Uso de break y continue"
+				},
+				{
+					"id": "d4735e3a-5caa-4bd7-9db8-c40f4c8a3484",
+					"title": "Clases y objetos"
+				},
+				{
+					"id": "d4735e3a-5caa-4bd7-9db8-c40f4c8a3485",
+					"title": "Comandos try, catch y finally"
+				},
+				{
+					"id": "d4735e3a-5caa-4bd7-9db8-c40f4c8a3486",
+					"title": "Manejo de excepciones"
+				}
+			]
+		},
+		{
+			"id": "ef2d127d-ea53-4e70-804d-bff65e45c8a7",
+			"title": "CSS",
+			"description": "CSS es un lenguaje de diseño gráfico para definir y crear la presentación de documentos.",
+			"subtopics": []
+		}
+	],
+	"professors": [
+		{
+			"id": "37e1a2c3-d1c0-4f1c-a5d8-f72f3391e32a",
+			"name": "Carlos González",
+			"email": "cgonzalez@upm.es"
+		},
+		{
+			"id": "0cae5fb4-4819-4a06-bba2-aa98b3a8425e",
+			"name": "Marina Yeros",
+			"email": "myeros@upm.es"
+		}
+	]
+}
