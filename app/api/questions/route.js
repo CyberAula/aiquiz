@@ -106,18 +106,33 @@ const getAndEnsureStudentAndSubject = async (studentEmail, subject, has_abctesti
             return student;
         }
 
-        // Si el estudiante ya tiene la asignatura, salimos unicamente cambiando el pull_id
+        // Si el estudiante ya tiene la asignatura
         if (student.subjects.some(s => s.subjectName === subject)) {
-            let pull_id = student.subjects.find(s => s.subjectName === subject).pull_id;
-            if (pull_id === null) {
-                // Si el pull_id es null, lo inicializamos con el hash del email
-                student.subjects.find(s => s.subjectName === subject).pull_id = newPull_id;
-                await student.save();
+            // Obtenemos el índice de la asignatura para actualizar su pull_id
+            let idx = student.subjects.findIndex(s => s.subjectName === subject);
+
+            // Comprobamos si el pull_id está definido
+            let isDefinePull_id = student.subjects[idx].pull_id;
+            const isMissing = isDefinePull_id === null || isDefinePull_id === undefined || Number.isNaN(isDefinePull_id);
+
+            if (isMissing) {
+                // Si no está definido, lo inicializamos con el hash del email
+                student.subjects[idx].pull_id = newPull_id;
             } else {
-                // Si ya tiene pull_id aumentamos en 1 su valor
-                student.subjects.find(s => s.subjectName === subject).pull_id = pull_id + 1;
-                await student.save();
+                // Si está definido, comprobamos el valor de pull_id
+                let pull_id = student.subjects.find(s => s.subjectName === subject).pull_id;
+                
+                if (pull_id === null) {
+                    // Si el pull_id es null, lo inicializamos con el hash del email
+                    student.subjects.find(s => s.subjectName === subject).pull_id = newPull_id;
+                    await student.save();
+                } else {
+                    // Si ya tiene pull_id aumentamos en 1 su valor
+                    student.subjects.find(s => s.subjectName === subject).pull_id = pull_id + 1;
+                    await student.save();
+                }
             }
+
             return student;
         }
 
