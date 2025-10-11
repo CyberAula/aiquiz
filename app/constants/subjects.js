@@ -1482,35 +1482,222 @@ export const subjects = {
     },
     IWEB: {
         name: 'Ingeniería Web',
-        topics: [
+        topics: [            
             {
                 value: 'react', label: 'React',
                 subtopics: [
-                    { title: 'Creación y uso de componentes', comment: '', files: [] },
-                    { title: 'Ciclo de vida de un componente', comment: '', files: [] },
-                    { title: 'Props y State', comment: '', files: [] },
-                    { title: 'PropTypes y DefaultProps', comment: '', files: [] },
-                    { title: 'UseRef y UseState', comment: '', files: [] },
-                    { title: 'Sintaxis y uso de JSX', comment: '', files: [] },
-                    { title: 'Hook UseEffect', comment: '', files: [] },
-                    { title: 'Manejo de eventos', comment: '', files: [] },
-                    { title: 'React Router', comment: '', files: [] },
-                    { title: 'Context API', comment: '', files: [] },
-                    { title: 'Redux', comment: '', files: [] },
-                    { title: 'React Native', comment: '', files: [] },
-                    { title: 'Componentes controlados y formulariosI', comment: '', files: [] }
+                    { title: 'Introducción a React', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen>
+                        React es una biblioteca de JavaScript para construir interfaces de usuario, creada por Facebook y mantenida como software libre en GitHub. Es la "V" de MVC, es decir, se centra en la parte de la vista. Se utiliza tanto en el desarrollo web como en aplicaciones nativas (React Native).
+
+                        Entre sus principales ventajas están su popularidad, su alto rendimiento y su gran adopción por parte de la industria. React trabaja con un enfoque declarativo y basado en componentes, lo que facilita la creación de aplicaciones complejas y reutilizables. 
+
+                        Su gran diferencia frente al desarrollo tradicional con JavaScript o jQuery es el uso del Virtual DOM, la estructuración modular y el flujo unidireccional de datos ("data down, events up"), lo que la hace más eficiente y predecible en aplicaciones grandes.
+                        </resumen>`, files: [] },                    
+                    { title: 'Basado en componentes', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen>
+                        React se basa en el concepto de componentes, que representan unidades independientes y reutilizables de la interfaz de usuario. Un componente puede verse como una “etiqueta HTML” personalizada con su propia funcionalidad y estilo.
+
+                        Cada componente recibe datos (props) y devuelve un elemento visual (normalmente JSX). Los componentes deben ser altamente cohesivos (todo lo que pertenece al mismo propósito está junto) y tener bajo acoplamiento (si cambia uno, no afecta al resto). 
+
+                        Los componentes pueden definirse como funciones o como clases, aunque actualmente predominan los componentes funcionales con Hooks. React promueve dividir la interfaz en pequeñas partes (por ejemplo: App, Header, Lista, Elemento, etc.), lo que mejora la estructura, la legibilidad y las pruebas unitarias.
+                        </resumen>`, files: [] },
+                    { title: 'JSX', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen>
+                        JSX (JavaScript XML) es una extensión de JavaScript que permite escribir estructuras de árbol con una sintaxis similar a HTML, pero que se transforma internamente en llamadas a React.createElement(). No cambia la semántica del lenguaje, simplemente facilita la lectura y el diseño de componentes.
+
+                        Las etiquetas en JSX pueden ser nativas de HTML (en minúsculas) o personalizadas de React (en mayúsculas). Los atributos y propiedades se escriben en camelCase (por ejemplo: onClick, tabIndex, className). Los valores pueden ser cadenas o expresiones de JavaScript encerradas entre llaves {}.
+
+                        JSX permite integrar expresiones dentro de la interfaz, definir estilos en línea como objetos JS y combinar HTML y componentes. 
+                        
+                        Además, se pueden aplicar condiciones con if-else, el operador && o el operador ternario.
+
+                        También se pueden devolver múltiples elementos mediante Fragmentos o englobándolos en un contenedor padre como un div.
+                        </resumen>`, files: [] },
+                    { title: 'Vite', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen>
+                        Vite es la herramienta moderna recomendada para crear y ejecutar proyectos React, sustituyendo a Create React App (que está deprecada). Es un entorno de desarrollo ultrarrápido basado en ES Modules, que incluye servidor, build optimizado y compatibilidad con JSX y TypeScript.
+
+                        Para iniciar un proyecto se usa el comando:
+                        npm create vite@latest
+                        Durante el desarrollo se lanza con “npm run dev”, que arranca un servidor con Hot Module Replacement (HMR), recargando en tiempo real solo los módulos modificados.
+                        Este servidor realiza la **transpilación** del código (JSX/ES6+) a JavaScript que el navegador pueda entender (a través de herramientas como **Babel**).
+                        He insistido en que el navegador no entiende JSX de forma nativa, por lo que es necesario este paso de transpilación.
+
+                        La estructura de un proyecto con Vite incluye una carpeta "src" para el código y "public" para los ficheros estáticos. 
+                        
+                        Es importante conocer que al ejecutar “npm run build”, se genera un conjunto de archivos optimizados para producción listos para desplegar en cualquier servidor web como **nginx** o **Apache**.
+                        </resumen>`, files: [] },
+                    { title: 'Props y State', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen>
+                        En React, las props y el state son los dos mecanismos principales para manejar datos en los componentes.
+
+                        Las props (propiedades) son parámetros que recibe un componente desde su padre. Es muy importante entender que son inmutables: el componente no debe modificarlas. 
+                        Permiten personalizar el comportamiento y la visualización. Existe una prop especial llamada children que permite incluir contenido dentro del componente.
+
+                        El state representa el estado interno de un componente, gestionado por el propio componente. Es mutable, pero no se modifica directamente: se usa el Hook useState. He insistido mucho en que cada vez que cambia el estado, el componente se vuelve a renderizar.
+
+                        La gestión adecuada de props y state permite crear interfaces reactivas, donde los cambios en los datos se reflejan automáticamente en la vista.
+                        Además, es importante recordar que el estado debe ser lo más local posible y que, en caso de necesitar compartirlo entre componentes, se debe considerar el levantamiento de estado, que el estado se gestione en el componente superior común más cercano.
+                        </resumen>`, files: [] },                    
+                    { title: 'Hooks (useState, useEffect, useRef, etc.)', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen>
+                        Los Hooks son funciones especiales que permiten a los componentes funcionales de React usar estado y otras características del ciclo de vida sin necesidad de clases.
+
+                        Los más comunes son:
+                        - useState: permite añadir y actualizar estado local en un componente.
+                        - useEffect: ejecuta efectos secundarios (como peticiones, timers o interacción con el DOM) después del renderizado.
+                        - useRef: almacena referencias mutables a elementos o valores sin provocar re-renderizados.
+                            
+                            El hook **\`useState\`** gestiona el estado local y devuelve un par \`[valor, funciónActualizadora]\`. 
+                            El hook **\`useEffect\`** permite ejecutar **efectos secundarios** (llamadas API, manejo de DOM) después del renderizado; su función de retorno se usa para la **limpieza**. 
+                            El hook **\`useRef\`** devuelve un objeto mutable con la propiedad \`current\`, útil para acceder a elementos del DOM o valores que persisten entre renders pero que **no provocan re-renderizado** al cambiar. 
+                            
+                        React también ofrece otros Hooks como useContext, useMemo o useCallback para optimizar rendimiento o compartir estado global.
+                        </resumen>`, files: [] },
+                    { title: 'Patrones comunes (map, fetch, API keys)', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen>
+                        En React se utilizan patrones de programación muy comunes basados en JavaScript moderno.
+
+                        El **Renderizado Condicional** se realiza en JSX con operadores como el **ternario** (\`condicion ? expr1 : expr2\`) o el **operador \`&&\`** (AND lógico). 
+
+                        El método map() se usa frecuentemente para renderizar listas de elementos, generando componentes dinámicamente a partir de arrays. Cada elemento debe incluir una prop key única para optimizar el renderizado.
+
+                        Para obtener datos externos se usa fetch(). 
+                        Si queremos cargar datos al cargar la aplicación la petición fetch se realiza dentro de useEffect para ejecutarse al montar el componente. Los datos obtenidos se guardan en el state y se muestran mediante renderizado condicional.
+                        Pero si queremos cargar datos al hacer clic en un botón, la petición fetch se realiza en el manejador del evento onClick.
+
+                        Importante: Cuando se utilizan APIs externas, las claves (API keys) deben almacenarse de forma segura, no pueden estar almacenadas en el cliente porque JavaScript es un lenguaje interpretado, normalmente se almacenan en variables de entorno en el servidor (.env) para no exponerlas en el código cliente.
+                        </resumen>`, files: [] },
+                    { title: 'Formularios y componentes controlados', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen>
+                        En React, los formularios se gestionan mediante componentes controlados. Esto significa que el valor de cada campo del formulario está ligado al state del componente, de modo que React tiene siempre el control sobre el valor mostrado.
+
+                        Cada campo de entrada (input, textarea, select) debe tener una propiedad value y un evento onChange que actualiza el estado con setState o setValue. Así, cualquier cambio del usuario actualiza el estado y el renderizado.
+
+                        Este enfoque permite validar datos, limpiar campos o gestionar el envío de forma coherente. En formularios más grandes se pueden usar librerías como Formik o React Hook Form para simplificar la gestión.
+                        </resumen>`, files: [] },
+                    { title: 'React Router', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen>
+                        React Router es la librería más usada para manejar la navegación en aplicaciones React de una sola página (SPA). Permite definir rutas que renderizan diferentes componentes según la URL actual, sin recargar la página.
+
+                        Para usarlo se importan componentes como BrowserRouter, Routes, Route y Link. Dentro del árbol de componentes se definen las rutas y los componentes asociados.
+
+                        Por ejemplo:
+                        <BrowserRouter>
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/about" element={<About />} />
+                        </Routes>
+                        </BrowserRouter>
+
+                        React Router permite navegación programática, parámetros en la URL (useParams) y redirecciones (Navigate), haciendo posible construir aplicaciones completas con múltiples vistas.
+                        </resumen>`, files: [] },
+                    { title: 'Context API', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen>
+                        La Context API permite compartir datos globales entre componentes sin necesidad de pasar props manualmente a través de múltiples niveles.
+
+                        Se crea un contexto con createContext() y se provee desde un componente superior mediante un Provider. Los componentes hijos pueden acceder al valor del contexto con useContext().
+
+                        Este patrón se utiliza habitualmente para temas globales como la autenticación, el idioma, la configuración de la interfaz o el tema de colores. Simplifica el código y evita el llamado "prop drilling" (pasar props innecesarias en cadena).
+                        </resumen>`, files: [] },
+                    { 
+                        title: 'Redux', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
+                            **Redux** es un "Contenedor de estado predecible para aplicaciones JavaScript". Es una librería pequeña y **agnóstica** al *framework* (puede usarse con React, Angular, etc.)[cite: 7, 8]. Su función es **desacoplar el estado global** de la aplicación de la parte visual (componentes)[cite: 10]. 
+                            
+                            Se basa en **3 Principios Clave**:
+                            1.  **Fuente Única de Verdad**: Todo el estado se almacena en un objeto dentro de un **único Store**.
+                            2.  **El Estado es de Solo Lectura**: La única manera de cambiarlo es emitiendo una **Acción** (un objeto que describe lo que ha pasado).
+                            3.  **Cambios con Funciones Puras**: Los **Reducers** son funciones puras que toman el estado anterior y una acción, y devuelven el nuevo estado, sin mutar el estado anterior.
+
+                            **Ciclo de vida y componentes clave**:
+                            * **Actions (Acciones)**: Objetos JS que describen un cambio, con un campo obligatorio **\`type\`** y un *payload* opcional. Se lanzan mediante el método **\`dispatch(action)\`** del Store.
+                            * **Reducers**: Funciones puras que aplican la lógica para calcular el nuevo estado. Es buena práctica dividir la lógica en varios *reducers*, uno por cada trozo del estado, y unirlos con **\`combineReducers()\`**. No deben tener efectos secundarios.
+                            * **Store**: Contiene el estado completo de la aplicación y es el único objeto que existe.
+
+                            </resumen>`, 
+                        files: [] 
+                    }
                 ]
-            },
+            },            
             {
-                value: 'swift', label: 'Swift',
+                value: 'React Native', label: 'React Native',
                 subtopics: [
-                    { title: 'Variables y constantes', comment: '', files: [] },
-                    { title: 'Opcionales', comment: '', files: [] },
-                    { title: 'Condicionales y bucles', comment: '', files: [] },
-                    { title: 'Uso de guard y defer', comment: '', files: [] },
-                    { title: 'Clases, estructuras y métodos', comment: '', files: [] },
-                    { title: 'Uso de if let y guard let', comment: '', files: [] },
-                    { title: 'Nil coalescing', comment: '', files: [] }
+                    { 
+                        title: 'Introducción y Conceptos Clave', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
+                            **React Native (RN)** es un *framework* para la creación de aplicaciones **nativas** de Android e iOS, empleando únicamente **JavaScript y React**. 
+                            Las aplicaciones generadas son realmente nativas, es decir, **no son aplicaciones web** ejecutadas en un navegador ni aplicaciones híbridas (web *embebida*). 
+                            RN permite usar el modelo de **componentes** de React y el **flujo unidireccional de datos**. En lugar de etiquetas HTML, utiliza **Componentes de React Native** que se mapean a componentes nativos del sistema operativo (ej. \`View\`, \`Text\`).
+                        </resumen>`, 
+                        files: [] 
+                    },
+
+                    { 
+                        title: 'Estilos y Layout con Flexbox', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
+                            El estilo en RN es similar a CSS, pero se define con **objetos JavaScript** y se usan unidades de medida **independientes de la densidad (dp)**. 
+                            El **Layout** se gestiona exclusivamente mediante **Flexbox**, que es el modelo de caja utilizado para posicionar y distribuir componentes dentro de un contenedor. 
+                            A diferencia del desarrollo web, los estilos **no se heredan** por defecto, por lo que cada componente \`Text\` debe definir su propio estilo.
+                        </resumen>`, 
+                        files: [] 
+                    },
+
+                    { 
+                        title: 'Componentes Básicos (View, Text, Image, Input)', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
+                            Los componentes fundamentales de la interfaz de usuario son: 
+                            * **\`View\`**: El contenedor más básico, similar al \`<div>\` en web, que soporta *layout* con Flexbox y estilos. 
+                            * **\`Text\`**: El único componente diseñado para mostrar texto y el único que puede contener texto renderizable. 
+                            * **\`Image\`**: Para mostrar imágenes, ya sea desde recursos locales o desde una URI externa. 
+                            * **\`TextInput\`**: Para entradas de texto del usuario, con propiedades como \`onChangeText\` (para manejar cambios en el texto) y \`value\` (para crear componentes controlados).
+                        </resumen>`, 
+                        files: [] 
+                    },
+
+                    { 
+                        title: 'Renderizado de Listas (FlatList y ScrollView)', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
+                            Para mostrar contenido que excede el tamaño de la pantalla, se usa **\`ScrollView\`**, que permite el desplazamiento vertical u horizontal, pero **renderiza todos los elementos** a la vez. 
+                            Para la renderización de **grandes listas de datos**, se utiliza **\`FlatList\`**. Este componente está optimizado porque solo renderiza los elementos que se muestran por pantalla, mejorando el rendimiento. 
+                            **\`FlatList\`** requiere las propiedades **\`data\`** (la fuente de información) y **\`renderItem\`** (la función que devuelve el componente a renderizar para cada elemento).
+                        </resumen>`, 
+                        files: [] 
+                    },
+
+                    { 
+                        title: 'Screens y Navegación', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
+                            Las **Screens** son componentes de React Native que se renderizan a pantalla completa y representan las diferentes páginas o vistas de la aplicación. 
+                            Los **Navegadores** (como *React Navigation*) son los componentes encargados de gestionar la renderización y la transición entre estas *Screens*, permitiendo que el usuario se mueva por la aplicación.
+                        </resumen>`, 
+                        files: [] 
+                    },
+
+                    { 
+                        title: 'APIs Nativas (Geolocation) y Persistencia (AsyncStorage)', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
+                            RN ofrece acceso a funcionalidades nativas del dispositivo a través de diferentes APIs. 
+                            * **Geolocation**: Permite acceder a la **posición GPS** del dispositivo. 
+                            * **AsyncStorage**: Proporciona un sistema de **almacenamiento persistente** y **asíncrono** (similar a *localStorage* en web), útil para guardar datos sencillos que deben persistir entre sesiones (ej. *tokens*, configuración). 
+                            * También existen APIs para mostrar contenido web embebido (*WebView*).
+                        </resumen>`, 
+                        files: [] 
+                    },
+
+                    { 
+                        title: 'Depuración (Hot Reloading, Inspector)', 
+                        comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
+                            La depuración se realiza a través del **Menú de Desarrollo** (accesible al agitar el dispositivo o con atajos de teclado). 
+                            Las herramientas clave de depuración son: 
+                            * **Hot Reloading**: Recarga solo el código modificado sin perder el estado de la aplicación, siendo muy eficiente durante el desarrollo. 
+                            * **Live Reload**: Recarga la aplicación completa. 
+                            * **Toggle Inspector**: Permite inspeccionar la jerarquía y los estilos de los componentes de la interfaz. 
+                            Para depurar el código JavaScript se pueden usar las herramientas de desarrollo de **Chrome** o **Safari**.
+                        </resumen>`, 
+                        files: [] 
+                    }
                 ]
             }
         ]
