@@ -1627,9 +1627,9 @@ export const subjects = {
                     { 
                         title: 'Introducción y Conceptos Clave', 
                         comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
-                            **React Native (RN)** es un *framework* para la creación de aplicaciones **nativas** de Android e iOS, empleando únicamente **JavaScript y React**. 
-                            Las aplicaciones generadas son realmente nativas, es decir, **no son aplicaciones web** ejecutadas en un navegador ni aplicaciones híbridas (web *embebida*). 
-                            RN permite usar el modelo de **componentes** de React y el **flujo unidireccional de datos**. En lugar de etiquetas HTML, utiliza **Componentes de React Native** que se mapean a componentes nativos del sistema operativo (ej. \`View\`, \`Text\`).
+                            **React Native (RN)** es un framework para la creación de aplicaciones **nativas** de Android e iOS, empleando únicamente **JavaScript y React**. 
+                            Las aplicaciones generadas son realmente nativas, es decir, **no son aplicaciones web** ejecutadas en un navegador ni aplicaciones híbridas (web embebida). 
+                            RN permite usar el modelo de **componentes** de React y el **flujo unidireccional de datos**. En lugar de etiquetas HTML, utiliza **Componentes de React Native** que se mapean a componentes nativos del sistema operativo (ej. \View\, \Text\).
                         </resumen>`, 
                         files: [] 
                     },
@@ -1638,8 +1638,8 @@ export const subjects = {
                         title: 'Estilos y Layout con Flexbox', 
                         comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
                             El estilo en RN es similar a CSS, pero se define con **objetos JavaScript** y se usan unidades de medida **independientes de la densidad (dp)**. 
-                            El **Layout** se gestiona exclusivamente mediante **Flexbox**, que es el modelo de caja utilizado para posicionar y distribuir componentes dentro de un contenedor. 
-                            A diferencia del desarrollo web, los estilos **no se heredan** por defecto, por lo que cada componente \`Text\` debe definir su propio estilo.
+                            El **Layout** se gestiona normalmente mediante **Flexbox**, que es el modelo de caja utilizado para posicionar y distribuir componentes dentro de un contenedor. 
+                            A diferencia del desarrollo web, los estilos **no se heredan** por defecto, por lo que cada componente \Text\ debe definir su propio estilo.
                         </resumen>`, 
                         files: [] 
                     },
@@ -1648,10 +1648,10 @@ export const subjects = {
                         title: 'Componentes Básicos (View, Text, Image, Input)', 
                         comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
                             Los componentes fundamentales de la interfaz de usuario son: 
-                            * **\`View\`**: El contenedor más básico, similar al \`<div>\` en web, que soporta *layout* con Flexbox y estilos. 
-                            * **\`Text\`**: El único componente diseñado para mostrar texto y el único que puede contener texto renderizable. 
-                            * **\`Image\`**: Para mostrar imágenes, ya sea desde recursos locales o desde una URI externa. 
-                            * **\`TextInput\`**: Para entradas de texto del usuario, con propiedades como \`onChangeText\` (para manejar cambios en el texto) y \`value\` (para crear componentes controlados).
+                            * **\View\**: El contenedor más básico, similar al \<div>\ en web, que soporta layout con Flexbox y estilos. 
+                            * **\Text\**: El único componente diseñado para mostrar texto y el único que puede contener texto renderizable. 
+                            * **\Image\**: Para mostrar imágenes, ya sea desde recursos locales o desde una URI externa. 
+                            * **\TextInput\**: Para entradas de texto del usuario, con propiedades como \onChangeText\ (para manejar cambios en el texto) y \value\ (para crear componentes controlados).
                         </resumen>`, 
                         files: [] 
                     },
@@ -1659,9 +1659,9 @@ export const subjects = {
                     { 
                         title: 'Renderizado de Listas (FlatList y ScrollView)', 
                         comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
-                            Para mostrar contenido que excede el tamaño de la pantalla, se usa **\`ScrollView\`**, que permite el desplazamiento vertical u horizontal, pero **renderiza todos los elementos** a la vez. 
-                            Para la renderización de **grandes listas de datos**, se utiliza **\`FlatList\`**. Este componente está optimizado porque solo renderiza los elementos que se muestran por pantalla, mejorando el rendimiento. 
-                            **\`FlatList\`** requiere las propiedades **\`data\`** (la fuente de información) y **\`renderItem\`** (la función que devuelve el componente a renderizar para cada elemento).
+                            Para mostrar contenido que excede el tamaño de la pantalla, se usa **\ScrollView\**, que permite el desplazamiento vertical u horizontal, pero **renderiza todos los elementos** a la vez. 
+                            Para la renderización de **grandes listas de datos**, se utiliza **\FlatList\**. Este componente está optimizado porque solo renderiza los elementos que se muestran por pantalla, mejorando el rendimiento. 
+                            **\FlatList\** requiere las propiedades **\data\** (la fuente de información) y **\renderItem\** (la función que devuelve el componente a renderizar para cada elemento).
                         </resumen>`, 
                         files: [] 
                     },
@@ -1670,7 +1670,7 @@ export const subjects = {
                         title: 'Screens y Navegación', 
                         comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
                             Las **Screens** son componentes de React Native que se renderizan a pantalla completa y representan las diferentes páginas o vistas de la aplicación. 
-                            Los **Navegadores** (como *React Navigation*) son los componentes encargados de gestionar la renderización y la transición entre estas *Screens*, permitiendo que el usuario se mueva por la aplicación.
+                            Los **Navegadores** (como React Navigation) son los componentes encargados de gestionar la renderización y la transición entre estas Screens, permitiendo que el usuario se mueva por la aplicación.
                         </resumen>`, 
                         files: [] 
                     },
@@ -1680,8 +1680,8 @@ export const subjects = {
                         comment: `Este es el resumen de la materia desarrollada en clase que puede servirte para orientar el contenido de las preguntas de este tema, aunque pueden ser más amplias y puedes utilizar conocimientos generales relacionados: <resumen> 
                             RN ofrece acceso a funcionalidades nativas del dispositivo a través de diferentes APIs. 
                             * **Geolocation**: Permite acceder a la **posición GPS** del dispositivo. 
-                            * **AsyncStorage**: Proporciona un sistema de **almacenamiento persistente** y **asíncrono** (similar a *localStorage* en web), útil para guardar datos sencillos que deben persistir entre sesiones (ej. *tokens*, configuración). 
-                            * También existen APIs para mostrar contenido web embebido (*WebView*).
+                            * **AsyncStorage**: Proporciona un sistema de **almacenamiento persistente** y **asíncrono** (similar a localStorage en web), útil para guardar datos sencillos que deben persistir entre sesiones (ej. tokens, configuración). 
+                            * También existen APIs para mostrar contenido web embebido (WebView).
                         </resumen>`, 
                         files: [] 
                     },
