@@ -33,7 +33,7 @@ export default function SubjectDetailPage() {
 		try {
 			const token = localStorage.getItem('jwt_token');
 			if (!token) return null;
-			
+
 			// Decodificar el JWT básico (sin verificación, solo para obtener la info)
 			const payload = JSON.parse(atob(token.split('.')[1]));
 			return {
@@ -52,8 +52,13 @@ export default function SubjectDetailPage() {
 	const [editedSubject, setEditedSubject] = useState(subject);
 	const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 	const [showInviteModal, setShowInviteModal] = useState(false);
+
 	const [showAddTopicModal, setShowAddTopicModal] = useState(false);
 	const [deletingTopicId, setDeletingTopicId] = useState<string>("");
+	const [feedback, setFeedback] = useState<
+		{ type: "success" | "error"; message: string } | null
+	>(null);
+	const [inviteErrorMessage, setInviteErrorMessage] = useState<string | null>(null);
 
 	// Estados para modales de confirmación
 	const [showDeleteSubjectModal, setShowDeleteSubjectModal] = useState(false);
@@ -68,6 +73,15 @@ export default function SubjectDetailPage() {
 			setEditedSubject(subject);
 		}
 	}, [subject]);
+
+	// Manejar el feedback del servidor al intentar invitar un profesor
+	useEffect(() => {
+		if (!feedback) return;
+
+		const timer = window.setTimeout(() => setFeedback(null), 5000);
+
+		return () => window.clearTimeout(timer);
+	}, [feedback]);
 
 	// API para añadir profesor
 	const { makeRequest: addProfessor, loading: addingProfessor } =
@@ -154,13 +168,37 @@ export default function SubjectDetailPage() {
 		if (!subject) return;
 
 		try {
+			setInviteErrorMessage(null);
 			const response = await addProfessor({ name, email });
 			if (response.success) {
 				refetchSubject(); // Usar refetchSubject del contexto
 				setShowInviteModal(false);
+				setFeedback({
+					type: "success",
+					message:
+						t("subjectDetail.inviteProfessorSuccess") ||
+						"Invitación enviada correctamente.",
+				});
 			}
 		} catch (error) {
 			console.error("Error al añadir profesor:", error);
+			const rawMessage =
+				error instanceof Error ? error.message : "";
+			const permissionMessage =
+				t("subjectDetail.inviteProfessorPermissionError") ||
+				"Solo el administrador de la asignatura o el administrador global pueden invitar a profesores";
+			const fallbackMessage =
+				t("subjectDetail.inviteProfessorError") ||
+				"No se pudo invitar al profesor. Inténtalo de nuevo.";
+
+			if (
+				rawMessage.includes("Solo el administrador") ||
+				rawMessage.includes("Only the subject administrator")
+			) {
+				setInviteErrorMessage(permissionMessage);
+			} else {
+				setInviteErrorMessage(rawMessage || fallbackMessage);
+			}
 		}
 	};
 
@@ -276,6 +314,25 @@ export default function SubjectDetailPage() {
 			}
 		} catch (error) {
 			console.error("Error al eliminar asignatura:", error);
+			const rawMessage =
+				error instanceof Error ? error.message : "";
+			const permissionMessage =
+				t("subjectDetail.deleteSubjectPermissionError") ||
+				"Solo el administrador global puede eliminar una asignatura";
+			const fallbackMessage =
+				t("subjectDetail.deleteSubjectError") ||
+				"No se pudo eliminar la asignatura. Inténtalo de nuevo.";
+
+			setFeedback({
+				type: "error",
+				message:
+					rawMessage.includes("Acceso denegado") ||
+						rawMessage.includes("Access denied") ||
+						rawMessage.includes("Solo el administrador")
+						? permissionMessage
+						: rawMessage || fallbackMessage,
+			});
+			setShowDeleteSubjectModal(false);
 		}
 	};
 
@@ -353,11 +410,10 @@ export default function SubjectDetailPage() {
 								}
 							>
 								<svg
-									className={`w-6 h-6 ${
-										copied
-											? "text-green-500"
-											: "text-gray-500 hover:text-gray-700"
-									}`}
+									className={`w-6 h-6 ${copied
+										? "text-green-500"
+										: "text-gray-500 hover:text-gray-700"
+										}`}
 									fill="none"
 									stroke="currentColor"
 									viewBox="0 0 24 24"
@@ -380,36 +436,44 @@ export default function SubjectDetailPage() {
 					</p>
 				</div>
 
+				{feedback && (
+					<div
+						className={`mb-6 rounded-md border px-4 py-3 text-sm ${feedback.type === "error"
+							? "border-red-200 bg-red-50 text-red-700"
+							: "border-green-200 bg-green-50 text-green-700"
+							}`}
+					>
+						{feedback.message}
+					</div>
+				)}
+
 				{/* Tabs de navegación */}
 				<div className="border-b border-gray-200 mb-6">
 					<nav className="-mb-px flex space-x-8">
 						<button
 							onClick={() => handleTabChange("topics")}
-							className={`py-4 px-1 ${
-								activeTab === "topics"
-									? "border-b-2 border-indigo-500 font-medium text-indigo-600"
-									: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-							}`}
+							className={`py-4 px-1 ${activeTab === "topics"
+								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
+								: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+								}`}
 						>
 							{t("subjectDetail.topics")}
 						</button>
 						<button
 							onClick={() => handleTabChange("professors")}
-							className={`py-4 px-1 ${
-								activeTab === "professors"
-									? "border-b-2 border-indigo-500 font-medium text-indigo-600"
-									: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-							}`}
+							className={`py-4 px-1 ${activeTab === "professors"
+								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
+								: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+								}`}
 						>
 							{t("subjectDetail.professors")}
 						</button>
 						<button
 							onClick={() => handleTabChange("settings")}
-							className={`py-4 px-1 ${
-								activeTab === "settings"
-									? "border-b-2 border-indigo-500 font-medium text-indigo-600"
-									: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-							}`}
+							className={`py-4 px-1 ${activeTab === "settings"
+								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
+								: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+								}`}
 						>
 							{t("subjectDetail.settings")}
 						</button>
@@ -433,7 +497,10 @@ export default function SubjectDetailPage() {
 						<>
 							<button
 								className="mb-6 bg-gray-800 text-white py-2 px-4 rounded-md flex items-center"
-								onClick={() => setShowInviteModal(true)}
+								onClick={() => {
+									setInviteErrorMessage(null);
+									setShowInviteModal(true);
+								}}
 								disabled={addingProfessor}
 							>
 								<svg
@@ -462,9 +529,13 @@ export default function SubjectDetailPage() {
 
 							{showInviteModal && (
 								<InviteModal
-									onClose={() => setShowInviteModal(false)}
+									onClose={() => {
+										setInviteErrorMessage(null);
+										setShowInviteModal(false);
+									}}
 									onInvite={handleAddProfessor}
 									isLoading={addingProfessor}
+									errorMessage={inviteErrorMessage}
 								/>
 							)}
 						</>

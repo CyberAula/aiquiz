@@ -32,16 +32,22 @@ const ProfessorsTab: React.FC<ProfessorsTabProps> = ({
 	 * Verifica si un profesor puede ser eliminado
 	 */
 	const canRemoveProfessor = (professorId: string): boolean => {
-		// Solo los administradores pueden eliminar profesores
-		if (currentUser?.role !== 'admin') {
+		const currentUserId = currentUser?.id;
+		const isCurrentUserAdmin = currentUser?.role === "admin";
+		const isCurrentUserSubjectAdmin = administrators.some(admin =>
+			(admin.id || admin._id) === currentUserId
+		);
+
+		// Solo los administradores globales o administradores de la asignatura pueden eliminar profesores
+		if (!isCurrentUserAdmin && !isCurrentUserSubjectAdmin) {
 			return false;
 		}
 
 		// Los administradores de la asignatura no pueden ser eliminados
-		const isAdministrator = administrators.some(admin => 
+		const isAdministrator = administrators.some(admin =>
 			(admin.id || admin._id) === professorId
 		);
-		
+
 		return !isAdministrator;
 	};
 
@@ -49,7 +55,7 @@ const ProfessorsTab: React.FC<ProfessorsTabProps> = ({
 	 * Verifica si un usuario es administrador de la asignatura
 	 */
 	const isProfessorAdmin = (professorId: string): boolean => {
-		return administrators.some(admin => 
+		return administrators.some(admin =>
 			(admin.id || admin._id) === professorId
 		);
 	};

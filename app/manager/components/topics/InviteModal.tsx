@@ -74,7 +74,7 @@ const InviteModal = ({ onClose, onInvite }: InviteModalProps) => {
 							htmlFor="email"
 							className="block text-sm font-medium text-gray-700 mb-1"
 						>
-							{t("subjectDetail.email")}
+							{t("subjectDetail.emailPlaceholder")}
 						</label>
 						<input
 							type="email"

@@ -164,6 +164,24 @@ async function addProfessor(request, context) {
 			);
 		}
 
+		// Verificar permisos: administrador global o administrador de la asignatura
+		// Solo el administrador global o el administrador de la asignatura pueden añadir profesores
+		const userId = context.user.id?.toString();
+		const isGlobalAdmin = context.user.role === "admin";
+		const isSubjectAdministrator = subject.administrators?.some((adminId) =>
+			adminId?.toString() === userId
+		);
+
+		if (!isGlobalAdmin && !isSubjectAdministrator) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: "No tienes permisos para invitar profesores a esta asignatura, solo el administrador de la asignatura o el global pueden hacerlo",
+				},
+				{ status: 403 }
+			);
+		}
+
 		// Obtener información del usuario que invita (desde el contexto de auth)
 		const inviterUser = await User.findById(context.user.id);
 		const inviterName = inviterUser ? inviterUser.name : "Administrador";
@@ -171,7 +189,7 @@ async function addProfessor(request, context) {
 		// Buscar o crear usuario
 		let user = await User.findOne({ email: email.toLowerCase() });
 		let isNewUser = false;
-		
+
 		if (!user) {
 			// Generar token de invitación
 			const invitationToken = crypto.randomBytes(32).toString('hex');
@@ -190,7 +208,7 @@ async function addProfessor(request, context) {
 			});
 			await user.save();
 			isNewUser = true;
-			
+
 			// Mantener el token sin hashear para el email
 			user.invitationToken = invitationToken;
 		} else {
@@ -210,11 +228,11 @@ async function addProfessor(request, context) {
 				const invitationToken = crypto.randomBytes(32).toString('hex');
 				const hashedToken = crypto.createHash('sha256').update(invitationToken).digest('hex');
 				const invitationExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-				
+
 				user.invitationToken = hashedToken; // Guardar token hasheado
 				user.invitationExpires = invitationExpires;
 				await user.save();
-				
+
 				// Mantener el token sin hashear para el email
 				user.invitationToken = invitationToken;
 			}
@@ -255,9 +273,9 @@ async function addProfessor(request, context) {
 		return NextResponse.json(
 			{
 				success: true,
-				message: isNewUser 
-					? "Profesor invitado correctamente. Se ha enviado un email de invitación." 
-					: user.isActive 
+				message: isNewUser
+					? "Profesor invitado correctamente. Se ha enviado un email de invitación."
+					: user.isActive
 						? "Profesor añadido correctamente"
 						: "Profesor añadido. Se ha reenviado el email de invitación.",
 				data: {
@@ -279,4 +297,4 @@ async function addProfessor(request, context) {
 }
 
 // Exportar handler con autenticación
-export const POST = withAuth(addProfessor, { requireAdmin: true });
+export const POST = withAuth(addProfessor, { requireProfessor: true });

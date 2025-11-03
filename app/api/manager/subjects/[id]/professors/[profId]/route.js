@@ -101,8 +101,29 @@ async function removeProfessor(request, context) {
 			);
 		}
 
+		// Verificar permisos: administrador global o administrador de la asignatura
+		const userId = context.user.id?.toString();
+		const isGlobalAdmin = context.user.role === "admin";
+		const isSubjectAdministrator = subject.administrators?.some((adminId) =>
+			adminId?.toString() === userId
+		);
+
+		if (!isGlobalAdmin && !isSubjectAdministrator) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: "No tienes permisos para eliminar profesores de esta asignatura",
+				},
+				{ status: 403 }
+			);
+		}
+
 		// Verificar si el profesor está asignado
-		if (!subject.professors.includes(profId)) {
+		const professorAssigned = subject.professors?.some(
+			(professorId) => professorId?.toString() === profId?.toString()
+		);
+
+		if (!professorAssigned) {
 			return NextResponse.json(
 				{
 					success: false,
@@ -132,4 +153,4 @@ async function removeProfessor(request, context) {
 }
 
 // Exportar handler con autenticación
-export const DELETE = withAuth(removeProfessor, { requireAdmin: true });
+export const DELETE = withAuth(removeProfessor, { requireProfessor: true });

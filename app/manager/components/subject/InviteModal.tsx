@@ -6,6 +6,7 @@ interface InviteModalProps {
 	onClose: () => void;
 	onInvite: (name: string, email: string) => void;
 	isLoading?: boolean;
+	errorMessage?: string | null;
 }
 
 /**
@@ -15,6 +16,7 @@ const InviteModal: React.FC<InviteModalProps> = ({
 	onClose,
 	onInvite,
 	isLoading = false,
+	errorMessage = null,
 }) => {
 	const { t } = useManagerTranslation();
 
@@ -90,6 +92,11 @@ const InviteModal: React.FC<InviteModalProps> = ({
 				</div>
 
 				<form onSubmit={handleSubmit}>
+					{errorMessage && (
+						<div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+							{errorMessage}
+						</div>
+					)}
 					<div className="mb-4">
 						<label
 							htmlFor="name"
