@@ -13,7 +13,7 @@ if (!process.env.OPENAI_API_KEY) {
 
 // Manejar las solicitudes HTTP POST
 export async function POST(request) {
-    console.log("POST request to /api/dashboard");
+    console.log("POST request to /aiquiz/api/dashboard");
     try {
         const { subject } = await request.json();
         //get subject name

@@ -1,4 +1,4 @@
-// app/api/manager/auth/login/route.js
+// app/aiquiz/api/manager/auth/login/route.js
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import dbConnect from "../../../../utils/dbconnect";
@@ -6,7 +6,7 @@ import User from "../../../../manager/models/User";
 
 /**
  * @swagger
- * /api/manager/auth/login:
+ * /aiquiz/api/manager/auth/login:
  *   post:
  *     tags:
  *       - Authentication

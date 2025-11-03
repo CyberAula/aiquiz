@@ -58,7 +58,7 @@ function EndScreenFun() {
 
             let data = await response.json();
 
-            console.log('/api/survey -> data:', data);
+            console.log('/aiquiz/api/survey -> data:', data);
 
             setShowSurvey(data.survey);
             // setStudentEmail(data.studentEmail);

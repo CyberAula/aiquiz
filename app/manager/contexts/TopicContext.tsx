@@ -79,7 +79,7 @@ export const TopicProvider = ({ children }: TopicProviderProps) => {
 
 	// Única llamada a la API que será compartida
 	const { data, loading, error, makeRequest } = useApiRequest(
-		`/api/manager/subjects/${id}/topics/${topicId}`,
+		`/aiquiz/api/manager/subjects/${id}/topics/${topicId}`,
 		"GET",
 		null,
 		true

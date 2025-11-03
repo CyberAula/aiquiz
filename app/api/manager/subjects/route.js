@@ -1,4 +1,4 @@
-// app/api/manager/subjects/route.js
+// app/aiquiz/api/manager/subjects/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../utils/dbconnect";
 import Subject from "../../../manager/models/Subject";
@@ -10,7 +10,7 @@ import crypto from "crypto";
 
 /**
  * @swagger
- * /api/manager/subjects:
+ * /aiquiz/api/manager/subjects:
  *   get:
  *     tags:
  *       - Subjects
@@ -136,7 +136,7 @@ async function getSubjects(request, context) {
 
 /**
  * @swagger
- * /api/manager/subjects:
+ * /aiquiz/api/manager/subjects:
  *   post:
  *     tags:
  *       - Subjects

@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/route.js
+// app/aiquiz/api/manager/subjects/[id]/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../../utils/dbconnect";
 import Subject from "../../../../manager/models/Subject";
@@ -8,7 +8,7 @@ import { withAuth, handleError } from "../../../../utils/authMiddleware";
 
 /**
  * @swagger
- * /api/manager/subjects/{id}:
+ * /aiquiz/api/manager/subjects/{id}:
  *   get:
  *     tags:
  *       - Subjects
@@ -208,7 +208,7 @@ async function getSubject(request, context) {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}:
+ * /aiquiz/api/manager/subjects/{id}:
  *   put:
  *     tags:
  *       - Subjects
@@ -407,7 +407,7 @@ async function updateSubject(request, context) {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}:
+ * /aiquiz/api/manager/subjects/{id}:
  *   delete:
  *     tags:
  *       - Subjects

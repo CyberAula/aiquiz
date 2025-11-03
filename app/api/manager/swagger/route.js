@@ -1,4 +1,4 @@
-// app/api/manager/swagger/route.js
+// app/aiquiz/api/manager/swagger/route.js
 import { NextResponse } from "next/server";
 import swaggerJSDoc from "swagger-jsdoc";
 import { Glob } from "glob";
@@ -41,8 +41,8 @@ Para testing, usa estas credenciales:
 
 ⚠️ **Nota**: Algunos endpoints están marcados como "PENDIENTE DE IMPLEMENTACIÓN":
 
-- **Subida de archivos**: \`POST /api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files\`
-- **Gestión de videos**: \`POST /api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/videos\`
+- **Subida de archivos**: \`POST /aiquiz/api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files\`
+- **Gestión de videos**: \`POST /aiquiz/api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/videos\`
 
 Estos endpoints están documentados pero requieren implementación adicional para el manejo de archivos y videos.
 
@@ -438,15 +438,15 @@ Para soporte técnico o reportar bugs, contacta al equipo de desarrollo.
 		],
 	},
 	apis: [
-		"./app/api/manager/auth/*/route.js",
-		"./app/api/manager/subjects/*/route.js",
-		"./app/api/manager/subjects/*/topics/*/route.js",
-		"./app/api/manager/subjects/*/topics/*/subtopics/*/route.js",
-		"./app/api/manager/subjects/*/topics/*/subtopics/*/files/route.js",
-		"./app/api/manager/subjects/*/topics/*/subtopics/*/videos/route.js",
-		"./app/api/manager/subjects/*/topics/*/questions/*/route.js",
-		"./app/api/manager/subjects/*/topics/*/questionnaires/*/route.js",
-		"./app/api/manager/subjects/*/professors/*/route.js",
+		"./app/aiquiz/api/manager/auth/*/route.js",
+		"./app/aiquiz/api/manager/subjects/*/route.js",
+		"./app/aiquiz/api/manager/subjects/*/topics/*/route.js",
+		"./app/aiquiz/api/manager/subjects/*/topics/*/subtopics/*/route.js",
+		"./app/aiquiz/api/manager/subjects/*/topics/*/subtopics/*/files/route.js",
+		"./app/aiquiz/api/manager/subjects/*/topics/*/subtopics/*/videos/route.js",
+		"./app/aiquiz/api/manager/subjects/*/topics/*/questions/*/route.js",
+		"./app/aiquiz/api/manager/subjects/*/topics/*/questionnaires/*/route.js",
+		"./app/aiquiz/api/manager/subjects/*/professors/*/route.js",
 	],
 };
 

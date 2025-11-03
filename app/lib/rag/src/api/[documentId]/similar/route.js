@@ -4,7 +4,7 @@
  * Endpoint para buscar documentos similares a uno dado usando similitud semántica.
  * Útil para recomendaciones y exploración de contenido relacionado.
  * 
- * GET /api/manager/documents/[documentId]/similar
+ * GET /aiquiz/api/manager/documents/[documentId]/similar
  * 
  * Funcionalidades:
  * - Búsqueda de documentos similares por similitud vectorial

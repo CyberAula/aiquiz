@@ -15,7 +15,7 @@ const Header = () => {
           <HomeIcon xs={{ fontSize: 18 }} className="text-gray-600" />
         </Link>
         <Link 
-        href={{pathname: "/reports"}}
+        href={{pathname: "/manager/login"}}
         prefetch={false}>        
           <PersonIcon xs={{ fontSize: 18 }} className="text-gray-600" />
         </Link>

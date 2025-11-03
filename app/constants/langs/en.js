@@ -16,7 +16,7 @@ export const en = {
         title: "Subject: ",
         description: "Take as many quizzes as you want on topics of the course!",
         topic: "Topic",
-        preSubtopic: "Last subtopic",
+        preTopicSubtopic: "Last Topic and Subtopic",
         choose: "Choose a topic",
         choose2: "Choose the topic you want to review",
         subtopic: "Subtopic",

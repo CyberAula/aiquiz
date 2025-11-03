@@ -57,7 +57,7 @@ const HomePage = ({ params: { subject } }) => {
 	const fetchSubjectData = async () => {
 		try {
 			setDataLoading(true);
-			const response = await fetch(`/api/subjects/${subject}`);
+			const response = await fetch(`/aiquiz/api/subjects/${subject}`);
 			const data = await response.json();
 			
 			if (data.success) {

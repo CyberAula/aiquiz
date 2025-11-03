@@ -49,7 +49,7 @@ const SettingsTab = ({
 
 	const handleDeleteSubject = () => {
 		console.log(
-			`📤 Simulando petición DELETE a /api/subjects/${subject.id}`
+			`📤 Simulando petición DELETE a /aiquiz/api/subjects/${subject.id}`
 		);
 		setTimeout(() => {
 			console.log(`📥 Respuesta simulada: asignatura eliminada`);

@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/[topicId]/questionnaires/[questionnaireId]/download/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/questionnaires/[questionnaireId]/download/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "@utils/dbconnect";
 import Question from "@app/models/Question";
@@ -12,7 +12,7 @@ async function getQuestionnaireModel() {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/questionnaires/{questionnaireId}/download:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/questionnaires/{questionnaireId}/download:
  *   get:
  *     tags:
  *       - Questionnaires
@@ -84,10 +84,10 @@ async function downloadQuestionnaire(request, context) {
         });
 
         // Validar formato
-        if (!format || !['pdf', 'moodle'].includes(format)) {
+        if (!format || !['pdf', 'pdfWithoutSolutions', 'moodle'].includes(format)) {
             return NextResponse.json({
                 success: false,
-                message: "Formato no válido. Use 'pdf' o 'moodle'"
+                message: "Formato no válido. Use 'pdf', 'pdfWithoutSolutions' o 'moodle'"
             }, { status: 400 });
         }
 
@@ -120,7 +120,9 @@ async function downloadQuestionnaire(request, context) {
         });
 
         if (format === 'pdf') {
-            return generatePDF(questionnaire);
+            return generatePDF(questionnaire, true);
+        } else if (format === 'pdfWithoutSolutions') {
+            return generatePDF(questionnaire, false);
         } else if (format === 'moodle') {
             return generateMoodleXML(questionnaire);
         }
@@ -134,7 +136,7 @@ async function downloadQuestionnaire(request, context) {
 /**
  * Genera un archivo PDF real del cuestionario
  */
-function generatePDF(questionnaire) {
+function generatePDF(questionnaire, highlightCorrectAnswersAndExplanations) {
     console.log('[Download Questionnaire API] Generando PDF');
     
     try {
@@ -213,7 +215,7 @@ function generatePDF(questionnaire) {
                     checkPageBreak(10);
                     
                     let optionText = `   ${letter}) ${choiceText}`;
-                    if (isCorrect) {
+                    if (isCorrect && highlightCorrectAnswersAndExplanations) {
                         optionText += " ✓";
                         doc.setFont(undefined, 'bold');
                     }
@@ -227,7 +229,7 @@ function generatePDF(questionnaire) {
             }
             
             // Explicación
-            if (question.explanation) {
+            if (question.explanation && highlightCorrectAnswersAndExplanations) {
                 checkPageBreak(15);
                 yPosition += 3;
                 doc.setFont(undefined, 'italic');

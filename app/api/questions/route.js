@@ -95,24 +95,34 @@ await dbConnect();
 
 // Manejar las solicitudes HTTP POST
 export async function POST(request) {
-	let topic, difficulty, subTopic, numQuestions, studentEmail, subject;
+	let studentEmail, subject, subjectId, topic, topicId, subTopic, subtopicId, difficulty, numQuestions;
+
 
 	try {
 		const requestData = await request.json();
-		topic = requestData.topic;
-		difficulty = requestData.difficulty;
-		subTopic = requestData.subTopic;
-		numQuestions = requestData.numQuestions;
 		studentEmail = requestData.studentEmail;
 		subject = requestData.subject;
+		subjectId = requestData.subjectId;
+		topic = requestData.topic;
+		topicId = requestData.topicId;
+		subTopic = requestData.subTopic;
+		subtopicId = requestData.subtopicId;
+		difficulty = requestData.difficulty;
+		numQuestions = requestData.numQuestions;
+
 
 		// DEBUG: Log para verificar el número de preguntas recibido
-		console.log("[DEBUG] Parámetros recibidos en /api/questions:");
-		console.log("  numQuestions:", numQuestions, "tipo:", typeof numQuestions);
-		console.log("  topic:", topic);
-		console.log("  difficulty:", difficulty);
+		console.log("[DEBUG] Parámetros recibidos en /aiquiz/api/questions:");
 		console.log("  studentEmail:", studentEmail);
-		console.log("  subject:", subject);
+		console.log("  subject:", subject); // Acrónimo de la asignatura en mayúsculas
+		console.log("  subjectId:", subjectId);
+		console.log("  topic:", topic);
+		console.log("  topicId:", topicId);
+		console.log("  subTopic:", subTopic);
+		console.log("  subtopicId:", subtopicId);
+		console.log("  numQuestions:", numQuestions, "tipo:", typeof numQuestions);
+		console.log("  difficulty:", difficulty);
+
 
 		// Cargamos variables y objetos de configuración
 
@@ -124,6 +134,7 @@ export async function POST(request) {
 		// Comprobaos si existe el alumno en la base de datos,
 		// si existe pero no tiene la asignatura, la añadimos,
 		// si no existe, lo creamos y se devuelve el objeto del alumno
+		// En los 3 casos controlamos el pull_id del cuestionario
 		let existingStudent = await getAndEnsureStudentAndSubject(
 			studentEmail,
 			subject,
@@ -133,53 +144,60 @@ export async function POST(request) {
 		let studentSubjectData = await existingStudent?.subjects?.find(
 			(s) => s.subjectName === subject
 		);
-		let subjectIndex = await existingStudent?.subjects?.findIndex(
+		let subjectIndexInStudent = await existingStudent?.subjects?.findIndex(
 			(s) => s.subjectName === subject
 		);
 
 		// SOLICITUD A LA API de promptManager para obtener el prompt final
 		let finalPrompt = await fillPrompt(
-			abcTestingConfig,
-			has_abctesting,
-			topic,
-			difficulty,
-			subTopic,
-			numQuestions,
 			studentEmail,
+			subject,
+			subjectId,
+			topic,
+			topicId,
+			subTopic,
+			subtopicId,
+			difficulty,
+			numQuestions,
 			existingStudent,
 			studentSubjectData,
-			subjectIndex,
-			subject
+			subjectIndexInStudent,
+			abcTestingConfig,
+			has_abctesting,
 		);
 
-		// 🔍 INTEGRACIÓN RAG UNIFICADA: Usar el mismo sistema que los profesores
-		questionsLogger.progress("Iniciando búsqueda RAG unificada", { subTopic, topic });
-		const ragManager = await initializeUnifiedRAG();
-		let ragContent = { hasContent: false, content: '', stats: {} };
 
-		if (ragManager && subTopic) {
-			ragContent = await searchUnifiedRAGContent(
-				ragManager,
-				topic,
-				subTopic, // Usar subTopic en lugar de subtopicId
-				null, // No tenemos topicId desde estudiantes
-				null // subtopicId no disponible en main
-			);
 
-			questionsLogger.info('Búsqueda RAG unificada completada:', {
-				hasContent: ragContent.hasContent,
-				contentLength: ragContent.stats.contentLength,
-				chunksFound: ragContent.stats.totalFound
-			});
-		}
+		// // 🔍 INTEGRACIÓN RAG UNIFICADA: Usar el mismo sistema que los profesores
+		// questionsLogger.progress("Iniciando búsqueda RAG unificada", { subTopic, topic });
+		// const ragManager = await initializeUnifiedRAG();
+		// let ragContent = { hasContent: false, content: '', stats: {} };
 
-		if (ragContent.hasContent) {
-			questionsLogger.success(`Contexto RAG unificado obtenido: ${ragContent.stats.contentLength} caracteres`);
-			finalPrompt = enhancePromptWithUnifiedRAG(finalPrompt, ragContent.content);
-			questionsLogger.info("Prompt enriquecido con RAG unificado");
-		} else {
-			questionsLogger.warn("No se encontró contexto en RAG unificado, usando generación estándar");
-		}
+		// if (ragManager && subTopic) {
+		// 	ragContent = await searchUnifiedRAGContent(
+		// 		ragManager,
+		// 		topic,
+		// 		subTopic, // Usar subTopic en lugar de subtopicId
+		// 		null, // No tenemos topicId desde estudiantes
+		// 		null // subtopicId no disponible en main
+		// 	);
+
+		// 	questionsLogger.info('Búsqueda RAG unificada completada:', {
+		// 		hasContent: ragContent.hasContent,
+		// 		contentLength: ragContent.stats.contentLength,
+		// 		chunksFound: ragContent.stats.totalFound
+		// 	});
+		// }
+
+		// if (ragContent.hasContent) {
+		// 	questionsLogger.success(`Contexto RAG unificado obtenido: ${ragContent.stats.contentLength} caracteres`);
+		// 	finalPrompt = enhancePromptWithUnifiedRAG(finalPrompt, ragContent.content);
+		// 	questionsLogger.info("Prompt enriquecido con RAG unificado");
+		// } else {
+		// 	questionsLogger.warn("No se encontró contexto en RAG unificado, usando generación estándar");
+		// }
+
+
 
 		// SOLICITUD A LA API de modelManager para asignar un modelo de LLM al alumno
 		const assignedModel = await assignAIModel(
@@ -187,7 +205,7 @@ export async function POST(request) {
 			has_abctesting,
 			existingStudent,
 			studentSubjectData,
-			subjectIndex
+			subjectIndexInStudent
 		);
 
 		// Log de asignación de modelo
@@ -334,10 +352,10 @@ export async function POST(request) {
 			});
 		}
 
-		// Guardar preguntas generadas en el manager si tenemos subTopic
-		if (subTopic) {
+		// Guardar preguntas generadas en el manager si tenemos subtopicId
+		if (subtopicId) {
 			try {
-				await saveQuestionsToManager(formattedResponse, assignedModel, finalPrompt, subTopic, topic, difficulty);
+				await saveQuestionsToManager(formattedResponse, assignedModel, finalPrompt, subtopicId, topic, difficulty);
 			} catch (saveError) {
 				questionsLogger.warn("Error guardando preguntas en manager:", saveError.message);
 				// No fallar la respuesta principal por un error de guardado
@@ -351,7 +369,7 @@ export async function POST(request) {
 
 		return new Response(formattedResponse);
 	} catch (error) {
-		questionsLogger.error("Error general en POST /api/questions:", {
+		questionsLogger.error("Error general en POST /aiquiz/api/questions:", {
 			message: error.message,
 			stack: error.stack,
 			status: error.status,
@@ -397,6 +415,7 @@ const getAndEnsureStudentAndSubject = async (
 ) => {
 	try {
 		let student = await Student.findOne({ studentEmail });
+		let newPull_id = hashToNumber(studentEmail, subject); // Asignamos un pull_id inicial basado en el hash del email
 
 		if (!student || student === null) {
 			// Si el estudiante no existe, lo creamos con la asignatura
@@ -410,6 +429,7 @@ const getAndEnsureStudentAndSubject = async (
 						survey: false,
 						md5Prompt: null,
 						prompt: null,
+						pull_id: newPull_id
 					},
 				],
 			});
@@ -426,8 +446,33 @@ const getAndEnsureStudentAndSubject = async (
 			return student;
 		}
 
-		// Si el estudiante ya tiene la asignatura, salimos sin hacer nada ni mostrar logs
-		if (student.subjects.some((s) => s.subjectName === subject)) {
+		// Si el estudiante ya tiene la asignatura
+		if (student.subjects.some(s => s.subjectName === subject)) {
+			// Obtenemos el índice de la asignatura para actualizar su pull_id
+			let idx = student.subjects.findIndex(s => s.subjectName === subject);
+
+			// Comprobamos si el pull_id está definido
+			let isDefinePull_id = student.subjects[idx].pull_id;
+			const isMissing = isDefinePull_id === null || isDefinePull_id === undefined || Number.isNaN(isDefinePull_id);
+
+			if (isMissing) {
+				// Si no está definido, lo inicializamos con el hash del email
+				student.subjects[idx].pull_id = newPull_id;
+			} else {
+				// Si está definido, comprobamos el valor de pull_id
+				let pull_id = student.subjects.find(s => s.subjectName === subject).pull_id;
+
+				if (pull_id === null) {
+					// Si el pull_id es null, lo inicializamos con el hash del email
+					student.subjects.find(s => s.subjectName === subject).pull_id = newPull_id;
+					await student.save();
+				} else {
+					// Si ya tiene pull_id aumentamos en 1 su valor
+					student.subjects.find(s => s.subjectName === subject).pull_id = pull_id + 1;
+					await student.save();
+				}
+			}
+
 			return student;
 		}
 
@@ -439,6 +484,7 @@ const getAndEnsureStudentAndSubject = async (
 			survey: false,
 			md5Prompt: null,
 			prompt: null,
+			pull_id: newPull_id
 		});
 		await student.save();
 		console.log("--------------------------------------------------------");
@@ -458,7 +504,7 @@ const getAndEnsureStudentAndSubject = async (
 async function saveQuestionsToManager(formattedResponse, assignedModel, prompt, subtopicId, topicName, difficulty) {
 	try {
 		questionsLogger.info("Guardando preguntas generadas en modelo unificado");
-		
+
 		// Parsear la respuesta JSON
 		const questionsData = JSON.parse(formattedResponse);
 		if (!questionsData.questions || !Array.isArray(questionsData.questions)) {
@@ -484,12 +530,12 @@ async function saveQuestionsToManager(formattedResponse, assignedModel, prompt, 
 				choices: q.choices, // Array simple, se convertirá automáticamente
 				answer: q.answer,
 				explanation: q.explanation || '',
-				
+
 				// Referencias del manager
 				topicRef: topicId,
 				subtopic: subtopicId,
 				topic: topicName, // String para compatibilidad
-				
+
 				// Metadatos de generación
 				generated: true,
 				llmModel: assignedModel,
@@ -502,164 +548,183 @@ async function saveQuestionsToManager(formattedResponse, assignedModel, prompt, 
 
 		// Guardar en la base de datos usando el modelo unificado
 		const savedQuestions = await Question.insertMany(unifiedQuestions);
-		
+
 		questionsLogger.success(`${savedQuestions.length} preguntas guardadas en modelo unificado para topic ${topicId}`);
-		
+
 		return savedQuestions;
-		
+
 	} catch (error) {
 		questionsLogger.error("Error en saveQuestionsToManager:", error.message);
 		throw error;
 	}
 }
 
-/**
- * Inicializa el sistema RAG unificado (mismo que profesores)
- * @returns {Object|null} RAG Manager instance o null si no está disponible
- */
-async function initializeUnifiedRAG() {
-    try {
-        // Verificar si Qdrant está disponible
-        const qdrantResponse = await fetch('http://localhost:6333/').catch(() => null);
-        
-        if (qdrantResponse && qdrantResponse.ok) {
-            questionsLogger.debug('Inicializando RAG Manager V2 unificado para estudiantes');
-            
-            if (!RAGManagerV2) {
-                const ragModule = await import("@rag/core/ragManagerV2");
-                RAGManagerV2 = ragModule.default || ragModule;
-            }
-            
-            const ragManager = new RAGManagerV2({ enableLogging: true });
-            await ragManager.initialize();
-            
-            questionsLogger.info('RAG Manager V2 unificado inicializado para estudiantes');
-            return ragManager;
-        } else {
-            questionsLogger.debug('Qdrant no disponible, usando Mock RAG unificado para estudiantes');
-            
-            if (!MockRAGManager) {
-                const mockModule = await import("@rag/core/mockRAGManager");
-                MockRAGManager = mockModule.default || mockModule;
-            }
-            
-            const mockManager = new MockRAGManager();
-            await mockManager.initialize();
-            return mockManager;
-        }
-    } catch (error) {
-        questionsLogger.warn('Error inicializando RAG unificado, continuando sin RAG:', error.message);
-        return null;
-    }
-}
+// Función para generar un número único basado en hash y componentes aleatorios
+const hashToNumber = (studentEmail, subject) => {
+	// Mezcla los datos base
+	const baseString = `${studentEmail}-${subject}-${Date.now()}-${Math.random()}`;
 
-/**
- * Busca contenido relevante en el RAG unificado para un tema/subtema
- * @param {Object} ragManager - Instancia del RAG Manager
- * @param {string} topicTitle - Título del tema
- * @param {string} subtopicTitle - Título del subtema (opcional)
- * @param {string} topicId - ID del tema (opcional)
- * @param {string} subtopicId - ID del subtema (opcional)
- * @returns {Object} Contenido encontrado y estadísticas
- */
-async function searchUnifiedRAGContent(ragManager, topicTitle, subtopicTitle, topicId, subtopicId) {
-    try {
-        // Preparar términos de búsqueda
-        let searchQuery = topicTitle;
-        if (subtopicTitle) {
-            searchQuery += ` ${subtopicTitle}`;
-        }
-        
-        // Preparar filtros
-        const filters = {};
-        
-        if (topicId) {
-            filters.topic_id = topicId;
-        }
-        
-        if (subtopicId) {
-            filters.subtopic_id = subtopicId;
-        }
-        
-        // Configurar opciones de búsqueda
-        const searchOptions = {
-            limit: 10, // Máximo 10 chunks más relevantes
-            threshold: 0.3, // Umbral de relevancia más permisivo
-            includeMetadata: true,
-            rerankResults: true
-        };
-        
-        questionsLogger.debug(`Buscando contenido RAG unificado para: "${searchQuery}"`);
-        
-        const searchResult = await ragManager.semanticSearch(
-            searchQuery,
-            filters,
-            searchOptions
-        );
-        
-        if (searchResult.success && searchResult.results.length > 0) {
-            questionsLogger.info(`Encontrados ${searchResult.results.length} chunks relevantes en RAG unificado`);
-            
-            // Combinar el contenido de los chunks más relevantes
-            const relevantContent = searchResult.results
-                .slice(0, 5) // Top 5 chunks más relevantes
-                .map(result => result.text || result.content)
-                .join('\n\n');
-            
-            return {
-                hasContent: true,
-                content: relevantContent,
-                stats: {
-                    totalFound: searchResult.results.length,
-                    contentLength: relevantContent.length,
-                    avgSimilarity: searchResult.results.reduce((sum, r) => sum + (r.similarity || 0), 0) / searchResult.results.length
-                }
-            };
-        } else {
-            questionsLogger.debug('No se encontró contenido relevante en RAG unificado');
-            return {
-                hasContent: false,
-                content: '',
-                stats: { totalFound: 0, contentLength: 0, avgSimilarity: 0 }
-            };
-        }
-        
-    } catch (error) {
-        questionsLogger.error('Error buscando contenido en RAG unificado:', error);
-        return {
-            hasContent: false,
-            content: '',
-            stats: { totalFound: 0, contentLength: 0, avgSimilarity: 0 }
-        };
-    }
-}
+	// Crea un hash SHA-256 del string base
+	const hashBuffer = new TextEncoder().encode(baseString);
+	let hash = 0;
+	for (let i = 0; i < hashBuffer.length; i++) {
+		hash = (hash * 31 + hashBuffer[i]) % 1_000_000_000_000; // 12 dígitos
+	}
 
-/**
- * Genera un prompt enriquecido con contexto RAG unificado
- * @param {string} basePrompt - Prompt base del sistema
- * @param {string} ragContent - Contenido obtenido del RAG
- * @returns {string} Prompt combinado
- */
-function enhancePromptWithUnifiedRAG(basePrompt, ragContent) {
-    if (!ragContent || ragContent.trim() === "") {
-        return basePrompt;
-    }
+	// Añadimos un aleatorio adicional para evitar coincidencias simultáneas
+	const randomComponent = Math.floor(Math.random() * 1_000_000);
+	const uniqueId = Number(`${hash}${randomComponent}`.slice(0, 15)); // máx. 15 dígitos seguros
 
-    const ragEnhancement = `
-IMPORTANTE: Utiliza el siguiente contenido específico del tema para generar las preguntas:
+	return uniqueId;
+};
 
---- CONTENIDO DEL TEMA ---
-${ragContent}
---- FIN DEL CONTENIDO ---
+// /**
+//  * Inicializa el sistema RAG unificado (mismo que profesores)
+//  * @returns {Object|null} RAG Manager instance o null si no está disponible
+//  */
+// async function initializeUnifiedRAG() {
+// 	try {
+// 		// Verificar si Qdrant está disponible
+// 		const qdrantResponse = await fetch('http://localhost:6333/').catch(() => null);
 
-Instrucciones adicionales:
-- Las preguntas DEBEN basarse principalmente en el contenido proporcionado arriba
-- Utiliza datos, conceptos y ejemplos específicos del material de clase
-- Si necesitas complementar con conocimiento general, hazlo de manera coherente con el contenido
-- Las preguntas deben demostrar comprensión del material específico del curso
+// 		if (qdrantResponse && qdrantResponse.ok) {
+// 			questionsLogger.debug('Inicializando RAG Manager V2 unificado para estudiantes');
 
-PROMPT ORIGINAL:
-${basePrompt}`;
+// 			if (!RAGManagerV2) {
+// 				const ragModule = await import("@rag/core/ragManagerV2");
+// 				RAGManagerV2 = ragModule.default || ragModule;
+// 			}
 
-    return ragEnhancement;
-}
+// 			const ragManager = new RAGManagerV2({ enableLogging: true });
+// 			await ragManager.initialize();
+
+// 			questionsLogger.info('RAG Manager V2 unificado inicializado para estudiantes');
+// 			return ragManager;
+// 		} else {
+// 			questionsLogger.debug('Qdrant no disponible, usando Mock RAG unificado para estudiantes');
+
+// 			if (!MockRAGManager) {
+// 				const mockModule = await import("@rag/core/mockRAGManager");
+// 				MockRAGManager = mockModule.default || mockModule;
+// 			}
+
+// 			const mockManager = new MockRAGManager();
+// 			await mockManager.initialize();
+// 			return mockManager;
+// 		}
+// 	} catch (error) {
+// 		questionsLogger.warn('Error inicializando RAG unificado, continuando sin RAG:', error.message);
+// 		return null;
+// 	}
+// }
+
+// /**
+//  * Busca contenido relevante en el RAG unificado para un tema/subtema
+//  * @param {Object} ragManager - Instancia del RAG Manager
+//  * @param {string} topicTitle - Título del tema
+//  * @param {string} subtopicTitle - Título del subtema (opcional)
+//  * @param {string} topicId - ID del tema (opcional)
+//  * @param {string} subtopicId - ID del subtema (opcional)
+//  * @returns {Object} Contenido encontrado y estadísticas
+//  */
+// async function searchUnifiedRAGContent(ragManager, topicTitle, subtopicTitle, topicId, subtopicId) {
+// 	try {
+// 		// Preparar términos de búsqueda
+// 		let searchQuery = topicTitle;
+// 		if (subtopicTitle) {
+// 			searchQuery += ` ${subtopicTitle}`;
+// 		}
+
+// 		// Preparar filtros
+// 		const filters = {};
+
+// 		if (topicId) {
+// 			filters.topic_id = topicId;
+// 		}
+
+// 		if (subtopicId) {
+// 			filters.subtopic_id = subtopicId;
+// 		}
+
+// 		// Configurar opciones de búsqueda
+// 		const searchOptions = {
+// 			limit: 10, // Máximo 10 chunks más relevantes
+// 			threshold: 0.3, // Umbral de relevancia más permisivo
+// 			includeMetadata: true,
+// 			rerankResults: true
+// 		};
+
+// 		questionsLogger.debug(`Buscando contenido RAG unificado para: "${searchQuery}"`);
+
+// 		const searchResult = await ragManager.semanticSearch(
+// 			searchQuery,
+// 			filters,
+// 			searchOptions
+// 		);
+
+// 		if (searchResult.success && searchResult.results.length > 0) {
+// 			questionsLogger.info(`Encontrados ${searchResult.results.length} chunks relevantes en RAG unificado`);
+
+// 			// Combinar el contenido de los chunks más relevantes
+// 			const relevantContent = searchResult.results
+// 				.slice(0, 5) // Top 5 chunks más relevantes
+// 				.map(result => result.text || result.content)
+// 				.join('\n\n');
+
+// 			return {
+// 				hasContent: true,
+// 				content: relevantContent,
+// 				stats: {
+// 					totalFound: searchResult.results.length,
+// 					contentLength: relevantContent.length,
+// 					avgSimilarity: searchResult.results.reduce((sum, r) => sum + (r.similarity || 0), 0) / searchResult.results.length
+// 				}
+// 			};
+// 		} else {
+// 			questionsLogger.debug('No se encontró contenido relevante en RAG unificado');
+// 			return {
+// 				hasContent: false,
+// 				content: '',
+// 				stats: { totalFound: 0, contentLength: 0, avgSimilarity: 0 }
+// 			};
+// 		}
+
+// 	} catch (error) {
+// 		questionsLogger.error('Error buscando contenido en RAG unificado:', error);
+// 		return {
+// 			hasContent: false,
+// 			content: '',
+// 			stats: { totalFound: 0, contentLength: 0, avgSimilarity: 0 }
+// 		};
+// 	}
+// }
+
+// /**
+//  * Genera un prompt enriquecido con contexto RAG unificado
+//  * @param {string} basePrompt - Prompt base del sistema
+//  * @param {string} ragContent - Contenido obtenido del RAG
+//  * @returns {string} Prompt combinado
+//  */
+// function enhancePromptWithUnifiedRAG(basePrompt, ragContent) {
+// 	if (!ragContent || ragContent.trim() === "") {
+// 		return basePrompt;
+// 	}
+
+// 	const ragEnhancement = `
+// IMPORTANTE: Utiliza el siguiente contenido específico del tema para generar las preguntas:
+
+// --- CONTENIDO DEL TEMA ---
+// ${ragContent}
+// --- FIN DEL CONTENIDO ---
+
+// Instrucciones adicionales:
+// - Las preguntas DEBEN basarse principalmente en el contenido proporcionado arriba
+// - Utiliza datos, conceptos y ejemplos específicos del material de clase
+// - Si necesitas complementar con conocimiento general, hazlo de manera coherente con el contenido
+// - Las preguntas deben demostrar comprensión del material específico del curso
+
+// PROMPT ORIGINAL:
+// ${basePrompt}`;
+
+// 	return ragEnhancement;
+// }

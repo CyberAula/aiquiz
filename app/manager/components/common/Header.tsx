@@ -66,7 +66,7 @@ const Header: React.FC = () => {
 						</div>
 						<div className="hidden sm:ml-6 sm:flex sm:space-x-8 h-full">
 							<Link
-								href="/manager/dashboard"
+								href="/reports"
 								className={getLinkClassName("/dashboard")}
 							>
 								{t("navigation.dashboard")}

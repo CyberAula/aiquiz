@@ -47,7 +47,7 @@ export default function AcceptInvitationPage() {
     const validateToken = async (invitationToken: string) => {
         try {
             setValidatingToken(true);
-            const response = await fetch('/api/manager/auth/validate-invitation', {
+            const response = await fetch('/aiquiz/api/manager/auth/validate-invitation', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ export default function AcceptInvitationPage() {
             setLoading(true);
             setError(null);
 
-            const response = await fetch('/api/manager/auth/accept-invitation', {
+            const response = await fetch('/aiquiz/api/manager/auth/accept-invitation', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ export default function AcceptInvitationPage() {
             if (response.ok && data.success) {
                 setSuccess(true);
                 setTimeout(() => {
-                    router.push('/manager/login?message=invitation-accepted');
+                    router.push('/aiquiz/manager/login?message=invitation-accepted');
                 }, 2000);
             } else {
                 setError(data.message || 'Error aceptando la invitación');
@@ -181,7 +181,7 @@ export default function AcceptInvitationPage() {
                             {error || 'El token de invitación no es válido o ha expirado.'}
                         </p>
                         <button
-                            onClick={() => router.push('/manager/login')}
+                            onClick={() => router.push('/aiquiz/manager/login')}
                             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
                         >
                             Ir al login

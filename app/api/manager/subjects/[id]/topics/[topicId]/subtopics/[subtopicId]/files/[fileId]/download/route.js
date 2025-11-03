@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/[topicId]/subtopics/[subtopicId]/files/[fileId]/download/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/subtopics/[subtopicId]/files/[fileId]/download/route.js
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import dbConnect from "@utils/dbconnect";
@@ -6,7 +6,7 @@ import File from "@models/File";
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files/{fileId}/download:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files/{fileId}/download:
  *   get:
  *     tags:
  *       - Files

@@ -1,11 +1,11 @@
-// /app/api/manager/auth/me/route.js - Endpoint para obtener información del usuario actual
+// /app/aiquiz/api/manager/auth/me/route.js - Endpoint para obtener información del usuario actual
 import dbConnect from "../../../../utils/dbconnect";
 import User from "../../../../manager/models/User";
 import jwt from "jsonwebtoken";
 
 /**
  * @swagger
- * /api/manager/auth/me:
+ * /aiquiz/api/manager/auth/me:
  *   get:
  *     summary: Obtener información del usuario actual
  *     description: Retorna la información del perfil del usuario autenticado
@@ -95,7 +95,7 @@ import jwt from "jsonwebtoken";
 
 /**
  * @swagger
- * /api/manager/auth/me:
+ * /aiquiz/api/manager/auth/me:
  *   put:
  *     summary: Actualizar información del usuario actual
  *     description: Actualiza la información del perfil del usuario autenticado
@@ -243,7 +243,7 @@ export async function GET(request) {
 		);
 
 	} catch (error) {
-		console.error("❌ Error en GET /api/manager/auth/me:", error);
+		console.error("❌ Error en GET /aiquiz/api/manager/auth/me:", error);
 		return new Response(
 			JSON.stringify({
 				success: false,
@@ -391,7 +391,7 @@ export async function PUT(request) {
 		);
 
 	} catch (error) {
-		console.error("❌ Error en PUT /api/manager/auth/me:", error);
+		console.error("❌ Error en PUT /aiquiz/api/manager/auth/me:", error);
 		return new Response(
 			JSON.stringify({
 				success: false,

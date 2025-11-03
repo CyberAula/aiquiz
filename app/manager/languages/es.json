@@ -241,7 +241,8 @@
 		"downloadSuccess": "✅ Archivo descargado correctamente",
 		"downloadError": "❌ Error al descargar: {{error}}",
 		"selectAtLeastOneQuestion": "Selecciona al menos una pregunta para descargar",
-		"pdf": "PDF",
+		"pdf": "PDF con soluciones",
+		"pdfWithoutSolutions": "PDF sin soluciones",
 		"moodle": "Moodle XML"
 	},
 	"subtopicDetail": {

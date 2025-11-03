@@ -22,21 +22,21 @@ const questionSchema = new Schema({
         type: Number,
         required: false, // Opcional para preguntas creadas en manager
     },
-    
+
     // Texto de la pregunta (unificado: query/text)
     text: {
         type: String,
         required: true,
         trim: true,
     },
-    
+
     // Tipo de pregunta (nuevo campo del manager)
     type: {
         type: String,
         enum: ["Opción múltiple", "Verdadero/Falso", "Respuesta corta", "Ensayo"],
         default: "Opción múltiple",
     },
-    
+
     // Información del quiz original
     subject: {
         type: String,
@@ -55,7 +55,7 @@ const questionSchema = new Schema({
         type: String,
         required: false, // String para quiz, ObjectId para manager
     },
-    
+
     // Referencias del manager (nuevos campos)
     topicRef: {
         type: Schema.Types.ObjectId,
@@ -67,26 +67,26 @@ const questionSchema = new Schema({
         ref: "Subtopic",
         required: false,
     },
-    
+
     // Opciones de respuesta - formato flexible
     choices: {
         type: Schema.Types.Mixed, // Puede ser Array (quiz) o [ChoiceSchema] (manager)
         required: true,
     },
-    
+
     // Respuesta correcta
     answer: {
         type: Number, // Índice para formato quiz
         required: false,
     },
-    
+
     // Explicación
     explanation: {
         type: String,
         required: false,
         trim: true,
     },
-    
+
     // Datos del estudiante (formato quiz)
     studentEmail: {
         type: String,
@@ -104,7 +104,13 @@ const questionSchema = new Schema({
         type: Boolean,
         default: false,
     },
-    
+
+    // Identificador de pull request (Identificador de cuestionario)
+    pull_id: {
+        type: Number,
+        required: false,
+    },
+
     // Información del modelo LLM
     llmModel: {
         type: String,
@@ -190,22 +196,22 @@ const questionSchema = new Schema({
 });
 
 // Virtual para calcular la tasa de acierto
-questionSchema.virtual("successRate").get(function() {
+questionSchema.virtual("successRate").get(function () {
     if (this.totalAnswersCount === 0) return 0;
     return (this.correctAnswersCount / this.totalAnswersCount) * 100;
 });
 
 // Virtual para compatibilidad con formato quiz (query -> text)
-questionSchema.virtual("query").get(function() {
+questionSchema.virtual("query").get(function () {
     return this.text;
 });
 
-questionSchema.virtual("query").set(function(value) {
+questionSchema.virtual("query").set(function (value) {
     this.text = value;
 });
 
 // Método para verificar la pregunta
-questionSchema.methods.verify = async function(isValid) {
+questionSchema.methods.verify = async function (isValid) {
     this.verified = isValid;
     this.rejected = !isValid;
     await this.save();
@@ -213,7 +219,7 @@ questionSchema.methods.verify = async function(isValid) {
 };
 
 // Método para incrementar estadísticas de uso
-questionSchema.methods.recordAnswer = async function(isCorrect) {
+questionSchema.methods.recordAnswer = async function (isCorrect) {
     this.usageCount += 1;
     this.totalAnswersCount += 1;
     if (isCorrect) {
@@ -224,18 +230,18 @@ questionSchema.methods.recordAnswer = async function(isCorrect) {
 };
 
 // Middleware para normalizar datos antes de guardar
-questionSchema.pre('save', function(next) {
+questionSchema.pre('save', function (next) {
     // Normalizar dificultad
     const difficultyMap = {
         'facil': 'Fácil',
         'intermedio': 'Medio',
         'avanzado': 'Avanzado'
     };
-    
+
     if (difficultyMap[this.difficulty]) {
         this.difficulty = difficultyMap[this.difficulty];
     }
-    
+
     // Si es formato quiz con choices como array simple, convertir a formato manager
     if (Array.isArray(this.choices) && this.choices.length > 0 && typeof this.choices[0] === 'string') {
         const answer = this.answer;
@@ -244,12 +250,12 @@ questionSchema.pre('save', function(next) {
             isCorrect: index === answer
         }));
     }
-    
+
     // Asegurar que el campo text esté poblado
     if (!this.text && this.query) {
         this.text = this.query;
     }
-    
+
     next();
 });
 
@@ -268,7 +274,7 @@ questionSchema.index({ studentEmail: 1 });
 questionSchema.index({ text: "text", explanation: "text" });
 
 // Método estático para migrar datos del formato antiguo
-questionSchema.statics.migrateFromOldFormat = async function(oldQuestion) {
+questionSchema.statics.migrateFromOldFormat = async function (oldQuestion) {
     // Convertir pregunta del formato quiz al unificado
     const newQuestion = {
         id: oldQuestion.id,
@@ -294,7 +300,7 @@ questionSchema.statics.migrateFromOldFormat = async function(oldQuestion) {
         createdAt: oldQuestion.createdAt,
         updatedAt: oldQuestion.updatedAt
     };
-    
+
     return new this(newQuestion);
 };
 

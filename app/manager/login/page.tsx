@@ -33,7 +33,7 @@ const LoginPage = () => {
 		makeRequest: login,
 		loading,
 		error: apiError,
-	} = useApiRequest("/api/manager/auth/login", "POST", null, false);
+	} = useApiRequest("/aiquiz/api/manager/auth/login", "POST", null, false);
 
 	// Actualizar el error de login si hay error en la API
 	useEffect(() => {

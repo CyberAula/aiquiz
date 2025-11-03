@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/professors/route.js
+// app/aiquiz/api/manager/subjects/[id]/professors/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../../../utils/dbconnect";
 import Subject from "../../../../../manager/models/Subject";
@@ -9,7 +9,7 @@ import crypto from "crypto";
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/professors:
+ * /aiquiz/api/manager/subjects/{id}/professors:
  *   post:
  *     tags:
  *       - Subjects

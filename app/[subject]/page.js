@@ -14,22 +14,18 @@ import urljoin from "url-join";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from 'next/navigation'
 
+import useApiRequest from "../manager/hooks/useApiRequest";
+import { set } from "mongoose";
+
 const basePath = nextConfig.basePath || "/";
 
 const HomePage = ({ params: { subject } }) => {
 
   const params = useSearchParams()
+  console.log("Search params: ", Array.from(params.entries()));
 
-  // Default labels desde la URL
-  const defaultTopicLabel = params.get("topic") || "";
-
-  // Opciones de topics según la asignatura
-  const topicOptions = subjects[subject]?.topics || [];
-
-  // Encuentra el topic cuyo label coincide con defaultTopicLabel
-  const matchedTopic = topicOptions.find(t => t.label === defaultTopicLabel);
-  const initialTopic = matchedTopic ? matchedTopic.value : "";
-  const initialTopicLabel = matchedTopic ? matchedTopic.label : "";
+  // Encuentra el topic inicial de los parámetros de la URL
+  const initialTopic = params.get("topic") || "";
 
   // Cargamos el resto de los parámetros de la URL
   const defaultDifficulty = params.get('difficulty') || "intermedio";
@@ -38,6 +34,7 @@ const HomePage = ({ params: { subject } }) => {
 
   const { t, i18n } = useTranslation();
   const [topicSelected, setTopicSelected] = useState(initialTopic);
+  console.log("topicSelected initial: ", topicSelected);
   const [subTopicSelected, setSubTopicSelected] = useState("");
   const [isTopicSelected, setIsTopicSelected] = useState(false);
   const [difficulty, setDifficulty] = useState(defaultDifficulty);
@@ -47,11 +44,18 @@ const HomePage = ({ params: { subject } }) => {
   const [isChecked, setIsChecked] = useState(false);
   const [myUserEmail, setMyUserEmail] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [topicLabel, setTopicLabel] = useState(initialTopicLabel);
-  const baseUrl = urljoin(basePath);
+
   const [showAlert, setShowAlert] = useState("");
   const [showAlertLang, setShowAlertLang] = useState("");
   const [showAlertTopic, setShowAlertTopic] = useState("");
+
+  const [topics, setTopics] = useState([]);
+  const [subTopics, setSubTopics] = useState([]);
+  const [subtopicsFromTopic, setSubtopicsFromTopic] = useState([]);
+
+  const [subjectId, setSubjectId] = useState(null);
+  const [topicId, setTopicId] = useState(null);
+  const [subtopicId, setSubtopicId] = useState(null);
 
   // console.log(topicSelected + " subject selected");
   // console.log(defaultTopic + " defaultTopic");
@@ -67,22 +71,24 @@ const HomePage = ({ params: { subject } }) => {
   let alertPickTopic = t("subject.alertPickTopic");
 
   useEffect(() => {
-    // Actualizar los temas de la asignatura actual
-    // Obtener los temas de la asignatura actual desde subjects
-    let newTopic = topicSelected;
-    const subjectTopics = subjects[subject]?.topics || [];
+    // Obtener los temas de la asignatura actual desde el caché
+    let topics_cache = localStorage.getItem('topics_cache');
+    topics_cache = topics_cache ? JSON.parse(topics_cache) : [];
 
-    if (!subjectTopics.find((topic) => topic.value === newTopic)) {
+    let newTopic = topicSelected;
+
+    if (!topics.find((topic) => topic.title === newTopic)) {
       // Si el tema seleccionado no está en la lista de temas, restablecer a un valor predeterminado
       newTopic = "";
       setTopicSelected(newTopic);
-      setTopicLabel(subjects[subject][0]?.label);
+      //setTopicLabel(subjects[subject][0]?.label);
     }
 
   }, [topicSelected]);
 
   useEffect(() => {
     setEmailFromLocalStorage();
+    fetchTopicsSubtopics(subject); // Cargar los temas y subtemas al montar el componente
 
     if (initialTopic != "") {
       setIsTopicSelected(true);
@@ -90,12 +96,56 @@ const HomePage = ({ params: { subject } }) => {
 
   }, []);
 
-  useEffect(() => {
-    console.log("topicSelected ha cambiado a:", topicSelected);
-    console.log("topicLabel    ha cambiado a:",    topicLabel);
-  }, [topicSelected, topicLabel]);
+  // useEffect(() => {
+  //   console.log("topicSelected ha cambiado a:", topicSelected);
+  //   console.log("topicLabel    ha cambiado a:", topicLabel);
+  // }, [topicSelected, topicLabel]);
 
-  
+
+  const fetchTopicsSubtopics = async (subject) => {
+    // Función para obtener topics y subtopics desde la API
+    let subjectsCache = localStorage.getItem('subjects_cache');
+    subjectsCache = subjectsCache ? JSON.parse(subjectsCache) : [];
+
+    // console.log("subjectsCache from localStorage: ", subjectsCache);
+
+    // Buscar el subjectId correspondiente al acrónimo de la asignatura
+    const subjectId = subjectsCache.find(sub => sub.acronym === subject)?._id || null;
+    setSubjectId(subjectId);
+    // console.log("subjectId found: ", subjectId);
+
+    // Hacemos la solicitud a la API de los TOPICS and SUBTOPICS
+    try {
+      const response = await fetch('/aiquiz/api/getTopicsAndSubtopics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subjectId: subjectId
+        }),
+      })
+
+      const data = await response.json();
+      // console.log("Response from /getTopicsAndSubtopics: ", data);
+
+      setTopics(data.topics || []);
+      localStorage.setItem('topics_cache', JSON.stringify(data.topics || []));
+      // setTopics(data.topics.map(t => t.title) || []);
+      // console.log("Topics set to: ", data.topics || []);
+      setSubTopics(data.subTopics || []);
+      localStorage.setItem('subtopics_cache', JSON.stringify(data.subTopics || []));
+      // console.log("Subtopics set to: ", data.subTopics || []);
+
+    } catch (error) {
+      console.error('Error fetching topics:', error);
+      setError('Error loading topics');
+    } finally {
+      setLoading(false);
+    }
+
+  };
+
   const setEmailFromLocalStorage = () => {
     let studentEmail = window.localStorage.getItem("student_email");
     // let studentEmail = null;
@@ -156,13 +206,25 @@ const HomePage = ({ params: { subject } }) => {
   };
 
   const handleTopicSelect = (e) => {
-    const newValue = e.target.value;                             // valor (.value)
+    const newValue = e.target.value;                       // valor (.value)
     const newLabel = e.target.options[e.target.selectedIndex].text; // etiqueta (.label)
-  
-    setTopicSelected(newValue);
-    setTopicLabel(newLabel);
 
-    setSubTopicSelected("");
+    let topicId = topics.find(t => t.title === newValue)?._id || null;
+    setTopicId(topicId);
+    let subTopicsForTopic = subTopics.filter(st => st.topic?._id === topicId);
+    let subTopicTitles = subTopicsForTopic.map(st => st.title);
+
+    setTopicSelected(newValue);
+    setSubtopicsFromTopic(subTopicTitles);
+
+    setSubTopicSelected(""); // Restablecer el subtema seleccionado
+  };
+
+  const handleSubTopicSelect = (e) => {
+    const newValue = e.target.value;
+    let idSubTopic = subTopics.find(st => st.title === newValue)?._id || null;
+    setSubtopicId(idSubTopic);
+    // console.log("SubtopicId set to: ", idSubTopic);
   };
 
   return (
@@ -303,13 +365,13 @@ const HomePage = ({ params: { subject } }) => {
                         >
                           {t("subject.choose")}
                         </option>
-                        {subjects[subject].topics.map((option) => (
+                        {topics.map((option) => (
                           <option
-                            key={option.value}
-                            value={option.value}
+                            key={option.title}
+                            value={option.title}
                             className="font-bold"
                           >
-                            {option.label}
+                            {option.title}
                           </option>
                         ))}
                       </select>
@@ -346,6 +408,7 @@ const HomePage = ({ params: { subject } }) => {
                           setSubTopicSelected(e.target.value);
                           setIsTopicSelected(!!e.target.value); // Actualizar el estado de isTopicSelected
                           setShowAlertTopic("");
+                          handleSubTopicSelect(e);
                         }}
                         disabled={topicSelected ? false : true}
                         name="topic"
@@ -359,13 +422,13 @@ const HomePage = ({ params: { subject } }) => {
                         >
                           {t("subject.choose")}
                         </option>
-                        {subjects[subject]?.topics.find((t) => t.value === topicSelected)?.subtopics.map((subtopic, index) => (
+                        {subtopicsFromTopic.map((subtopic, index) => (
                           <option
                             key={index}
-                            value={subtopic.title}
+                            value={subtopic}
                             className="font-normal"
                           >
-                            {subtopic.title}
+                            {subtopic}
                           </option>
                         ))}
                       </select>
@@ -382,13 +445,14 @@ const HomePage = ({ params: { subject } }) => {
                       )}
                     </div>
 
-                    {/* SUB-TEMA Anterior */}
-                    {defaultSubTopic !== "" && (
+                    {/* TEMA Y SUB-TEMA Anterior */}
+                    {initialTopic !== "" && defaultSubTopic !== "" && (
                       <div className="flex flex-col parameters">
                         <label htmlFor="topic" className="label-parameters-quiz">
-                          {t("subject.preSubtopic")}
+                          {t("subject.preTopicSubtopic")}
                         </label>
-                        <p className="mb-0 text-sm ms-2">{defaultSubTopic}</p>
+                        <p className="mb-0 text-sm ms-2">{initialTopic.toUpperCase()}</p>
+                        <p className="mb-0 text-sm ms-2">{defaultSubTopic.toUpperCase()}</p>
                       </div>
                     )}
 
@@ -542,11 +606,14 @@ const HomePage = ({ params: { subject } }) => {
                       href={{
                         pathname: "/quiz",
                         query: {
-                          topic: topicLabel || defaultTopicLabel,
-                          difficulty: difficulty.toLowerCase(),
-                          subTopic: subTopicSelected.toLowerCase(), // Utilizamos el tema seleccionado
-                          numQuestions: numQuestions,
                           subject: subject,
+                          subTopic: subTopicSelected.toLowerCase(), // Utilizamos el tema seleccionado
+                          topic: topicSelected.toLowerCase(), // Usamos el tema seleccionado
+                          difficulty: difficulty.toLowerCase(),
+                          numQuestions: numQuestions,
+                          subjectId: subjectId,
+                          topicId: topicId,
+                          subtopicId: subtopicId
                         },
                       }}
                     >

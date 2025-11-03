@@ -1,4 +1,4 @@
-// app/api/manager/auth/reset-password/route.js
+// app/aiquiz/api/manager/auth/reset-password/route.js
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import dbConnect from "../../../../utils/dbconnect";
@@ -6,7 +6,7 @@ import User from "../../../../manager/models/User";
 
 /**
  * @swagger
- * /api/manager/auth/reset-password:
+ * /aiquiz/api/manager/auth/reset-password:
  *   post:
  *     tags:
  *       - Authentication

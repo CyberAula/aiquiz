@@ -95,7 +95,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 		error,
 		makeRequest: fetchQuestions,
 	} = useApiRequest(
-		`/api/manager/subjects/${subjectId}/topics/${topicId}/questions`,
+		`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questions`,
 		"GET",
 		null,
 		true
@@ -106,7 +106,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 		loading,
 		error,
 		questionsData,
-		url: `/api/manager/subjects/${subjectId}/topics/${topicId}/questions`
+		url: `/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questions`
 	});
 
 	// API para generar cuestionario desde preguntas seleccionadas
@@ -114,7 +114,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 		makeRequest: generateQuestionnaire,
 		loading: generatingQuestionnaire,
 	} = useApiRequest(
-		`/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires`,
+		`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires`,
 		"POST",
 		null,
 		false
@@ -123,7 +123,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 	// API para descargar preguntas seleccionadas
 	const { makeRequest: downloadQuestions, loading: downloadingQuestions } =
 		useApiRequest(
-			`/api/manager/subjects/${subjectId}/topics/${topicId}/questions/download`,
+			`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questions/download`,
 			"POST",
 			null,
 			false
@@ -134,7 +134,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 		makeRequest: generateNewQuestions,
 		loading: generatingNewQuestions,
 	} = useApiRequest(
-		`/api/manager/subjects/${subjectId}/topics/${topicId}/generate-questions`,
+		`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/generate-questions`,
 		"POST",
 		null,
 		false
@@ -143,7 +143,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 	// API para verificar o rechazar preguntas
 	const { makeRequest: updateQuestionStatus, loading: updatingQuestion } =
 		useApiRequest(
-			`/api/manager/subjects/${subjectId}/topics/${topicId}/questions`,
+			`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questions`,
 			"PATCH",
 			null,
 			false
@@ -521,7 +521,14 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 								className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
 								disabled={downloadingQuestions}
 							>
-								PDF
+								{t("topicDetail.pdf") || "PDF con soluciones"}
+							</button>
+							<button
+								onClick={() => handleDownloadQuestions("pdfWithoutSolutions")}
+								className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+								disabled={downloadingQuestions}
+							>
+								{t("topicDetail.pdfWithoutSolutions") || "PDF sin soluciones"}
 							</button>
 							<button
 								onClick={() =>
@@ -530,7 +537,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 								className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
 								disabled={downloadingQuestions}
 							>
-								Moodle XML
+								{t("topicDetail.moodle") || "Moodle XML"}
 							</button>
 						</div>
 					)}

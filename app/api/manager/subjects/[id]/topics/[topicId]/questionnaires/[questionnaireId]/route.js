@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/[topicId]/questionnaires/[questionnaireId]/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/questionnaires/[questionnaireId]/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "@utils/dbconnect";
 import { withAuth, handleError } from "@utils/authMiddleware";
@@ -11,7 +11,7 @@ async function getQuestionnaireModel() {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/questionnaires/{questionnaireId}:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/questionnaires/{questionnaireId}:
  *   delete:
  *     tags:
  *       - Questionnaires
@@ -119,7 +119,7 @@ async function deleteQuestionnaire(request, context) {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/questionnaires/{questionnaireId}:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/questionnaires/{questionnaireId}:
  *   get:
  *     tags:
  *       - Questionnaires

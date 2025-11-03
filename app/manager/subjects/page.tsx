@@ -19,7 +19,7 @@ export default function SubjectsPage() {
 		data: subjects = [],
 		loading: isLoading,
 		error,
-	} = useApiRequest("/api/manager/subjects", "GET", [], true);
+	} = useApiRequest("/aiquiz/api/manager/subjects", "GET", [], true);
 
 
 	return (

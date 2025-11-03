@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/[topicId]/subtopics/[subtopicId]/files/[fileId]/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/subtopics/[subtopicId]/files/[fileId]/route.js
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import dbConnect from "@utils/dbconnect";
@@ -58,7 +58,7 @@ async function loadRAGManager() {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files/{fileId}:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files/{fileId}:
  *   get:
  *     tags:
  *       - Files
@@ -110,7 +110,7 @@ async function loadRAGManager() {
  *                   properties:
  *                     downloadUrl:
  *                       type: string
- *                       example: /api/manager/subjects/123/topics/456/subtopics/789/files/abc/download?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                       example: /aiquiz/api/manager/subjects/123/topics/456/subtopics/789/files/abc/download?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *                     fileName:
  *                       type: string
  *                       example: documento.pdf
@@ -244,7 +244,7 @@ async function generateDownloadToken(request, context) {
 		);
 
 		// 4. Construir URL de descarga
-		const downloadUrl = `/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${fileId}/download?token=${downloadToken}`;
+		const downloadUrl = `/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${fileId}/download?token=${downloadToken}`;
 
 		console.log(`[Download Token API] Token generado para: ${downloadFileName}`);
 

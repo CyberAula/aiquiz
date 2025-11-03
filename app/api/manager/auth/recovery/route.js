@@ -1,4 +1,4 @@
-// app/api/manager/auth/recovery/route.js
+// app/aiquiz/api/manager/auth/recovery/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../../utils/dbconnect";
 import User from "../../../../manager/models/User";
@@ -6,7 +6,7 @@ import { sendPasswordRecovery } from "../../../../utils/emailService";
 
 /**
  * @swagger
- * /api/manager/auth/recovery:
+ * /aiquiz/api/manager/auth/recovery:
  *   post:
  *     tags:
  *       - Authentication

@@ -1,4 +1,4 @@
-// app/api/manager/auth/accept-invitation/route.js
+// app/aiquiz/api/manager/auth/accept-invitation/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../../utils/dbconnect";
 import User from "../../../../manager/models/User";
@@ -6,7 +6,7 @@ import crypto from "crypto";
 
 /**
  * @swagger
- * /api/manager/auth/accept-invitation:
+ * /aiquiz/api/manager/auth/accept-invitation:
  *   post:
  *     tags:
  *       - Authentication

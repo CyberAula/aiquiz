@@ -1,10 +1,10 @@
-// app/api/manager/health/route.js
+// app/aiquiz/api/manager/health/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../utils/dbconnect";
 
 /**
  * @swagger
- * /api/manager/health:
+ * /aiquiz/api/manager/health:
  *   get:
  *     tags:
  *       - System

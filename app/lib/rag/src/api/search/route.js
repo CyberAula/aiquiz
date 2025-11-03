@@ -4,7 +4,7 @@
  * Endpoint para realizar búsquedas semánticas en el sistema RAG.
  * Permite buscar contenido por similitud semántica con filtros contextuales.
  * 
- * POST /api/manager/documents/search
+ * POST /aiquiz/api/manager/documents/search
  * 
  * Funcionalidades:
  * - Búsqueda semántica por texto libre

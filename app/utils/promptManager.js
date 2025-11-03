@@ -1,7 +1,9 @@
 import dbConnect from '../utils/dbconnect.js';
 import Question from '../models/Question.js';
 import Student from '../models/Student.js';
-import { subjects } from '../constants/subjects.js';
+import Subject from "../manager/models/Subject";
+import Topic from "../manager/models/Topic";
+
 import { createHash } from 'crypto';
 import chalk from 'chalk';
 
@@ -154,7 +156,7 @@ export function getPromptManager() {
     return promptManagerInstance;
 }
 
-export async function fillPrompt(abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject) {
+export async function fillPrompt( studentEmail, subject, subjectId, topic, topicId, subTopic, subtopicId, difficulty, numQuestions, existingStudent, studentSubjectData, subjectIndexInStudent, abcTestingConfig, has_abctesting ) {
 
     //console.log("FILLPROMPT with variables received: ", abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
 
@@ -166,8 +168,8 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, topic, diffic
     // Obtenemos el comentario del tema corrigiendo el valor de subTopic de la URL
     // http://localhost:3000/aiquiz/quiz?topic=Java&difficulty=intermedio&subTopic=declaraci%C3%B3n+de+variables&numQuestions=5&subject=PRG
 
-    let subjectName = subjects[subject]?.name;
-    let topicComment = subjects[subject]?.topics.find(t => t.label.toLowerCase() === topic.toLowerCase())?.subtopics.find(sub => sub.title.toLowerCase() === subTopic.toLowerCase())?.comment || '';
+    let subjectName = (await Subject.findById(subjectId).select("title").lean())?.title;
+    let topicComment = (await Topic.findById(topicId).select("description").lean())?.description || '';
 
     const variables = {
         subjectName,
@@ -242,7 +244,7 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, topic, diffic
         // Guardamos en el alumno el prompt asignado
         // Convertir el prompt a hash y asignarlo a la asignatura del estudiante
         const hashPrompt = createHash('md5').update(finalPrompt).digest('hex');
-        existingStudent.subjects[subjectIndex].md5Prompt = hashPrompt;
+        existingStudent.subjects[subjectIndexInStudent].md5Prompt = hashPrompt;
         
         // Reemplazar las variables en el prompt para enviar al llm con el prompt final
         finalPrompt = fillVariables(finalPrompt, variables);
@@ -294,8 +296,8 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, topic, diffic
 
     // Guardamos el prompt final en la base de datos  
 
-    existingStudent.subjects[subjectIndex].prompt = finalPrompt;
-    existingStudent.subjects[subjectIndex].ABC_Testing = has_abctesting;
+    existingStudent.subjects[subjectIndexInStudent].prompt = finalPrompt;
+    existingStudent.subjects[subjectIndexInStudent].ABC_Testing = has_abctesting;
 
     await existingStudent.save();
 
@@ -357,7 +359,7 @@ function getPreviousQuestionPrompt(previousQuestion, order) {
 function getChoicesWithNumbers(choices) {
     let choicesWithNumbers = '';
     for (let i = 0; i < choices.length; i++) {
-        choicesWithNumbers += `Opción ${i}: ${choices[i]}. `;
+        choicesWithNumbers += `Opción ${i}: ${choices[i].text}. `;
     }
     //we remove the last comma
     return choicesWithNumbers.slice(0, -2);
@@ -409,11 +411,6 @@ const getEquitablePrompt = async (arrayPrompts, subjectName) => {
 
 // Función que reemplaza las variables en un prompt dado un objeto de variables
 function fillVariables(prompt, variables) {
-    console.log(chalk.bgRedBright.black("--------------------------------------------------"));
-    console.log(chalk.bgRedBright.black("DEBUG - Variables recibidas:"));
-    console.log(chalk.bgRedBright.black(JSON.stringify(variables, null, 2)));
-    console.log(chalk.bgRedBright.black("DEBUG - Prompt original:"));
-    console.log(chalk.bgRedBright.black(prompt.substring(0, 200) + "..."));
 
     const result = prompt.replace(/{(\w+)}/g, (match, key) => {
         if (key === "previousQuestions") {
@@ -421,13 +418,13 @@ function fillVariables(prompt, variables) {
             if (variables.num_prev_questions > 3) {
                 for (let i = 0; i < variables.previousQuestions.length; i++) {
                     replacePreviousQuestions += getPreviousQuestionPrompt(variables.previousQuestions[i], i+1);
-                }
+                }            
             } else {
                 console.log("Student has not answered enough questions yet, we cannot inform the IA about the track record");
             }
             return replacePreviousQuestions;
         } else if (variables[key] !== undefined) {
-            console.log(chalk.bgRedBright.black(`Reemplazando {${key}} con: ${variables[key]}`));
+            //resto de variables se sustituyen por su valor
             return variables[key];
         } else {
             console.log(chalk.bgRedBright.black("--------------------------------------------------"));
@@ -437,10 +434,5 @@ function fillVariables(prompt, variables) {
         }
     });
 
-    console.log(chalk.bgRedBright.black("DEBUG - Prompt final:"));
-    console.log(chalk.bgRedBright.black(result.substring(0, 200) + "..."));
-    console.log(chalk.bgRedBright.black("--------------------------------------------------"));
-
     return result;
 }
-

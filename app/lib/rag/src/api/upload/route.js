@@ -4,7 +4,7 @@
  * Endpoint especializado para subir y procesar documentos PDF en el sistema RAG semántico.
  * Optimizado exclusivamente para archivos PDF con almacenamiento en Chroma DB.
  * 
- * POST /api/manager/documents/upload
+ * POST /aiquiz/api/manager/documents/upload
  * 
  * Funcionalidades:
  * - Recepción exclusiva de archivos PDF

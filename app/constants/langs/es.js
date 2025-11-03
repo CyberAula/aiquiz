@@ -17,7 +17,7 @@ export const es = {
         title: "Asignatura: ",
         description: "¡Realiza tantos cuestionarios como desees sobre los temas del curso!",
         topic: "Tema",
-        preSubtopic: "Subtema anterior",
+        preTopicSubtopic: "Tema y Subtema anterior",
         choose: "Elige un tema",
         choose2: "Elige el tema que deseas repasar",
         subtopic: "Subtema",

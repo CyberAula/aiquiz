@@ -5,7 +5,7 @@ export const API_CONFIG = {
 	
 	// URLs de la API
 	BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
-	API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX || '/api',
+	API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX || '/aiquiz/api',
 	
 	// Configuración de autenticación
 	JWT_STORAGE_KEY: 'auth_token',

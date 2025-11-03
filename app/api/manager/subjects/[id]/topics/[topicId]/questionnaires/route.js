@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/[topicId]/questionnaires/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/questionnaires/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "@utils/dbconnect";
 import Question from "@app/models/Question";
@@ -13,7 +13,7 @@ async function getQuestionnaireModel() {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/questionnaires:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/questionnaires:
  *   get:
  *     tags:
  *       - Questionnaires
@@ -142,7 +142,7 @@ async function getTopicQuestionnaires(request, context) {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/questionnaires:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/questionnaires:
  *   post:
  *     tags:
  *       - Questionnaires

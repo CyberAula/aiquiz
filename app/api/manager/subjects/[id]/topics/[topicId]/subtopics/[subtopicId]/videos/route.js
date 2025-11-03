@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/[topicId]/subtopics/[subtopicId]/videos/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/subtopics/[subtopicId]/videos/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "@utils/dbconnect";
 import Subtopic from "@models/Subtopic";
@@ -12,7 +12,7 @@ const videosLogger = logger.create('VideosAPI');
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/videos:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/videos:
  *   post:
  *     tags:
  *       - Videos
@@ -29,7 +29,7 @@ const videosLogger = logger.create('VideosAPI');
  *       - Crear registro en base de datos
  *       - Asociar video al subtema
  *       
- *       Ubicación: /mnt/c/Users/drmor/Documents/04 Otros/02 TFM/temp/app/api/manager/subjects/[id]/topics/[topicId]/subtopics/[subtopicId]/videos/route.js
+ *       Ubicación: /mnt/c/Users/drmor/Documents/04 Otros/02 TFM/temp/app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/subtopics/[subtopicId]/videos/route.js
  *     security:
  *       - bearerAuth: []
  *     parameters:

@@ -45,15 +45,15 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         console.log("is submitted")
         setSelectedChoiceIndex(choiceIndex)
         setIsSelected(true)
- 
+
         setChoiceObjects((prevChoiceObjects) =>
             prevChoiceObjects.map((choice, index) => {
                 return {
                     ...choice,
                     isSelected: choiceIndex === index ? true : false,
-                 
+
                 }
-               
+
             })
         )
 
@@ -115,6 +115,8 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         let ABC_Testing = false;
         let md5Prompt = '';
         let prompt = '';
+        let pull_id = null;
+
 
         const urlStudent = urljoin(basePath, `/api/student`);
         const responseStudent = await fetch(urlStudent, {
@@ -138,9 +140,10 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
             ABC_Testing = subjectData.ABC_Testing;
             md5Prompt = subjectData.md5Prompt;
             prompt = subjectData.prompt;
+            pull_id = subjectData.pull_id;
         }
 
-        
+
         //estructura de datos a guardar
         const data = {};
         data.id = id;
@@ -150,13 +153,14 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.subTopic = subTopic;
         data.query = query;
         data.choices = choices;
-        data.answer = answer;        
+        data.answer = answer;
         data.explanation = explanation;
         data.studentEmail = studentEmail;
         data.llmModel = llmModel;
         data.ABC_Testing = ABC_Testing;
         data.md5Prompt = md5Prompt;
         data.prompt = prompt;
+        data.pull_id = pull_id;
         if (report) {
             data.studentReport = true;
             data.studentAnswer = selectedChoiceIndex; //if reported, we can use the state to keep what the user selected or -1 if nothing selected
@@ -198,7 +202,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
                         style = ' border-2 border-emerald-500 bg-emerald-300/30  '
                         checkOrX = (
                             <div>
-                                <HiCheck size={30} className='text-emerald-500'/>
+                                <HiCheck size={30} className='text-emerald-500' />
                             </div>
                         )
                     } else {
@@ -247,84 +251,83 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
                 </div>
             )
         })
-    }    
+    }
 
 
     const handleReport = async () => {
-      if (isSubmittedReport) 
-      {
-        console.log("Question already reported");
-        return;
-      }
-      setIsSubmittedReport(true);
-      addReport(order);
-      await saveQuestion(-1, true);
+        if (isSubmittedReport) {
+            console.log("Question already reported");
+            return;
+        }
+        setIsSubmittedReport(true);
+        addReport(order);
+        await saveQuestion(-1, true);
     }
 
     const submitButtonReportStyles = () => {
-      let style = isSubmittedReport
-          ? 'pointer-events-none font-bold text-green-800'
-          : 'pointer-events-auto bg-opacity-50 btn-report font-bold';
-      return style;
+        let style = isSubmittedReport
+            ? 'pointer-events-none font-bold text-green-800'
+            : 'pointer-events-auto bg-opacity-50 btn-report font-bold';
+        return style;
     };
 
     const submitButtonStyles = () => {
-      let style = isSelected
-          ? 'pointer-events-auto bg-blue text-white-500 font-bold btn-quizz'
-          : 'pointer-events-auto btn-quizz-inactive';
+        let style = isSelected
+            ? 'pointer-events-auto bg-blue text-white-500 font-bold btn-quizz'
+            : 'pointer-events-auto btn-quizz-inactive';
         style = isSubmitted
-          ? 'pointer-events-none bg-blue-950 text-white'
-          : style
-      return style
-  };
+            ? 'pointer-events-none bg-blue-950 text-white'
+            : style
+        return style
+    };
 
     return (
         <div className=' flex'>
-       <div className='flex flex-col w-full'>
-        <h2 className='text-sm font-semibold w-fit bg-blue-100 rounded px-1.5 py-0.5 inline-block text-blue-600'>
-          {t('question.question')} {order + 1}/{numQuestions} 
-        </h2>
-        <div className='border border-gray-500/0 rounded w-full'>
-          <div className='py-2 text-lg font-medium'>{query}</div>
-          <div className='grid gap-2 mt-1'>{renderChoices()}</div>
-          <div className='flex flex-col items-start mt-2 items'>
-          <div className=' flex flex-col sm:flex-row w-full gap-1 md:gap-3 mt-3'>
-              {/* botón de enviar */}
-              <button onClick={() => { handleAnswerSubmit(); }} className={ `btn-md rounded ${submitButtonStyles()} fuente` }            >
-          
-                { isSubmitted ? <span> {t("question.answered")} <CheckOutlined className="mb-1 text-blue-300" /> </span> : t('question.answer')  }
-            
-              </button>            
-              
-              {/* botón de reporte */}                               
-              <button onClick={() => {handleReport()}}   className={`btn-xs rounded ${submitButtonReportStyles()} fuente`}   >
-                  {!isSubmittedReport ? t('question.report'): <span className="text-xs gap-1">{t('question.reported')} <CheckOutlined className="mb-1" sx = {{fontSize: 16}} />  </span>}
-              </button>
-          </div>                
-           
-              {/* Nuevo botón de explicar */}
-              {((isSubmitted && isCorrect()) ) && (
-              <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
-                <h3 className='text-gray-800 text-sm uppercase  font-bold fuente'>
-                {t('question.explanation')}
-                </h3>
-                <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
-              </div>
-             )}
+            <div className='flex flex-col w-full'>
+                <h2 className='text-sm font-semibold w-fit bg-blue-100 rounded px-1.5 py-0.5 inline-block text-blue-600'>
+                    {t('question.question')} {order + 1}/{numQuestions}
+                </h2>
+                <div className='border border-gray-500/0 rounded w-full'>
+                    <div className='py-2 text-lg font-medium'>{query}</div>
+                    <div className='grid gap-2 mt-1'>{renderChoices()}</div>
+                    <div className='flex flex-col items-start mt-2 items'>
+                        <div className=' flex flex-col sm:flex-row w-full gap-1 md:gap-3 mt-3'>
+                            {/* botón de enviar */}
+                            <button onClick={() => { handleAnswerSubmit(); }} className={`btn-md rounded ${submitButtonStyles()} fuente`}            >
 
-          </div>
-          </div>
-          {(isSubmitted && !(isCorrect())) && (
-            <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
-               <h3 className='text-blue-950 text-sm uppercase  font-bold fuente'>
-               {t('question.explanation')}
-                </h3>
-                <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
-             
+                                {isSubmitted ? <span> {t("question.answered")} <CheckOutlined className="mb-1 text-blue-300" /> </span> : t('question.answer')}
+
+                            </button>
+
+                            {/* botón de reporte */}
+                            <button onClick={() => { handleReport() }} className={`btn-xs rounded ${submitButtonReportStyles()} fuente`}   >
+                                {!isSubmittedReport ? t('question.report') : <span className="text-xs gap-1">{t('question.reported')} <CheckOutlined className="mb-1" sx={{ fontSize: 16 }} />  </span>}
+                            </button>
+                        </div>
+
+                        {/* Nuevo botón de explicar */}
+                        {((isSubmitted && isCorrect())) && (
+                            <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
+                                <h3 className='text-gray-800 text-sm uppercase  font-bold fuente'>
+                                    {t('question.explanation')}
+                                </h3>
+                                <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
+                            </div>
+                        )}
+
+                    </div>
+                </div>
+                {(isSubmitted && !(isCorrect())) && (
+                    <div className='mt-4 p-4 rounded bg-blue-200/50 border border-blue-400'>
+                        <h3 className='text-blue-950 text-sm uppercase  font-bold fuente'>
+                            {t('question.explanation')}
+                        </h3>
+                        <p className='mt-2 text-[15px] font-normal text-text text-pretty'>{explanation}</p>
+
+                    </div>
+                )}
             </div>
-          )}
         </div>
-      </div>
     )
 }
 export default Question

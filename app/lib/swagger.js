@@ -10,12 +10,12 @@ const options = {
 		},
 		servers: [
 			{
-				url: "/api",
+				url: "/aiquiz/api",
 				description: "Development server",
 			},
 		],
 	},
-	apis: ["./app/api/**/route.js"],
+	apis: ["./app/aiquiz/api/**/route.js"],
 };
 
 export const spec = swaggerJsdoc(options);

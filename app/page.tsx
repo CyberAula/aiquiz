@@ -14,6 +14,8 @@ const HomePage = () => {
   const [inputEmail, setInputEmail] = useState("");
   const [showAlert, setShowAlert] = useState("");
 
+  const [isChecked, setIsChecked] = useState(false);
+
   // Debug i18n
   useEffect(() => {
     console.log('i18n ready:', i18n.isInitialized);
@@ -33,7 +35,7 @@ const HomePage = () => {
     for (let i = 0; i < name.length; i++) {
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
     }
-    
+
     const colors = [
       { bg: 'bg-red-100/60', hover: 'hover:bg-red-100', acronym: 'text-red-400', hoverAcronym: 'hover:text-red-500' },
       { bg: 'bg-blue-100/60', hover: 'hover:bg-blue-100', acronym: 'text-blue-400', hoverAcronym: 'hover:text-blue-500' },
@@ -44,7 +46,7 @@ const HomePage = () => {
       { bg: 'bg-indigo-100/60', hover: 'hover:bg-indigo-100', acronym: 'text-indigo-400', hoverAcronym: 'hover:text-indigo-500' },
       { bg: 'bg-orange-100/60', hover: 'hover:bg-orange-100', acronym: 'text-orange-400', hoverAcronym: 'hover:text-orange-500' }
     ];
-    
+
     return colors[Math.abs(hash) % colors.length];
   };
 
@@ -53,7 +55,7 @@ const HomePage = () => {
     if (typeof window !== 'undefined') {
       const storedEmail = localStorage.getItem('student_email');
       const timestamp = localStorage.getItem('student_email_timestamp');
-      
+
       if (storedEmail && timestamp) {
         const now = Date.now();
         const stored = parseInt(timestamp);
@@ -62,20 +64,26 @@ const HomePage = () => {
           setUserEmail(storedEmail);
         } else {
           // Expiró, limpiar
-          localStorage.removeItem('student_email');
-          localStorage.removeItem('student_email_timestamp');
+          // localStorage.removeItem('student_email');
+          // localStorage.removeItem('student_email_timestamp');
         }
       }
     }
   };
 
-  // Guardar email con timestamp
+  // Guardar email con timestamp y comprobar Terminos y Política de Privacidad
   const saveStudentEmail = () => {
     if (!inputEmail || !inputEmail.endsWith("@alumnos.upm.es")) {
       setShowAlert(inputEmail ? "El email debe terminar con @alumnos.upm.es" : "Por favor, introduce tu email");
       return;
     }
-    
+
+    if (isChecked == false) {
+      // Comprobar si el checkbox de los Términos y Política de Privacidad está marcado
+      setShowAlert("Debes aceptar los Términos y la Política de Privacidad");
+      return;
+    }
+
     if (typeof window !== 'undefined') {
       localStorage.setItem('student_email', inputEmail);
       localStorage.setItem('student_email_timestamp', Date.now().toString());
@@ -96,11 +104,12 @@ const HomePage = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await fetch('/api/subjects');
+      const response = await fetch('/aiquiz/api/subjects');
       const data = await response.json();
-      
+
       if (data.success) {
         setSubjects(data.subjects);
+        localStorage.setItem('subjects_cache', JSON.stringify(data.subjects));
       } else {
         setError('Error loading subjects');
       }
@@ -115,7 +124,7 @@ const HomePage = () => {
   if (loading) {
     return (
       <main className='container-layout'>
-        <Header/>
+        <Header />
         <div className="container-content">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-lg">{t("common.loading") || "Loading..."}</div>
@@ -129,7 +138,7 @@ const HomePage = () => {
   if (error) {
     return (
       <main className='container-layout'>
-        <Header/>
+        <Header />
         <div className="container-content">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-lg text-red-600">{error}</div>
@@ -144,7 +153,7 @@ const HomePage = () => {
   if (!userEmail) {
     return (
       <main className='container-layout'>
-        <Header/>
+        <Header />
         <div className="container-content">
           <div className="flex flex-col items-center justify-center mt-20">
             <div className="w-96">
@@ -154,6 +163,25 @@ const HomePage = () => {
               <p className="mb-4">
                 {t("login.description") || "Por favor, introduce tu email de estudiante para continuar"}
               </p>
+            </div>
+            <div className="w-96">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={isChecked}
+                onChange={() => setIsChecked(!isChecked)}
+                className="w-4 h-4"
+              />
+              <label htmlFor="terms" className="text-sm">
+                {" "}{t("login.preTerms")}{" "}
+                <Link href="/terms" className="text-blue-600 underline">
+                  {t("login.terms")}
+                </Link>{" "}
+                {t("login.prePrivacy")}{" "}
+                <Link href="/privacy" className="text-blue-600 underline">
+                  {t("login.privacy")}
+                </Link>
+              </label>
             </div>
             <input
               type="email"
@@ -190,30 +218,30 @@ const HomePage = () => {
   }
 
   return (
-    <main className='container-layout'> 
-     <Header/>
-    <div className=" container-content">
-      {/* Header con botón de logout */}
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="text-left text-2xl mb-2 ">
-            {t("front.title")}          
-          </h2>
-          <p>
-            {t("front.description")}
-          </p>
+    <main className='container-layout'>
+      <Header />
+      <div className=" container-content">
+        {/* Header con botón de logout */}
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h2 className="text-left text-2xl mb-2 ">
+              {t("front.title")}
+            </h2>
+            <p>
+              {t("front.description")}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-600 mb-2">{userEmail}</p>
+            <button
+              onClick={logout}
+              className="btn-ghost btn-sm text-xs"
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-gray-600 mb-2">{userEmail}</p>
-          <button
-            onClick={logout}
-            className="btn-ghost btn-sm text-xs"
-          >
-            Cerrar sesión
-          </button>
-        </div>
-      </div>
-      
+
         <div className="mt-6">
           <div className="text-left text-base md:text-base  font-normal leading-2">
             {/* <h2> Elige la Asignatura:</h2> */}
@@ -225,7 +253,7 @@ const HomePage = () => {
                 <Link
                   key={subject._id}
                   className={`subject-button ${colors.bg} ${colors.hover}`}
-                  href={{ pathname: `/quiz/${subject.acronym}` }}
+                  href={{ pathname: `/${subject.acronym}` }}
                   id={subject.acronym.toLowerCase()}
                 >
                   <p>{subject.name}</p>
@@ -237,10 +265,10 @@ const HomePage = () => {
             })}
           </div>
         </div>
-   
-    
-    </div>
-    <Footer />
+
+
+      </div>
+      <Footer />
     </main>
   );
 };

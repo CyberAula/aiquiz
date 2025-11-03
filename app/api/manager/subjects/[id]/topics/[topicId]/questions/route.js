@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/[topicId]/questions/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/questions/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "@utils/dbconnect";
 import Question from "@app/models/Question";
@@ -7,7 +7,7 @@ import { withAuth, handleError } from "@utils/authMiddleware";
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/questions:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/questions:
  *   get:
  *     tags:
  *       - Questions
@@ -242,7 +242,7 @@ async function getTopicQuestions(request, context) {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/questions:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/questions:
  *   post:
  *     tags:
  *       - Questions
@@ -402,7 +402,7 @@ async function createQuestion(request, context) {
 }
 
 /**
- * PATCH /api/manager/subjects/{id}/topics/{topicId}/questions
+ * PATCH /aiquiz/api/manager/subjects/{id}/topics/{topicId}/questions
  * Actualizar estado de verificación de preguntas
  */
 async function updateQuestionStatus(request, context) {

@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/professors/[profId]/route.js
+// app/aiquiz/api/manager/subjects/[id]/professors/[profId]/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../../../../utils/dbconnect";
 import Subject from "../../../../../../manager/models/Subject";
@@ -6,7 +6,7 @@ import { withAuth, handleError } from "../../../../../../utils/authMiddleware";
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/professors/{profId}:
+ * /aiquiz/api/manager/subjects/{id}/professors/{profId}:
  *   delete:
  *     tags:
  *       - Subjects

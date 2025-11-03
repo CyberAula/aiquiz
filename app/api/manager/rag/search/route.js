@@ -1,4 +1,4 @@
-// app/api/manager/rag/search/route.js
+// app/aiquiz/api/manager/rag/search/route.js
 import { NextResponse } from "next/server";
 import { withAuth, handleError } from "../../../../utils/authMiddleware";
 
@@ -39,7 +39,7 @@ async function loadRAGManager() {
 
 /**
  * @swagger
- * /api/manager/rag/search:
+ * /aiquiz/api/manager/rag/search:
  *   post:
  *     tags:
  *       - RAG

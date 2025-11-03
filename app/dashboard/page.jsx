@@ -19,7 +19,7 @@ const DashboardPage = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await fetch('/api/subjects');
+      const response = await fetch('/aiquiz/api/subjects');
       const data = await response.json();
       
       if (data.success) {

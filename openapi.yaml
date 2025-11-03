@@ -6,7 +6,7 @@ info:
   contact:
     name: AIQuiz Team
 servers:
-  - url: /api
+  - url: /aiquiz/api
     description: Development server
 
 components:
@@ -15,7 +15,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT token obtained from /api/manager/auth/login
+      description: JWT token obtained from /aiquiz/api/manager/auth/login
 
   schemas:
     Error:

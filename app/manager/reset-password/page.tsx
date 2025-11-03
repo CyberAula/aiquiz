@@ -46,7 +46,7 @@ export default function ResetPasswordPage() {
     const validateToken = async (resetToken: string) => {
         try {
             setValidatingToken(true);
-            const response = await fetch('/api/manager/auth/validate-reset-token', {
+            const response = await fetch('/aiquiz/api/manager/auth/validate-reset-token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ export default function ResetPasswordPage() {
             setLoading(true);
             setError(null);
 
-            const response = await fetch('/api/manager/auth/reset-password', {
+            const response = await fetch('/aiquiz/api/manager/auth/reset-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export default function ResetPasswordPage() {
             if (response.ok && data.success) {
                 setSuccess(true);
                 setTimeout(() => {
-                    router.push('/manager/login?message=password-reset-success');
+                    router.push('/aiquiz/manager/login?message=password-reset-success');
                 }, 2000);
             } else {
                 setError(data.message || 'Error restableciendo la contraseña');
@@ -180,13 +180,13 @@ export default function ResetPasswordPage() {
                         </p>
                         <div className="space-y-3">
                             <button
-                                onClick={() => router.push('/manager/recovery-password')}
+                                onClick={() => router.push('/aiquiz/manager/recovery-password')}
                                 className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200"
                             >
                                 Solicitar nuevo enlace
                             </button>
                             <button
-                                onClick={() => router.push('/manager/login')}
+                                onClick={() => router.push('/aiquiz/manager/login')}
                                 className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-200"
                             >
                                 Ir al login

@@ -45,7 +45,7 @@ const NewSubjectPage = () => {
 		makeRequest: createSubject,
 		loading: isLoading,
 		error: apiError,
-	} = useApiRequest("/api/manager/subjects", "POST", null, false);
+	} = useApiRequest("/aiquiz/api/manager/subjects", "POST", null, false);
 
 	// Comprobar autenticación y cargar usuario actual
 	useEffect(() => {
@@ -58,7 +58,7 @@ const NewSubjectPage = () => {
 		// Obtener información del usuario actual
 		const fetchCurrentUser = async () => {
 			try {
-				const response = await fetch("/api/manager/auth/me", {
+				const response = await fetch("/aiquiz/api/manager/auth/me", {
 					method: "GET",
 					headers: {
 						"Authorization": `Bearer ${token}`,

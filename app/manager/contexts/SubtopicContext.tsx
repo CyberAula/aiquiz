@@ -92,7 +92,7 @@ export const SubtopicProvider = ({ children }: SubtopicProviderProps) => {
 
 	// Única llamada a la API que será compartida
 	const { data, loading, error, makeRequest } = useApiRequest(
-		`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}`,
+		`/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}`,
 		"GET",
 		null,
 		true

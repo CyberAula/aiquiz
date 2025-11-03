@@ -35,6 +35,10 @@ const studentSchema = new mongoose.Schema({
                     type: String,
                     required: false,
                 },
+                pull_id: {
+                    type: Number,
+                    required: false,
+                },
             },
         ],
         default: [], // Valor por defecto como array vacío para evitar problemas

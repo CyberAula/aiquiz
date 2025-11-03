@@ -19,7 +19,7 @@ export default function SwaggerPage() {
 	useEffect(() => {
 		async function fetchSpec() {
 			try {
-				const response = await fetch("/api/manager/swagger");
+				const response = await fetch("/aiquiz/api/manager/swagger");
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}

@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/[topicId]/subtopics/[subtopicId]/files/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/subtopics/[subtopicId]/files/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "@utils/dbconnect";
 import Subtopic from "@models/Subtopic";
@@ -80,7 +80,7 @@ async function loadRAGManager() {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files:
  *   post:
  *     tags:
  *       - Files
@@ -405,7 +405,7 @@ async function uploadFile(request, context) {
 					fileType: "document",
 					size: file.size,
 					mimeType: file.type,
-					url: `/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${fileDocument._id}`,
+					url: `/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${fileDocument._id}`,
 					description: description,
 					
 					// Estado RAG
@@ -495,7 +495,7 @@ async function getFiles(request, context) {
 			fileType: file.fileType,
 			size: file.size,
 			mimeType: file.mimeType,
-			url: `/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${file._id}`,
+			url: `/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${file._id}`,
 			description: file.description,
 			ragProcessed: file.ragProcessed,
 			ragDocumentId: file.ragDocumentId,

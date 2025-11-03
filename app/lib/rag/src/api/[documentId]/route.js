@@ -4,8 +4,8 @@
  * Endpoints para gestionar documentos específicos en el sistema RAG.
  * Permite obtener información, eliminar documentos y buscar documentos similares.
  * 
- * GET /api/manager/documents/[documentId] - Obtener información del documento
- * DELETE /api/manager/documents/[documentId] - Eliminar documento
+ * GET /aiquiz/api/manager/documents/[documentId] - Obtener información del documento
+ * DELETE /aiquiz/api/manager/documents/[documentId] - Eliminar documento
  * 
  * Funcionalidades:
  * - Obtener metadatos y chunks de un documento

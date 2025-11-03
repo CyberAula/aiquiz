@@ -131,7 +131,7 @@ const SubtopicsTab: React.FC<SubtopicsTabProps> = ({
 						</div>
 						<div className="mt-3">
 							<a
-								href={`/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopic.id}`}
+								href={`/aiquiz/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopic.id}`}
 								className="text-blue-600 hover:text-blue-800 flex items-center w-fit"
 								aria-label={`Ver detalles de ${subtopic.title}`}
 							>

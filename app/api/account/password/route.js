@@ -1,4 +1,4 @@
-// app/api/account/password/route.js
+// app/aiquiz/api/account/password/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../utils/dbconnect";
 import User from "../../../manager/models/User";
@@ -6,7 +6,7 @@ import { withAuth, handleError } from "../../../utils/authMiddleware";
 
 /**
  * @swagger
- * /api/account/password:
+ * /aiquiz/api/account/password:
  *   put:
  *     tags:
  *       - Account

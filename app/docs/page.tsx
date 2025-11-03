@@ -16,7 +16,7 @@ export default function DocsPage() {
     }
 
     // Fetch the OpenAPI spec
-    fetch('/api/openapi')
+    fetch('/aiquiz/api/openapi')
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to load OpenAPI specification');

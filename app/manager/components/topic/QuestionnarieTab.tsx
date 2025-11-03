@@ -55,7 +55,7 @@ const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
 		error,
 		makeRequest: fetchQuestionnaires,
 	} = useApiRequest(
-		`/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires`,
+		`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires`,
 		"GET",
 		null,
 		true
@@ -158,7 +158,7 @@ const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
 			const response = await deleteQuestionnaire(
 				null,
 				false,
-				`/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires/${questionnaireToDelete}`
+				`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires/${questionnaireToDelete}`
 			);
 
 			if (response.success) {
@@ -219,7 +219,7 @@ const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
 
 				console.log(`[QuestionnarieTab] Iniciando descarga cuestionario ${id} formato ${format}`);
 
-				const endpoint = `/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires/${id}/download?format=${format}`;
+				const endpoint = `/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires/${id}/download?format=${format}`;
 				
 				// Llamar al endpoint con manejo de descarga de archivos
 				await downloadQuestionnaire(
@@ -535,7 +535,22 @@ const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
 							<svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
 							</svg>
-							{t("topicDetail.pdf") || "PDF"}
+							{t("topicDetail.pdf") || "PDF con soluciones"}
+						</button>
+						<button
+							onClick={() =>
+								handleDownloadQuestionnaire(
+									showFormatOptions,
+									"pdfWithoutSolutions"
+								)
+							}
+							className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
+							disabled={selectedQuestionnaire === showFormatOptions && downloadingQuestionnaire}
+						>
+							<svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+							</svg>
+							{t("topicDetail.pdfWithoutSolutions") || "PDF sin soluciones"}
 						</button>
 						<button
 							onClick={() =>

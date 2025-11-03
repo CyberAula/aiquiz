@@ -4,7 +4,7 @@
  * Endpoint para listar documentos del sistema RAG con filtros y paginación.
  * Permite explorar documentos por contexto educativo y obtener estadísticas.
  * 
- * GET /api/manager/documents/list
+ * GET /aiquiz/api/manager/documents/list
  * 
  * Funcionalidades:
  * - Listado paginado de documentos

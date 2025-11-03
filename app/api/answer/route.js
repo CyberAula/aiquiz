@@ -95,8 +95,8 @@ await dbConnect();
  *         description: Server error
  */
 
-//POST /API/ANSWER
-//api path to create a new answer or report "/api/answer" passing neccesary data (see POST in page.js)
+//POST /aiquiz/api/ANSWER
+//aiquiz/api path to create a new answer or report "/api/answer" passing neccesary data (see POST in page.js)
 export async function POST(request) {
 	try {
 		const {
@@ -118,6 +118,7 @@ export async function POST(request) {
 			ABC_Testing,
 			md5Prompt,
 			prompt,
+			pull_id,
 		} = await request.json();
 		//console.log("received params: ",id, subject, language, difficulty, topic, subTopic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, llmModel, ABC_Testing, prompt);
 
@@ -159,6 +160,7 @@ export async function POST(request) {
 				ABC_Testing,
 				md5Prompt,
 				prompt,
+				pull_id,
 			});
 			const savedQuestion = await newQuestion.save();
 			console.log("Question created: ", savedQuestion);

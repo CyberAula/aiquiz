@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/[topicId]/subtopics/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/subtopics/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../../../../../utils/dbconnect";
 import Subtopic from "../../../../../../../manager/models/Subtopic";
@@ -7,7 +7,7 @@ import { withAuth, handleError } from "../../../../../../../utils/authMiddleware
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/subtopics:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/subtopics:
  *   get:
  *     tags:
  *       - Subtopics
@@ -103,7 +103,7 @@ async function getSubtopics(request, context) {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/subtopics:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/subtopics:
  *   post:
  *     tags:
  *       - Subtopics

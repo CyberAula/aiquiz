@@ -20,7 +20,7 @@ const RecoveryPasswordPage = () => {
 		makeRequest: sendRecoveryEmail,
 		loading,
 		error: apiError,
-	} = useApiRequest("/api/auth/recovery", "POST", null, false);
+	} = useApiRequest("/aiquiz/api/auth/recovery", "POST", null, false);
 
 	// Actualizar el error si hay error en la API
 	useEffect(() => {

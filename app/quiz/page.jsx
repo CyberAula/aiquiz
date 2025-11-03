@@ -19,12 +19,17 @@ function QuizPageFun() {
     const params = useSearchParams()
     const router = useRouter()
 
-    const topic = params.get('topic')
-    const difficulty = params.get('difficulty')
-    const subTopic = params.get('subTopic')
-    const numQuestions = Number(params.get('numQuestions'))
     const subject = params.get('subject')
+    const subjectId = params.get('subjectId')
+    const topic = params.get('topic')
+    const topicId = params.get('topicId')
+    const subTopic = params.get('subTopic')
     const subtopicId = params.get('subtopicId')
+
+    const difficulty = params.get('difficulty')
+    const numQuestions = Number(params.get('numQuestions'))
+
+
 
     const [quiz, setQuiz] = useState([])
     const [isLoading, setIsLoading] = useState(true);
@@ -41,8 +46,8 @@ function QuizPageFun() {
 
     const [showInstructionsModal, setShowInstructionsModal] = useState(true);
 
-    let subjectId = subject.toLowerCase();
-    let textSubjectId = `text-${subjectId}-400`
+    let subjectLowerCase = subject.toLowerCase();
+    let textSubjectId = `text-${subjectLowerCase}-400`
 
     //barra del progreso
     const scaleX = useSpring(progress, {
@@ -75,20 +80,22 @@ function QuizPageFun() {
 
         try {
             console.log("[Quiz] Enviando petición para generar", numQuestions, "preguntas");
-            
+
             const response = await fetch('api/questions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    topic,
-                    difficulty,
-                    subTopic,
-                    numQuestions,
                     studentEmail,
                     subject,
-                    subtopicId
+                    subjectId,
+                    topic,
+                    topicId,
+                    subTopic,
+                    subtopicId,
+                    difficulty,
+                    numQuestions
                 }),
             })
 
@@ -137,7 +144,7 @@ function QuizPageFun() {
             // Ajusta el texto de la respuesta para que sea un JSON válido
             let jsonResponse = JSON.parse(responseText.replace(/^\[|\]$/g, '').trim());
             const allQuestions = jsonResponse.questions;
-            
+
             console.log("[Quiz] Respuesta del servidor procesada:");
             console.log("  Total de preguntas recibidas:", allQuestions?.length || 0);
             console.log("  Preguntas solicitadas:", numQuestions);
@@ -149,14 +156,14 @@ function QuizPageFun() {
             }
 
             // Usar todas las preguntas recibidas, no limitar por numQuestions
-            setQuiz(allQuestions);                
+            setQuiz(allQuestions);
         } catch (err) {
             console.log('[Quiz Page] Error generating questions:', err.message);
             console.log('[Quiz Page] Full error:', err);
-            
+
             // Establecer el error en el estado
             setError(err.message);
-            
+
             //save error log to file
             const errorLog = {
                 date: new Date().toISOString(),
@@ -245,7 +252,7 @@ function QuizPageFun() {
                 {error ?
                     <div className='container-layout'>
                         <div className='bg-white rounded-md pb-4'>
-                            <Header/>
+                            <Header />
                             <div className='margin-items-container'>
                                 <div className="text-center py-12">
                                     <h2 className="text-2xl font-bold text-red-600 mb-4">Error generando el quiz</h2>
@@ -260,73 +267,73 @@ function QuizPageFun() {
                             </div>
                         </div>
                     </div>
-                : isLoading ?
-                    <div className="bg-blue-200"><LoadingScreen responseStream={responseStream} /></div> :
-                    <div className='container-layout'>
-                        <div className='bg-white rounded-md pb-4'>
-                            <Header />
-                            <div className='margin-items-container flex justify-between gap-3 pb-5'>
-                                <button className='btn-sm-icon btn-ghost flex'
-                                    onClick={handleGoBack}>
-                                    <HiArrowLeft sx={{ fontSize: 18 }} className='mt-1' />
-                                    {t('quizpage.back')}
-                                </button>
-                                <button className='btn-sm btn-outline text-white'
-                                    onClick={() => setShowInstructionsModal(true)}>
-                                    🛈 {t('quizpage.instructions')}
-                                </button>
-                            </div>
-                            <div className='pb-6 max-w-3xl mx-4 sm:mx-auto flex flex-col justify-center sm:w-3/4 md:w-3/5 xl:w-1/2'>
-                                <h1
-                                    className='text-3xl font-bold  text-left pt-3 pb-1.5 text-text text-pretty'
-                                    style={{
-                                        backgroundClip: 'text',
-                                        WebkitBackgroundClip: 'text',
-                                    }}
-                                // initial={{ opacity: 0, y: -100 }}
-                                // animate={{ opacity: 1, y: 0 }}
-                                // transition={{ duration: 0.8 }}
-                                >
-                                    {t('quizpage.testof')} {topic} {t('quizpage.about')} {subTopic}
-                                </h1>
+                    : isLoading ?
+                        <div className="bg-blue-200"><LoadingScreen responseStream={responseStream} /></div> :
+                        <div className='container-layout'>
+                            <div className='bg-white rounded-md pb-4'>
+                                <Header />
+                                <div className='margin-items-container flex justify-between gap-3 pb-5'>
+                                    <button className='btn-sm-icon btn-ghost flex'
+                                        onClick={handleGoBack}>
+                                        <HiArrowLeft sx={{ fontSize: 18 }} className='mt-1' />
+                                        {t('quizpage.back')}
+                                    </button>
+                                    <button className='btn-sm btn-outline text-white'
+                                        onClick={() => setShowInstructionsModal(true)}>
+                                        🛈 {t('quizpage.instructions')}
+                                    </button>
+                                </div>
+                                <div className='pb-6 max-w-3xl mx-4 sm:mx-auto flex flex-col justify-center sm:w-3/4 md:w-3/5 xl:w-1/2'>
+                                    <h1
+                                        className='text-3xl font-bold  text-left pt-3 pb-1.5 text-text text-pretty'
+                                        style={{
+                                            backgroundClip: 'text',
+                                            WebkitBackgroundClip: 'text',
+                                        }}
+                                    // initial={{ opacity: 0, y: -100 }}
+                                    // animate={{ opacity: 1, y: 0 }}
+                                    // transition={{ duration: 0.8 }}
+                                    >
+                                        {t('quizpage.testof')} {topic} {t('quizpage.about')} {subTopic}
+                                    </h1>
 
-                                <p className='mb-6'>{t('quizpage.subjectof')} <span className={`${textSubjectId} font-bold`}> {subject} </span></p>
-                                {/* recorre la pregunta*/}
+                                    <p className='mb-6'>{t('quizpage.subjectof')} <span className={`${textSubjectId} font-bold`}> {subject} </span></p>
+                                    {/* recorre la pregunta*/}
 
-                                {quiz?.map((question, index) => (
-                                    <div className='mb-6 md:mb-12' key={index}>
-                                        <Question
-                                            numQuestions={numQuestions}
-                                            question={question}
-                                            order={index}
-                                            key={index}
-                                            addSubmission={addSubmission}
-                                            addReport={addReport}
-                                            setNumCorrect={setNumCorrect}
-                                            topic={topic}
-                                            subject={subject}
-                                            subTopic={subTopic}
-                                            difficulty={difficulty}
-                                        />
-                                    </div>
-                                ))}
+                                    {quiz?.map((question, index) => (
+                                        <div className='mb-6 md:mb-12' key={index}>
+                                            <Question
+                                                numQuestions={numQuestions}
+                                                question={question}
+                                                order={index}
+                                                key={index}
+                                                addSubmission={addSubmission}
+                                                addReport={addReport}
+                                                setNumCorrect={setNumCorrect}
+                                                topic={topic}
+                                                subject={subject}
+                                                subTopic={subTopic}
+                                                difficulty={difficulty}
+                                            />
+                                        </div>
+                                    ))}
 
-                                {quizCompleted && (
-                                    <div className='text-center mt-0 mb-6'>
-                                        <button className='btn-md rounded pointer-events-auto bg-blue text-white-500 font-bold btn-quizz fuente' onClick={handleFinish}>
-                                            {t('quizpage.finish')}
-                                        </button>
-                                    </div>
+                                    {quizCompleted && (
+                                        <div className='text-center mt-0 mb-6'>
+                                            <button className='btn-md rounded pointer-events-auto bg-blue text-white-500 font-bold btn-quizz fuente' onClick={handleFinish}>
+                                                {t('quizpage.finish')}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                </div>
+                                {/* Renderiza la caja de instrucciones solo cuando isLoading es false */}
+                                {!isLoading && showInstructionsModal && (
+                                    <Instructions onClose={() => setShowInstructionsModal(false)} />
                                 )}
-
                             </div>
-                            {/* Renderiza la caja de instrucciones solo cuando isLoading es false */}
-                            {!isLoading && showInstructionsModal && (
-                                <Instructions onClose={() => setShowInstructionsModal(false)} />
-                            )}
+                            <Footer />
                         </div>
-                        <Footer />
-                    </div>
                 }
             </div>
         </div>

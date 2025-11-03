@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/[topicId]/questions/download/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/[topicId]/questions/download/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "@utils/dbconnect";
 import Question from "@app/models/Question";
@@ -6,7 +6,7 @@ import { withAuth, handleError } from "@utils/authMiddleware";
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics/{topicId}/questions/download:
+ * /aiquiz/api/manager/subjects/{id}/topics/{topicId}/questions/download:
  *   post:
  *     tags:
  *       - Questions
@@ -92,10 +92,10 @@ async function downloadQuestions(request, context) {
             }, { status: 400 });
         }
 
-        if (!format || !['pdf', 'moodle'].includes(format)) {
+        if (!format || !['pdf', 'pdfWithoutSolutions', 'moodle'].includes(format)) {
             return NextResponse.json({
                 success: false,
-                message: "Formato no válido. Use 'pdf' o 'moodle'"
+                message: "Formato no válido. Use 'pdf', 'pdfWithoutSolutions' o 'moodle'"
             }, { status: 400 });
         }
 
@@ -114,7 +114,9 @@ async function downloadQuestions(request, context) {
         console.log(`[Download Questions API] Encontradas ${questions.length} preguntas para descargar`);
 
         if (format === 'pdf') {
-            return generateQuestionsPDF(questions, topicId);
+            return generateQuestionsPDF(questions, topicId, true);
+        } else if (format === 'pdfWithoutSolutions') {
+            return generateQuestionsPDF(questions, topicId, false);
         } else if (format === 'moodle') {
             return generateQuestionsMoodleXML(questions, topicId);
         }
@@ -128,7 +130,7 @@ async function downloadQuestions(request, context) {
 /**
  * Genera un archivo PDF real de las preguntas
  */
-function generateQuestionsPDF(questions, topicId) {
+function generateQuestionsPDF(questions, topicId, highlightCorrectAnswersAndExplanations) {
     console.log('[Download Questions API] Generando PDF de preguntas');
     
     try {
@@ -199,7 +201,7 @@ function generateQuestionsPDF(questions, topicId) {
                     checkPageBreak(10);
                     
                     let optionText = `   ${letter}) ${choiceText}`;
-                    if (isCorrect) {
+                    if (isCorrect && highlightCorrectAnswersAndExplanations) {
                         optionText += " ✓";
                         doc.setFont(undefined, 'bold');
                     }
@@ -213,7 +215,7 @@ function generateQuestionsPDF(questions, topicId) {
             }
             
             // Explicación
-            if (question.explanation) {
+            if (question.explanation && highlightCorrectAnswersAndExplanations) {
                 checkPageBreak(15);
                 yPosition += 3;
                 doc.setFont(undefined, 'italic');
@@ -226,10 +228,10 @@ function generateQuestionsPDF(questions, topicId) {
             
             // Metadata adicional
             const metadata = [];
-            if (question.difficulty) {
+            if (question.difficulty && highlightCorrectAnswersAndExplanations) {
                 metadata.push(`Dificultad: ${question.difficulty}`);
             }
-            if (question.generated) {
+            if (question.generated && highlightCorrectAnswersAndExplanations) {
                 metadata.push('Generada automáticamente: Sí');
             }
             

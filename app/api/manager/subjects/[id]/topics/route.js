@@ -1,4 +1,4 @@
-// app/api/manager/subjects/[id]/topics/route.js
+// app/aiquiz/api/manager/subjects/[id]/topics/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../../../utils/dbconnect";
 import Topic from "../../../../../manager/models/Topic";
@@ -7,7 +7,7 @@ import { withAuth, handleError } from "../../../../../utils/authMiddleware";
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics:
+ * /aiquiz/api/manager/subjects/{id}/topics:
  *   get:
  *     tags:
  *       - Topics
@@ -140,7 +140,7 @@ async function getTopics(request, context) {
 
 /**
  * @swagger
- * /api/manager/subjects/{id}/topics:
+ * /aiquiz/api/manager/subjects/{id}/topics:
  *   post:
  *     tags:
  *       - Topics

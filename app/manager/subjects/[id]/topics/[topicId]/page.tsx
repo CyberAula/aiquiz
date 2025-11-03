@@ -44,7 +44,7 @@ const TopicDetailContent = () => {
 
 	// API para modificaciones de tema 
 	const { makeRequest: updateTopic, loading: updatingTopic } = useApiRequest(
-		`/api/manager/subjects/${id}/topics/${topicId}`,
+		`/aiquiz/api/manager/subjects/${id}/topics/${topicId}`,
 		"PUT",
 		null,
 		false
@@ -52,7 +52,7 @@ const TopicDetailContent = () => {
 
 	// API para subtemas
 	const { makeRequest: addSubtopic, loading: addingSubtopic } = useApiRequest(
-		`/api/manager/subjects/${id}/topics/${topicId}/subtopics`,
+		`/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics`,
 		"POST",
 		null,
 		false
@@ -117,7 +117,7 @@ const TopicDetailContent = () => {
 			const response = await editSubtopic(
 				{ title, description },
 				false,
-				`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}`
+				`/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}`
 			);
 
 			if (response.success) {
@@ -143,7 +143,7 @@ const TopicDetailContent = () => {
 			const response = await deleteSubtopic(
 				null,
 				false,
-				`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicToDelete}`
+				`/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicToDelete}`
 			);
 
 			if (response.success) {
