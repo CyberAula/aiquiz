@@ -9,6 +9,7 @@
 		"loginButton": "Login",
 		"registerButton": "Register",
 		"recoverPassword": "Recover password",
+		"backToHome": "Back",
 		"processing": "Processing...",
 		"loginSuccess": "Login successful",
 		"loginError": "Login error"

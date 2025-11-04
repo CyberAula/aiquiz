@@ -83,11 +83,28 @@ const LoginPage = () => {
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-white">
 			<div className="w-full max-w-md p-8 bg-gray-100 rounded-md shadow-md">
-				{isClient && (
-					<div className="mb-4">
-						<LanguageSwitcher />
-					</div>
-				)}
+				<div className="mb-4 flex items-center justify-between">
+					<Link
+						href="/"
+						className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 20 20"
+							fill="currentColor"
+							className="h-4 w-4"
+							aria-hidden="true"
+						>
+							<path
+								fillRule="evenodd"
+								d="M11.78 4.22a.75.75 0 0 1 0 1.06L7.06 10l4.72 4.72a.75.75 0 1 1-1.06 1.06l-5.25-5.25a.75.75 0 0 1 0-1.06l5.25-5.25a.75.75 0 0 1 1.06 0Z"
+								clipRule="evenodd"
+							/>
+						</svg>
+						{isClient ? t("login.backToHome") : "Volver"}
+					</Link>
+					{isClient && <LanguageSwitcher />}
+				</div>
 
 				<div className="text-center mb-6">
 					<h1 className="text-3xl font-bold text-gray-900">

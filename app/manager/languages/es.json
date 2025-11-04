@@ -9,6 +9,7 @@
 		"loginButton": "Iniciar sesión",
 		"registerButton": "Registrarse",
 		"recoverPassword": "Recuperar contraseña",
+		"backToHome": "Volver",
 		"processing": "Procesando...",
 		"loginSuccess": "Inicio de sesión exitoso",
 		"loginError": "Error al iniciar sesión"
