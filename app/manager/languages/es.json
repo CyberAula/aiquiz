@@ -67,7 +67,8 @@
 		"noProfessorsAdded": "Aquí se mostrarán los profesores que añadas.",
 		"createSubject": "Crear asignatura",
 		"newSubjectError": "Nombre y siglas son obligatorios",
-		"createError": "Error al crear la asignatura"
+		"createError": "Error al crear la asignatura",
+		"noAssignedSubjects": "No tienes asignaturas asignadas todavía."
 	},
 	"subjectDetail": {
 		"backToSubjects": "Volver a asignaturas",

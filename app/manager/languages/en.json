@@ -67,7 +67,8 @@
 		"noProfessorsAdded": "Professors you add will be shown here.",
 		"createSubject": "Create subject",
 		"newSubjectError": "Name and acronym are required",
-		"createError": "Error creating subject"
+		"createError": "Error creating subject",
+		"noAssignedSubjects": "You don't have any assigned subjects yet."
 	},
 	"subjectDetail": {
 		"backToSubjects": "Back to subjects",

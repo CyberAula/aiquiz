@@ -102,22 +102,49 @@ async function getSubjects(request, context) {
 		const transformedSubjects = subjects.map((subject) => {
 			const subjectObj = subject.toObject();
 			return {
-				id: subject._id?.toString() || 'no-id',
-				title: subject.title || subjectObj.name || 'Sin título',
+				id: subject._id?.toString() || "no-id",
+				title: subject.title || subjectObj.name || "Sin título",
 				description: subject.description || "Sin descripción",
-				administrator: subject.administrators && subject.administrators.length > 0 
-					? (subject.administrators[0].name || subject.administrators[0].email || 'Sin nombre')
-					: "Sin asignar",
-				topics: subject.topics && Array.isArray(subject.topics) && subject.topics.length > 0 
-					? subject.topics.filter(topic => topic && (topic.title || (topic.toObject && topic.toObject().name))).map(topic => topic.title || (topic.toObject && topic.toObject().name))
-					: []
+				administrator:
+					subject.administrators && subject.administrators.length > 0
+						? (
+							subject.administrators[0].name ||
+							subject.administrators[0].email ||
+							"Sin nombre"
+						)
+						: "Sin asignar",
+				topics:
+					subject.topics &&
+						Array.isArray(subject.topics) &&
+						subject.topics.length > 0
+						? subject.topics
+							.filter(
+								(topic) =>
+									topic &&
+									(topic.title ||
+										(topic.toObject && topic.toObject().name))
+							)
+							.map(
+								(topic) =>
+									topic.title ||
+									(topic.toObject && topic.toObject().name)
+							)
+						: [],
+				professors:
+					subject.professors && Array.isArray(subject.professors)
+						? subject.professors.map((professor) => ({
+							id: professor?._id?.toString() || professor?.id || "",
+							name: professor?.name || "",
+							email: professor?.email || "",
+						}))
+						: [],
 			};
 		});
 		return NextResponse.json(transformedSubjects, { status: 200 });
 
 	} catch (error) {
 		console.error("Error in getSubjects:", error);
-		
+
 		// Check if it's a database connection error
 		if (error.message.includes("Database connection failed")) {
 			return NextResponse.json(
@@ -129,7 +156,7 @@ async function getSubjects(request, context) {
 				{ status: 503 }
 			);
 		}
-		
+
 		return handleError(error, "Error obteniendo asignaturas");
 	}
 }
@@ -285,7 +312,7 @@ async function createSubject(request, context) {
 					// Buscar o crear usuario
 					let user = await User.findOne({ email: prof.email.toLowerCase() });
 					let isNewUser = false;
-					
+
 					if (!user) {
 						// Generar token de invitación
 						const invitationToken = crypto.randomBytes(32).toString('hex');
@@ -304,7 +331,7 @@ async function createSubject(request, context) {
 						});
 						await user.save();
 						isNewUser = true;
-						
+
 						// Mantener el token sin hashear para el email
 						user.invitationToken = invitationToken;
 					} else {
@@ -324,11 +351,11 @@ async function createSubject(request, context) {
 							const invitationToken = crypto.randomBytes(32).toString('hex');
 							const hashedToken = crypto.createHash('sha256').update(invitationToken).digest('hex');
 							const invitationExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-							
+
 							user.invitationToken = hashedToken; // Guardar token hasheado
 							user.invitationExpires = invitationExpires;
 							await user.save();
-							
+
 							// Mantener el token sin hashear para el email
 							user.invitationToken = invitationToken;
 						}

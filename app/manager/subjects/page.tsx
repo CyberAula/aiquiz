@@ -1,6 +1,7 @@
 // /app/manager/subjects/page.tsx
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { useManagerTranslation } from "../hooks/useManagerTranslation";
 import Link from "next/link";
 import SubjectCard, {
@@ -9,18 +10,145 @@ import SubjectCard, {
 import useApiRequest from "../hooks/useApiRequest";
 import { LoadingSpinner, FadeIn } from "../components/common/AnimatedComponents";
 
-interface Subject extends SubjectCardProps {}
+interface Professor {
+	id?: string;
+	_id?: string;
+	name?: string;
+	email?: string;
+}
+
+interface Subject extends SubjectCardProps {
+	professors?: Professor[];
+}
+
+interface CurrentUser {
+	id: string;
+	role?: string;
+	email?: string;
+}
 
 export default function SubjectsPage() {
 	const { t } = useManagerTranslation();
 
-	// Usar el hook personalizado para gestionar la petición
-	const {
-		data: subjects = [],
-		loading: isLoading,
-		error,
-	} = useApiRequest("/aiquiz/api/manager/subjects", "GET", [], true);
+	const { data, loading: isLoading, error } = useApiRequest(
+		"/aiquiz/api/manager/subjects",
+		"GET",
+		[],
+		true
+	);
 
+	const subjects = useMemo<Subject[]>(() => {
+		if (!Array.isArray(data)) {
+			return [];
+		}
+
+		return data as Subject[];
+	}, [data]);
+
+	const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+	const [isUserLoading, setIsUserLoading] = useState(true);
+	const [filteredSubjects, setFilteredSubjects] = useState<Subject[]>([]);
+
+	useEffect(() => {
+		if (typeof window === "undefined") {
+			setIsUserLoading(false);
+			return;
+		}
+
+		let resolvedUser: CurrentUser | null = null;
+
+		try {
+			const storedUser = window.localStorage.getItem("user_data");
+
+			if (storedUser) {
+				const parsedUser = JSON.parse(storedUser);
+				resolvedUser = {
+					id:
+						parsedUser?.id ||
+						parsedUser?._id ||
+						parsedUser?.userId ||
+						"",
+					role: parsedUser?.role || "professor",
+					email: parsedUser?.email || "",
+				};
+			} else {
+				const token = window.localStorage.getItem("jwt_token");
+
+				if (token) {
+					const [, payloadSegment] = token.split(".");
+
+					if (payloadSegment) {
+						const payload = JSON.parse(
+							window.atob(payloadSegment)
+						);
+
+						resolvedUser = {
+							id:
+								payload?.userId ||
+								payload?.id ||
+								payload?.sub ||
+								"",
+							role: payload?.role || "professor",
+							email:
+								payload?.email ||
+								payload?.userEmail ||
+								"",
+						};
+					}
+				}
+			}
+		} catch (userError) {
+			console.error("Error obteniendo el usuario actual:", userError);
+			resolvedUser = null;
+		} finally {
+			setCurrentUser(resolvedUser && resolvedUser.id ? resolvedUser : null);
+			setIsUserLoading(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (isUserLoading) {
+			return;
+		}
+
+		if (!currentUser) {
+			setFilteredSubjects([]);
+			return;
+		}
+
+		const userRole = currentUser.role?.toLowerCase();
+
+		if (userRole && userRole !== "professor") {
+			setFilteredSubjects(subjects);
+			return;
+		}
+
+		const filtered = subjects.filter((subject) => {
+			const subjectProfessors = subject.professors || [];
+			const currentUserEmail = currentUser.email
+				? currentUser.email.toLowerCase()
+				: "";
+
+			return subjectProfessors.some((professor) => {
+				const professorId = professor.id || professor._id;
+				const matchesId =
+					Boolean(professorId) &&
+					professorId === currentUser.id;
+
+				const professorEmail = professor.email
+					? professor.email.toLowerCase()
+					: "";
+				const matchesEmail =
+					Boolean(professorEmail) &&
+					Boolean(currentUserEmail) &&
+					professorEmail === currentUserEmail;
+
+				return matchesId || matchesEmail;
+			});
+		});
+
+		setFilteredSubjects(filtered);
+	}, [subjects, currentUser, isUserLoading]);
 
 	return (
 		<div>
@@ -51,7 +179,7 @@ export default function SubjectsPage() {
 				</Link>
 			</div>
 
-			{isLoading ? (
+			{isLoading || isUserLoading ? (
 				<div className="flex justify-center items-center h-64">
 					<LoadingSpinner size="xl" />
 				</div>
@@ -59,10 +187,17 @@ export default function SubjectsPage() {
 				<div className="text-center py-8 text-red-500">
 					<p>{t("errors.loadSubjects")}</p>
 				</div>
+			) : filteredSubjects.length === 0 ? (
+				<div className="text-center py-8 text-gray-500">
+					<p>
+						{t("subjects.noAssignedSubjects") ||
+							"No tienes asignaturas asignadas."}
+					</p>
+				</div>
 			) : (
 				<FadeIn>
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-						{subjects.map((subject, index) => (
+						{filteredSubjects.map((subject, index) => (
 							<FadeIn key={subject.id} delay={index * 100}>
 								<SubjectCard
 									id={subject.id}
