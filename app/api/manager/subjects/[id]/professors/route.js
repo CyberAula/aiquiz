@@ -195,12 +195,13 @@ async function addProfessor(request, context) {
 			const invitationToken = crypto.randomBytes(32).toString('hex');
 			const hashedToken = crypto.createHash('sha256').update(invitationToken).digest('hex');
 			const invitationExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 días
+			let defaultPassword = "nuevoprofesor0000";
 
 			// Si no existe el usuario, crear uno nuevo
 			user = new User({
 				name: name || email.split('@')[0],
 				email: email.toLowerCase(),
-				password: crypto.randomBytes(20).toString('hex'), // Contraseña aleatoria temporal
+				password: defaultPassword,
 				role: "professor",
 				invitationToken: hashedToken, // Guardar token hasheado
 				invitationExpires,
