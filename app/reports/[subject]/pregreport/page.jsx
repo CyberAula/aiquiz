@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import urljoin from "url-join";
 
-import {es} from "../../../constants/langs/es.js"
+import { es } from "../../../constants/langs/es.js"
 
 import Footer from "../../../components/ui/Footer.js";
 import Header from "../../../components/ui/Header.js";
@@ -41,7 +41,7 @@ const SubjectPage = ({ params: { subject } }) => {
   // Local states for temporary dates
   const [tempStartDate, setTempStartDate] = useState(defaultStartDate);
   const [tempEndDate, setTempEndDate] = useState((new Date()).toISOString().split('T')[0]);
-  
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,11 +54,11 @@ const SubjectPage = ({ params: { subject } }) => {
   const [selectedOption, setSelectedOption] = useState("todo_correcto");
   const [selectedComments, setSelectedComments] = useState([]);
   const [checkedState, setCheckedState] = useState(new Array(getSpanishComments().length).fill(false));
-  const [teacherComment, setTeacherComment] = useState(''); 
+  const [teacherComment, setTeacherComment] = useState('');
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [reloadTrigger, setReloadTrigger] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   // Update selected comments when teacher comment changes
   useEffect(() => {
     const spanishComments = getSpanishComments();
@@ -135,52 +135,80 @@ const SubjectPage = ({ params: { subject } }) => {
   };
 
   const openEvaluationModal = (question) => {
-    setSelectedQuestion(question); 
-    toggleEvaluation(); 
+    setSelectedQuestion(question);
+    toggleEvaluation();
   };
 
   const submitEvaluation = async () => {
-    const data = {};
+    try {
+      const data = {};
       data.id = selectedQuestion.id;
       data.teacherReport = selectedOption;
       data.teacherComments = selectedComments;
-    const url = urljoin(basePath, '/api/evaluationReportedQuestions');
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        });
-        if (!response.ok) {
-            console.error("Failed to save question", await response.text());
-        }
+      const url = urljoin(basePath, '/api/evaluationReportedQuestions');
+      const token = localStorage.getItem("jwt_token") || localStorage.getItem("auth_token");
 
-    setCheckedState(new Array(getSpanishComments().length).fill(false));
-    setSelectedComments([]);
-    setTeacherComment(' ');
-    setSelectedQuestion(null);
-    setSelectedOption("todo_correcto")
-    toggleEvaluation()
-    setReloadTrigger(prev => !prev);
+      if (!token) {
+        throw new Error("Token de autenticación no disponible");
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to save question");
+      }
+
+      setCheckedState(new Array(getSpanishComments().length).fill(false));
+      setSelectedComments([]);
+      setTeacherComment(' ');
+      setSelectedQuestion(null);
+      setSelectedOption("todo_correcto")
+      toggleEvaluation()
+      setReloadTrigger(prev => !prev);
+    } catch (err) {
+      console.error("Failed to save question", err);
+      setError(err.message || "Error al guardar la evaluación");
+    }
   }
 
-  
+
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
+        setError(null);
         setLoading(true);
-        
+
+        const token = localStorage.getItem("jwt_token") || localStorage.getItem("auth_token");
+        if (!token) {
+          throw new Error("Token de autenticación no disponible");
+        }
+        const authHeaders = {
+          Authorization: `Bearer ${token}`,
+        };
+
         // Fetch total reported questions
-        const responseTotal = await fetch(urljoin(basePath, `/api/reports?studentReport=true&asignatura=${subject}&count=true&fechaInicio=${startDate}&fechaFin=${endDate}`));
+        const responseTotal = await fetch(
+          urljoin(basePath, `/api/reports?studentReport=true&asignatura=${subject}&count=true&fechaInicio=${startDate}&fechaFin=${endDate}`),
+          { headers: authHeaders }
+        );
         if (!responseTotal.ok)
           throw new Error("Error loading total reported questions");
         const resultTotal = await responseTotal.json();
         setTotalAllReported(resultTotal.count);
 
         // Fetch reported questions without evaluation
-        const responseUnEvaluated = await fetch(urljoin(basePath, `/api/reports?studentReport=true&asignatura=${subject}&count=true&NOevaluadas=true&fechaInicio=${startDate}&fechaFin=${endDate}`));
+        const responseUnEvaluated = await fetch(
+          urljoin(basePath, `/api/reports?studentReport=true&asignatura=${subject}&count=true&NOevaluadas=true&fechaInicio=${startDate}&fechaFin=${endDate}`),
+          { headers: authHeaders }
+        );
         if (!responseUnEvaluated.ok)
           throw new Error("Error loading un-evaluated reported questions");
         const resultUnEvaluated = await responseUnEvaluated.json();
@@ -191,7 +219,7 @@ const SubjectPage = ({ params: { subject } }) => {
         if (filterEvaluated === 'noevaluadas') {
           query += `&NOevaluadas=true`;
         }
-        const response = await fetch(urljoin(basePath, query));
+        const response = await fetch(urljoin(basePath, query), { headers: authHeaders });
         if (!response.ok)
           throw new Error("Error loading reported questions");
         const result = await response.json();
@@ -209,8 +237,8 @@ const SubjectPage = ({ params: { subject } }) => {
   if (loading) return <p className="text-center text-lg">{t("pregreports.cargando")}</p>;
   if (error) return <p className="text-red-500 text-center">{t("pregreports.error")} {error}</p>;
 
- 
-      
+
+
 
   return (
     <main className="container-layout">
@@ -330,8 +358,8 @@ const SubjectPage = ({ params: { subject } }) => {
                   )}
 
                   <button
-                    style={{marginBottom: '1rem'}}
-                    onClick={()=>openEvaluationModal(question)}
+                    style={{ marginBottom: '1rem' }}
+                    onClick={() => openEvaluationModal(question)}
                     className="mt-2 p-2 bg-blue-500 text-white rounded"
                   >
                     {t("pregreports.evaluarPregunta")}
@@ -356,7 +384,7 @@ const SubjectPage = ({ params: { subject } }) => {
 
 
                         <p className="text-base font-semibold p-1 ">
-                        {selectedQuestion.query}
+                          {selectedQuestion.query}
                         </p>
                         <p className="text-sm p-1">
                           <span className="font-bold text-yellow-400">

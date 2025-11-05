@@ -1,12 +1,13 @@
 import dbConnect from "../../utils/dbconnect.js";
 import Question from '../../models/Question.js';
 import { NextResponse } from 'next/server';
+import { withAuth } from "../../utils/authMiddleware.js";
 
 await dbConnect();
 
 //POST /API/ANSWER
 //api path to create a new answer or report "/api/answer" passing neccesary data (see POST in page.js)
-export async function POST(request) { 
+async function evaluateReportedQuestion(request) {
     try {
        
         const { id, teacherComments, teacherReport} = await request.json();
@@ -35,3 +36,5 @@ export async function POST(request) {
         return new Response('Error during request', { status: 500 });
     }
 }
+
+export const POST = withAuth(evaluateReportedQuestion, { requireProfessor: true });

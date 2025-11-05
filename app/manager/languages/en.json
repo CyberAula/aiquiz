@@ -27,7 +27,7 @@
 		"errorSending": "Error sending recovery email"
 	},
 	"navigation": {
-		"dashboard": "Dashboard",
+        "dashboard": "Reporting Dashboard",
 		"subjects": "My subjects",
 		"account": "My account",
 		"logout": "Logout"
