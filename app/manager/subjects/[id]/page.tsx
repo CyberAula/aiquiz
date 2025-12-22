@@ -461,15 +461,6 @@ export default function SubjectDetailPage() {
 							{t("subjectDetail.topics")}
 						</button>
 						<button
-							onClick={() => handleTabChange("professors")}
-							className={`py-4 px-1 ${activeTab === "professors"
-								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
-								: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-								}`}
-						>
-							{t("subjectDetail.professors")}
-						</button>
-						<button
 							onClick={() => handleTabChange("statistics")}
 							className={`py-4 px-1 ${activeTab === "statistics"
 								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
@@ -477,6 +468,15 @@ export default function SubjectDetailPage() {
 								}`}
 						>
 							{t("subjectDetail.statistics.tab")}
+						</button>
+						<button
+							onClick={() => handleTabChange("professors")}
+							className={`py-4 px-1 ${activeTab === "professors"
+								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
+								: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+								}`}
+						>
+							{t("subjectDetail.professors")}
 						</button>
 						<button
 							onClick={() => handleTabChange("settings")}

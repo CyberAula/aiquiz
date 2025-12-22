@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type ReactNode,
+} from "react";
 import {
     Bar,
     BarChart,
@@ -63,16 +70,16 @@ const truncateAxisLabel = (value: any, max = MAX_AXIS_LABEL) => {
 
 const BAR_RADIUS = 6;
 
-// Lines (tendencia) keep a bit softer
+// Lines
 const LINE_COLORS = {
-    correct: "rgba(22, 163, 74, 0.75)",
-    wrong: "rgba(220, 38, 38, 0.75)",
+    correct: "rgba(22, 163, 74, 0.78)",
+    wrong: "rgba(220, 38, 38, 0.78)",
 };
 
-// Histograms a bit more intense (as requested)
+// Histograms (a bit more intense)
 const HISTOGRAM_COLORS = {
-    correct: "rgba(22, 163, 74, 0.9)",
-    wrong: "rgba(220, 38, 38, 0.9)",
+    correct: "rgba(22, 163, 74, 0.95)",
+    wrong: "rgba(220, 38, 38, 0.95)",
 };
 
 // For stacked bars: only round the outer corners (top for wrong, bottom for correct).
@@ -102,9 +109,9 @@ type CollapsibleSectionProps = {
     id: string;
     title: string;
     description?: string;
-    right?: React.ReactNode;
+    right?: ReactNode;
     defaultOpen?: boolean;
-    children: React.ReactNode;
+    children: ReactNode;
 };
 
 const CollapsibleSection = ({
@@ -151,8 +158,17 @@ const CollapsibleSection = ({
 };
 // =========================================================
 
+type PdfSectionKey =
+    | "summary"
+    | "trend"
+    | "tableTopics"
+    | "tableSubtopics"
+    | "histTopics"
+    | "histSubtopics";
+
 const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
     const { t } = useManagerTranslation();
+
     const today = useMemo(() => new Date(), []);
     const weekAgo = useMemo(() => {
         const date = new Date();
@@ -165,16 +181,31 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [errorDetail, setErrorDetail] = useState<string | null>(null);
+
     const [questions, setQuestions] = useState<QuestionEntry[]>([]);
     const [topicStats, setTopicStats] = useState<AggregatedStat[]>([]);
     const [subtopicStats, setSubtopicStats] = useState<AggregatedStat[]>([]);
+
     const [chartMode, setChartMode] = useState<"topics" | "subtopics">("subtopics");
     const [selectedItem, setSelectedItem] = useState<string>("all");
 
+    // ---- PDF UI state ----
+    const [pdfMenuOpen, setPdfMenuOpen] = useState(false);
+    const [pdfGenerating, setPdfGenerating] = useState(false);
+    const pdfMenuRef = useRef<HTMLDivElement | null>(null);
+
+    const [pdfSections, setPdfSections] = useState<Record<PdfSectionKey, boolean>>({
+        summary: true,
+        trend: true,
+        tableTopics: true,
+        tableSubtopics: true,
+        histTopics: true,
+        histSubtopics: true,
+    });
+
     const getTopicLabel = useCallback(
         (question: QuestionEntry) =>
-            capitalizeFirstLetter(question.topic || "") ||
-            t("subjectDetail.statistics.unknown"),
+            capitalizeFirstLetter(question.topic || "") || t("subjectDetail.statistics.unknown"),
         [t]
     );
 
@@ -191,10 +222,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
 
     const buildAggregates = useCallback(
         (items: QuestionEntry[], getLabel: (question: QuestionEntry) => string): AggregatedStat[] => {
-            const accumulator = new Map<
-                string,
-                { stat: AggregatedStat; timelineMap: Map<string, ChartPoint> }
-            >();
+            const accumulator = new Map<string, { stat: AggregatedStat; timelineMap: Map<string, ChartPoint> }>();
 
             items.forEach((question) => {
                 const label = getLabel(question) || t("subjectDetail.statistics.unknown");
@@ -202,13 +230,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
 
                 if (!accumulator.has(label)) {
                     accumulator.set(label, {
-                        stat: {
-                            label,
-                            total: 0,
-                            correct: 0,
-                            wrong: 0,
-                            timeline: [],
-                        },
+                        stat: { label, total: 0, correct: 0, wrong: 0, timeline: [] },
                         timelineMap: new Map(),
                     });
                 }
@@ -265,10 +287,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
 
     const displayedSummary = useMemo(() => {
         const total = filteredQuestions.length;
-        const correct = filteredQuestions.filter(
-            (question) => question.studentAnswer === question.answer
-        ).length;
-
+        const correct = filteredQuestions.filter((q) => q.studentAnswer === q.answer).length;
         return { total, correct, wrong: total - correct };
     }, [filteredQuestions]);
 
@@ -284,13 +303,12 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
 
         return Array.from(groups.entries()).map(([topic, topicQuestions]) => ({
             topic,
-            stats: buildAggregates(topicQuestions, (question) => getSubtopicLabel(question)),
+            stats: buildAggregates(topicQuestions, (q) => getSubtopicLabel(q)),
         }));
     }, [buildAggregates, getSubtopicLabel, getTopicLabel, questions]);
 
     const renderStackedTooltip = (label?: string, payload?: any[]) => {
         if (!payload || payload.length === 0) return null;
-
         const data = payload[0]?.payload;
         if (!data) return null;
 
@@ -324,11 +342,23 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
         }
     }, [availableOptions, selectedItem]);
 
+    // Close PDF dropdown on outside click
+    useEffect(() => {
+        const onDown = (e: MouseEvent) => {
+            if (!pdfMenuOpen) return;
+            const target = e.target as Node | null;
+            if (pdfMenuRef.current && target && !pdfMenuRef.current.contains(target)) {
+                setPdfMenuOpen(false);
+            }
+        };
+        window.addEventListener("mousedown", onDown);
+        return () => window.removeEventListener("mousedown", onDown);
+    }, [pdfMenuOpen]);
+
     const parseQuestions = (data: any): QuestionEntry[] => {
         if (!data) return [];
-        const questions = data.preguntas || [];
-
-        return questions.map((question: any) => ({
+        const preguntas = data.preguntas || [];
+        return preguntas.map((question: any) => ({
             topic: question.topic,
             subTopic: question.subTopic,
             subtopic: question.subtopic,
@@ -376,7 +406,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                 try {
                     const result = await response.json();
                     detail = result?.message || result?.error || null;
-                } catch (jsonError) {
+                } catch {
                     const text = await response.text();
                     detail = text || null;
                 }
@@ -385,11 +415,11 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
             }
 
             const data = await response.json();
-            const questions = parseQuestions(data);
+            const qs = parseQuestions(data);
 
-            setQuestions(questions);
-            setTopicStats(buildAggregates(questions, (q) => getTopicLabel(q)));
-            setSubtopicStats(buildAggregates(questions, (q) => getSubtopicLabel(q)));
+            setQuestions(qs);
+            setTopicStats(buildAggregates(qs, (q) => getTopicLabel(q)));
+            setSubtopicStats(buildAggregates(qs, (q) => getSubtopicLabel(q)));
         } catch (err: any) {
             const fallbackMessage = t("subjectDetail.statistics.error");
             const userMessage = err?.userMessage || fallbackMessage;
@@ -467,17 +497,12 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
         );
     };
 
-    // ---------- Sections ----------
+    // ---------- Collapsible sections (UI) ----------
     const renderPerformanceSection = () => (
         <CollapsibleSection
             id="section-trend"
-            title={t("subjectDetail.statistics.chartTitle")}
-            right={
-                <span>
-                    {t("subjectDetail.statistics.itemsCount", { count: selectedStats.length })}
-                </span>
-            }
-            defaultOpen
+            title={t("subjectDetail.statistics.chartTitle")} // "Tendencia de respuestas por contenido"
+            defaultOpen={true} // ✅ esta empieza desplegada
         >
             {selectedStats.length === 0 ? (
                 <p className="text-sm text-gray-500">{t("subjectDetail.statistics.noData")}</p>
@@ -525,12 +550,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                                     <ResponsiveContainer width="100%" height="100%">
                                         <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                                            <XAxis
-                                                dataKey="date"
-                                                tick={{ fontSize: 12 }}
-                                                height={20}
-                                                tickFormatter={(value) => value}
-                                            />
+                                            <XAxis dataKey="date" tick={{ fontSize: 12 }} height={20} />
                                             <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                                             <Tooltip
                                                 formatter={(value: number) => value.toLocaleString()}
@@ -569,8 +589,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
     const renderTopicTableSection = () => (
         <CollapsibleSection
             id="section-topic-table"
-            title={t("subjectDetail.statistics.topicBreakdown")}
-            right={<span>{t("subjectDetail.statistics.itemsCount", { count: topicStats.length })}</span>}
+            title={t("subjectDetail.statistics.topicBreakdown")} // "Tabla de estadísticas por temas"
             defaultOpen={false}
         >
             {renderAggregateTableContent(topicStats)}
@@ -580,8 +599,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
     const renderSubtopicTableSection = () => (
         <CollapsibleSection
             id="section-subtopic-table"
-            title={t("subjectDetail.statistics.subtopicBreakdown")}
-            right={<span>{t("subjectDetail.statistics.itemsCount", { count: subtopicsByTopic.length })}</span>}
+            title={t("subjectDetail.statistics.subtopicBreakdown")} // "Tabla de estadísticas por subtemas"
             defaultOpen={false}
         >
             {subtopicsByTopic.length === 0 ? (
@@ -607,10 +625,8 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
     const renderTopicHistogramSection = () => (
         <CollapsibleSection
             id="section-topic-histogram"
-            title={t("subjectDetail.statistics.topicHistogram")}
-            right={<span>{t("subjectDetail.statistics.itemsCount", { count: topicStats.length })}</span>}
+            title={t("subjectDetail.statistics.topicHistogram")} // "Histograma por temas"
             defaultOpen={false}
-
         >
             {topicStats.length === 0 ? (
                 <p className="text-sm text-gray-500">{t("subjectDetail.statistics.noData")}</p>
@@ -655,8 +671,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
     const renderSubtopicHistogramSection = () => (
         <CollapsibleSection
             id="section-subtopic-histogram"
-            title={t("subjectDetail.statistics.subtopicHistogram")}
-            right={<span>{t("subjectDetail.statistics.itemsCount", { count: subtopicsByTopic.length })}</span>}
+            title={t("subjectDetail.statistics.subtopicHistogram")} // "Histograma por subtemas"
             defaultOpen={false}
         >
             {subtopicsByTopic.length === 0 ? (
@@ -689,9 +704,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                                                 tickFormatter={(value) => truncateAxisLabel(value)}
                                             />
                                             <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                                            <Tooltip
-                                                content={({ label, payload }) => renderStackedTooltip(label, payload)}
-                                            />
+                                            <Tooltip content={({ label, payload }) => renderStackedTooltip(label, payload)} />
                                             <Legend />
                                             <Bar
                                                 dataKey="correct"
@@ -718,9 +731,608 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
         </CollapsibleSection>
     );
 
+    // ===================== PDF RENDER (offscreen) =====================
+    const pdfRootRef = useRef<HTMLDivElement | null>(null);
+    const pdfCoverSummaryRef = useRef<HTMLDivElement | null>(null);
+    const pdfSectionRefs = {
+        summary: useRef<HTMLDivElement | null>(null),
+        trend: useRef<HTMLDivElement | null>(null),
+        tableTopics: useRef<HTMLDivElement | null>(null),
+        tableSubtopics: useRef<HTMLDivElement | null>(null),
+        histTopics: useRef<HTMLDivElement | null>(null),
+        histSubtopics: useRef<HTMLDivElement | null>(null),
+    };
+
+    const pdfFileName = useMemo(() => {
+        const safeSubject = (subjectAcronym || "asignatura").replace(/[^\w\-]+/g, "_");
+        const safeStart = (startDate || "inicio").replace(/[^\w\-]+/g, "_");
+        const safeEnd = (endDate || "fin").replace(/[^\w\-]+/g, "_");
+        return `${safeSubject}_${safeStart}_${safeEnd}_estadisticas.pdf`;
+    }, [endDate, startDate, subjectAcronym]);
+
+    const addCanvasToPdfMultiPage = async (pdf: any, canvas: HTMLCanvasElement) => {
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 10;
+
+        const usableWidth = pageWidth - margin * 2;
+        const usableHeight = pageHeight - margin * 2;
+
+        const scale = usableWidth / canvas.width;
+        const scaledHeight = canvas.height * scale;
+
+        // If it fits, add directly
+        if (scaledHeight <= usableHeight) {
+            const imgData = canvas.toDataURL("image/png");
+            pdf.addImage(imgData, "PNG", margin, margin, usableWidth, scaledHeight);
+            return;
+        }
+
+        // Otherwise, slice the canvas by page-height chunks
+        const sliceHeightPx = Math.floor(usableHeight / scale);
+        let y = 0;
+
+        while (y < canvas.height) {
+            const remaining = canvas.height - y;
+            const currentSliceHeight = Math.min(sliceHeightPx, remaining);
+
+            const sliceCanvas = document.createElement("canvas");
+            sliceCanvas.width = canvas.width;
+            sliceCanvas.height = currentSliceHeight;
+
+            const ctx = sliceCanvas.getContext("2d");
+            if (!ctx) break;
+
+            ctx.drawImage(
+                canvas,
+                0,
+                y,
+                canvas.width,
+                currentSliceHeight,
+                0,
+                0,
+                canvas.width,
+                currentSliceHeight
+            );
+
+            const imgData = sliceCanvas.toDataURL("image/png");
+            const sliceScaledHeight = currentSliceHeight * scale;
+
+            pdf.addImage(imgData, "PNG", margin, margin, usableWidth, sliceScaledHeight);
+
+            y += currentSliceHeight;
+
+            if (y < canvas.height) pdf.addPage();
+        }
+    };
+
+    const generatePdf = async () => {
+        try {
+            setPdfGenerating(true);
+            setPdfMenuOpen(false);
+
+            const { jsPDF } = await import("jspdf");
+            const html2canvas = (await import("html2canvas")).default;
+
+            const pdf = new jsPDF("p", "mm", "a4");
+
+            // 1) ✅ Portada + Resumen juntos
+            const coverEl = pdfCoverSummaryRef.current;
+            if (coverEl) {
+                const coverCanvas = await html2canvas(coverEl, {
+                    backgroundColor: "#ffffff",
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                });
+
+                await addCanvasToPdfMultiPage(pdf, coverCanvas);
+            }
+
+            // 2) ✅ Resto de secciones: cada una en su(s) página(s)
+            const order: { key: PdfSectionKey; ref: React.RefObject<HTMLDivElement> }[] = [
+                { key: "trend", ref: pdfSectionRefs.trend },
+                { key: "tableTopics", ref: pdfSectionRefs.tableTopics },
+                { key: "tableSubtopics", ref: pdfSectionRefs.tableSubtopics },
+                { key: "histTopics", ref: pdfSectionRefs.histTopics },
+                { key: "histSubtopics", ref: pdfSectionRefs.histSubtopics },
+            ];
+
+            for (const item of order) {
+                if (!pdfSections[item.key]) continue;
+
+                const el = item.ref.current;
+                if (!el) continue;
+
+                pdf.addPage();
+
+                const canvas = await html2canvas(el, {
+                    backgroundColor: "#ffffff",
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                });
+
+                await addCanvasToPdfMultiPage(pdf, canvas);
+            }
+
+            pdf.save(pdfFileName);
+        } catch (e) {
+            console.error("PDF generation error:", e);
+        } finally {
+            setPdfGenerating(false);
+        }
+    };
+
+
+    const toggleAllPdfSections = (value: boolean) => {
+        setPdfSections({
+            summary: value,
+            trend: value,
+            tableTopics: value,
+            tableSubtopics: value,
+            histTopics: value,
+            histSubtopics: value,
+        });
+    };
+
+    // Fixed-size charts for PDF (avoid ResponsiveContainer issues in offscreen render)
+    const PDF_WIDTH = 820;
+    const PDF_INNER_WIDTH = 780;
+
+    const PdfBlock = ({
+        title,
+        children,
+    }: {
+        title: string;
+        children: ReactNode;
+    }) => (
+        <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>{title}</div>
+            </div>
+            {children}
+        </div>
+    );
+
+    const PdfTable = ({ data }: { data: AggregatedStat[] }) => {
+        if (data.length === 0) {
+            return (
+                <div style={{ fontSize: 12, color: "#6b7280" }}>
+                    {t("subjectDetail.statistics.noData")}
+                </div>
+            );
+        }
+
+        const headerCell: React.CSSProperties = {
+            textAlign: "left",
+            padding: "8px 10px",
+            borderBottom: "1px solid #e5e7eb",
+            fontWeight: 700,
+            color: "#111827",
+        };
+
+        const cell: React.CSSProperties = {
+            padding: "8px 10px",
+            borderBottom: "1px solid #f3f4f6",
+            color: "#111827",
+        };
+
+        const successStyle: React.CSSProperties = {
+            ...cell,
+            color: "#16A34A",           // verde
+            fontWeight: 700,
+        };
+
+        const failureStyle: React.CSSProperties = {
+            ...cell,
+            color: "#DC2626",           // rojo
+            fontWeight: 700,
+        };
+
+        return (
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                <thead>
+                    <tr style={{ background: "#f9fafb" }}>
+                        <th style={headerCell}>{t("subjectDetail.statistics.name")}</th>
+                        <th style={headerCell}>{t("subjectDetail.statistics.answered")}</th>
+                        <th style={headerCell}>{t("subjectDetail.statistics.successRate")}</th>
+                        <th style={headerCell}>{t("subjectDetail.statistics.failureRate")}</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {data.map((item) => {
+                        const successRate = item.total ? Math.round((item.correct / item.total) * 100) : 0;
+                        const failureRate = 100 - successRate;
+
+                        return (
+                            <tr key={`pdf-row-${item.label}`}>
+                                <td style={cell}>{item.label}</td>
+                                <td style={{ ...cell, color: "#6b7280" }}>{item.total}</td>
+
+                                {/* ✅ Acierto en verde */}
+                                <td style={successStyle}>{successRate}%</td>
+
+                                {/* ✅ Error en rojo */}
+                                <td style={failureStyle}>{failureRate}%</td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        );
+    };
+
+    const PdfOffscreen = () => {
+        return (
+            <div
+                ref={pdfRootRef}
+                style={{
+                    position: "fixed",
+                    left: -10000,
+                    top: 0,
+                    width: PDF_WIDTH,
+                    background: "#ffffff",
+                    color: "#111827",
+                    padding: 16,
+                    zIndex: -1,
+                }}
+            >
+                {/* ✅ Portada + Resumen juntos (en el mismo bloque capturable) */}
+                <div ref={pdfCoverSummaryRef}>
+                    {/* Portada */}
+                    <div style={{ marginBottom: 12 }}>
+                        <div style={{ fontSize: 18, fontWeight: 800 }}>AIQuiz · Estadísticas</div>
+                        <div style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                            Asignatura:{" "}
+                            <span style={{ color: "#111827", fontWeight: 600 }}>
+                                {subjectAcronym || "-"}
+                            </span>
+                        </div>
+                        <div style={{ fontSize: 12, color: "#6b7280" }}>
+                            Periodo:{" "}
+                            <span style={{ color: "#111827", fontWeight: 600 }}>
+                                {startDate} → {endDate}
+                            </span>
+                        </div>
+                        <div style={{ fontSize: 12, color: "#6b7280" }}>
+                            Modo:{" "}
+                            <span style={{ color: "#111827", fontWeight: 600 }}>
+                                {chartMode === "topics" ? "Temas" : "Subtemas"}
+                            </span>
+                            {" · "}
+                            Filtro:{" "}
+                            <span style={{ color: "#111827", fontWeight: 600 }}>
+                                {selectedItem === "all" ? "Todos" : selectedItem}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Summary (dentro del mismo bloque que la portada) */}
+                    {pdfSections.summary && (
+                        <div ref={pdfSectionRefs.summary}>
+                            <PdfBlock title="Resumen">
+                                <div style={{ display: "flex", gap: 12 }}>
+                                    <div
+                                        style={{
+                                            flex: 1,
+                                            border: "1px solid #e5e7eb",
+                                            borderRadius: 12,
+                                            padding: 12,
+                                        }}
+                                    >
+                                        <div style={{ fontSize: 12, color: "#6b7280" }}>
+                                            {t("subjectDetail.statistics.totalAnswered")}
+                                        </div>
+                                        <div style={{ fontSize: 24, fontWeight: 700 }}>
+                                            {displayedSummary.total}
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        style={{
+                                            flex: 1,
+                                            border: "1px solid #e5e7eb",
+                                            borderRadius: 12,
+                                            padding: 12,
+                                        }}
+                                    >
+                                        <div style={{ fontSize: 12, color: "#6b7280" }}>
+                                            {t("subjectDetail.statistics.successPercentage")}
+                                        </div>
+                                        <div style={{ fontSize: 24, fontWeight: 700 }}>
+                                            {displayedSummary.total
+                                                ? Math.round(
+                                                    (displayedSummary.correct / displayedSummary.total) * 100
+                                                )
+                                                : 0}
+                                            %
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        style={{
+                                            flex: 1,
+                                            border: "1px solid #e5e7eb",
+                                            borderRadius: 12,
+                                            padding: 12,
+                                        }}
+                                    >
+                                        <div style={{ fontSize: 12, color: "#6b7280" }}>
+                                            {t("subjectDetail.statistics.failurePercentage")}
+                                        </div>
+                                        <div style={{ fontSize: 24, fontWeight: 700 }}>
+                                            {displayedSummary.total
+                                                ? Math.round(
+                                                    (displayedSummary.wrong / displayedSummary.total) * 100
+                                                )
+                                                : 0}
+                                            %
+                                        </div>
+                                    </div>
+                                </div>
+                            </PdfBlock>
+                        </div>
+                    )}
+                </div>
+
+                {/* Trend (ya fuera del bloque portada+resumen) */}
+                {pdfSections.trend && (
+                    <div ref={pdfSectionRefs.trend}>
+                        <PdfBlock title="Tendencia de respuestas por contenido">
+                            {selectedStats.length === 0 ? (
+                                <div style={{ fontSize: 12, color: "#6b7280" }}>
+                                    {t("subjectDetail.statistics.noData")}
+                                </div>
+                            ) : (
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                                    {selectedStats.map((stat) => {
+                                        const chartData =
+                                            stat.timeline.length > 0
+                                                ? stat.timeline
+                                                : ([
+                                                    {
+                                                        date: t("subjectDetail.statistics.chartRangeLabel"),
+                                                        total: stat.total,
+                                                        correct: stat.correct,
+                                                        wrong: stat.wrong,
+                                                    },
+                                                ] as ChartPoint[]);
+
+                                        return (
+                                            <div
+                                                key={`pdf-trend-${stat.label}`}
+                                                style={{
+                                                    border: "1px solid #e5e7eb",
+                                                    borderRadius: 12,
+                                                    padding: 12,
+                                                }}
+                                            >
+                                                <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                                                    <div>
+                                                        <div style={{ fontWeight: 700 }}>{stat.label}</div>
+                                                        <div style={{ fontSize: 12, color: "#6b7280" }}>
+                                                            {t("subjectDetail.statistics.chartItemAnswered", { count: stat.total })}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div style={{ height: 220, marginTop: 8 }}>
+                                                    <LineChart
+                                                        width={PDF_INNER_WIDTH / 2 - 30}
+                                                        height={220}
+                                                        data={chartData}
+                                                        margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                                                    >
+                                                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                                                        <XAxis dataKey="date" tick={{ fontSize: 10 }} height={18} />
+                                                        <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                                                        <Legend />
+                                                        <Line
+                                                            type="monotone"
+                                                            dataKey="correct"
+                                                            name={t("subjectDetail.statistics.correctLine")}
+                                                            stroke={LINE_COLORS.correct}
+                                                            strokeWidth={2}
+                                                            dot={false}
+                                                            activeDot={{ r: 0 }}
+                                                            isAnimationActive={false}
+                                                            animationDuration={0}
+                                                        />
+                                                        <Line
+                                                            type="monotone"
+                                                            dataKey="wrong"
+                                                            name={t("subjectDetail.statistics.wrongLine")}
+                                                            stroke={LINE_COLORS.wrong}
+                                                            strokeWidth={2}
+                                                            dot={false}
+                                                            activeDot={{ r: 0 }}
+                                                            isAnimationActive={false}
+                                                            animationDuration={0}
+                                                        />
+                                                    </LineChart>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {/* ✅ Quité la nota de "solo 6 tarjetas" porque ya no aplica */}
+                        </PdfBlock>
+                    </div>
+                )}
+
+                {/* Tables */}
+                {pdfSections.tableTopics && (
+                    <div ref={pdfSectionRefs.tableTopics}>
+                        <PdfBlock title="Tabla de estadísticas por temas">
+                            <PdfTable data={topicStats} />
+                        </PdfBlock>
+                    </div>
+                )}
+
+                {pdfSections.tableSubtopics && (
+                    <div ref={pdfSectionRefs.tableSubtopics}>
+                        <PdfBlock title="Tabla de estadísticas por subtemas">
+                            {subtopicsByTopic.length === 0 ? (
+                                <div style={{ fontSize: 12, color: "#6b7280" }}>
+                                    {t("subjectDetail.statistics.noData")}
+                                </div>
+                            ) : (
+                                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                    {subtopicsByTopic.map(({ topic, stats }) => (
+                                        <div
+                                            key={`pdf-subtopic-table-${topic}`}
+                                            style={{
+                                                border: "1px solid #e5e7eb",
+                                                borderRadius: 12,
+                                                padding: 12,
+                                            }}
+                                        >
+                                            <div style={{ fontWeight: 700, marginBottom: 8 }}>{topic}</div>
+                                            <PdfTable data={stats} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </PdfBlock>
+                    </div>
+                )}
+
+                {/* Histograms */}
+                {pdfSections.histTopics && (
+                    <div ref={pdfSectionRefs.histTopics}>
+                        <PdfBlock title="Histograma por temas">
+                            {topicStats.length === 0 ? (
+                                <div style={{ fontSize: 12, color: "#6b7280" }}>
+                                    {t("subjectDetail.statistics.noData")}
+                                </div>
+                            ) : (
+                                <BarChart
+                                    width={PDF_INNER_WIDTH}
+                                    height={280}
+                                    data={topicStats}
+                                    margin={{ top: 10, right: 20, left: 0, bottom: 60 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                                    <XAxis
+                                        dataKey="label"
+                                        tick={{ fontSize: 11 }}
+                                        interval={0}
+                                        angle={-25}
+                                        textAnchor="end"
+                                        height={60}
+                                        tickFormatter={(value) => truncateAxisLabel(value)}
+                                    />
+                                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                                    <Legend />
+                                    <Bar
+                                        dataKey="correct"
+                                        stackId="topics"
+                                        name={t("subjectDetail.statistics.correctShort")}
+                                        fill={HISTOGRAM_COLORS.correct}
+                                        shape={stackedRoundedShape("correct")}
+                                        isAnimationActive={false}
+                                        animationDuration={0}
+                                    />
+                                    <Bar
+                                        dataKey="wrong"
+                                        stackId="topics"
+                                        name={t("subjectDetail.statistics.incorrectShort")}
+                                        fill={HISTOGRAM_COLORS.wrong}
+                                        shape={stackedRoundedShape("wrong")}
+                                        isAnimationActive={false}
+                                        animationDuration={0}
+                                    />
+                                </BarChart>
+                            )}
+                        </PdfBlock>
+                    </div>
+                )}
+
+                {pdfSections.histSubtopics && (
+                    <div ref={pdfSectionRefs.histSubtopics}>
+                        <PdfBlock title="Histograma por subtemas">
+                            {subtopicsByTopic.length === 0 ? (
+                                <div style={{ fontSize: 12, color: "#6b7280" }}>
+                                    {t("subjectDetail.statistics.noData")}
+                                </div>
+                            ) : (
+                                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                                    {subtopicsByTopic.map(({ topic, stats }) => (
+                                        <div
+                                            key={`pdf-subhist-${topic}`}
+                                            style={{
+                                                border: "1px solid #e5e7eb",
+                                                borderRadius: 12,
+                                                padding: 12,
+                                            }}
+                                        >
+                                            <div style={{ fontWeight: 700, marginBottom: 8 }}>{topic}</div>
+                                            {stats.length === 0 ? (
+                                                <div style={{ fontSize: 12, color: "#6b7280" }}>
+                                                    {t("subjectDetail.statistics.noData")}
+                                                </div>
+                                            ) : (
+                                                <BarChart
+                                                    width={PDF_INNER_WIDTH}
+                                                    height={260}
+                                                    data={stats}
+                                                    margin={{ top: 10, right: 20, left: 0, bottom: 60 }}
+                                                >
+                                                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                                                    <XAxis
+                                                        dataKey="label"
+                                                        tick={{ fontSize: 11 }}
+                                                        interval={0}
+                                                        angle={-25}
+                                                        textAnchor="end"
+                                                        height={60}
+                                                        tickFormatter={(value) => truncateAxisLabel(value)}
+                                                    />
+                                                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                                                    <Legend />
+                                                    <Bar
+                                                        dataKey="correct"
+                                                        stackId={`pdf-subtopics-${topic}`}
+                                                        name={t("subjectDetail.statistics.correctShort")}
+                                                        fill={HISTOGRAM_COLORS.correct}
+                                                        shape={stackedRoundedShape("correct")}
+                                                        isAnimationActive={false}
+                                                        animationDuration={0}
+                                                    />
+                                                    <Bar
+                                                        dataKey="wrong"
+                                                        stackId={`pdf-subtopics-${topic}`}
+                                                        name={t("subjectDetail.statistics.incorrectShort")}
+                                                        fill={HISTOGRAM_COLORS.wrong}
+                                                        shape={stackedRoundedShape("wrong")}
+                                                        isAnimationActive={false}
+                                                        animationDuration={0}
+                                                    />
+                                                </BarChart>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </PdfBlock>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // ======================================================
+
     return (
         <div className="space-y-6">
-            {/* Filters */}
+            {/* Offscreen PDF renderer */}
+            <PdfOffscreen />
+
+            {/* Filters + Actions */}
             <div className="flex flex-col lg:flex-row lg:items-end lg:space-x-4 space-y-4 lg:space-y-0">
                 <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -744,14 +1356,91 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                         className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                     />
                 </div>
-                <div>
+
+                <div className="flex items-center gap-2">
                     <button
                         onClick={fetchStatistics}
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        disabled={loading}
+                        disabled={loading || pdfGenerating}
                     >
                         {loading ? t("common.loading") : t("subjectDetail.statistics.update")}
                     </button>
+
+                    {/* Download PDF button + dropdown */}
+                    <div className="relative" ref={pdfMenuRef}>
+                        <button
+                            type="button"
+                            onClick={() => setPdfMenuOpen((v) => !v)}
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            disabled={loading || pdfGenerating}
+                        >
+                            {pdfGenerating ? "Generando..." : "Descargar"}
+                            <span className="ml-2 text-xs">▾</span>
+                        </button>
+
+                        {pdfMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-md shadow-lg p-3 z-30">
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-sm font-semibold text-gray-900">Secciones del PDF</p>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            className="text-xs text-indigo-600 hover:text-indigo-800"
+                                            onClick={() => toggleAllPdfSections(true)}
+                                        >
+                                            Todo
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="text-xs text-indigo-600 hover:text-indigo-800"
+                                            onClick={() => toggleAllPdfSections(false)}
+                                        >
+                                            Nada
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    {(
+                                        [
+                                            { key: "summary", label: "Resumen" },
+                                            { key: "trend", label: "Tendencia de respuestas por contenido" },
+                                            { key: "tableTopics", label: "Tabla por temas" },
+                                            { key: "tableSubtopics", label: "Tabla por subtemas" },
+                                            { key: "histTopics", label: "Histograma por temas" },
+                                            { key: "histSubtopics", label: "Histograma por subtemas" },
+                                        ] as { key: PdfSectionKey; label: string }[]
+                                    ).map((s) => (
+                                        <label key={`pdf-opt-${s.key}`} className="flex items-center gap-2 text-sm text-gray-700">
+                                            <input
+                                                type="checkbox"
+                                                checked={pdfSections[s.key]}
+                                                onChange={(e) =>
+                                                    setPdfSections((prev) => ({ ...prev, [s.key]: e.target.checked }))
+                                                }
+                                                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            <span>{s.label}</span>
+                                        </label>
+                                    ))}
+                                </div>
+
+                                <div className="mt-3 pt-3 border-t border-gray-100">
+                                    <p className="text-xs text-gray-500 mb-2">
+                                        Archivo: <span className="font-mono">{pdfFileName}</span>
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={generatePdf}
+                                        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        disabled={pdfGenerating}
+                                    >
+                                        {pdfGenerating ? "Generando PDF..." : "Generar PDF"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -814,7 +1503,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                 </div>
             )}
 
-            {/* Summary cards */}
+            {/* Summary cards (UI) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white shadow rounded-lg p-4">
                     <dt className="text-sm font-medium text-gray-500 truncate">
@@ -848,7 +1537,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                 </div>
             </div>
 
-            {/* Collapsible sections */}
+            {/* Collapsible sections (UI) */}
             {renderPerformanceSection()}
             {renderTopicTableSection()}
             {renderSubtopicTableSection()}
