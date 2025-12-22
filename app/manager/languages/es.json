@@ -130,7 +130,19 @@
 			"itemsCount": "{{count}} elementos",
 			"noData": "No hay datos para el rango seleccionado",
 			"unknown": "Sin datos",
-			"noSubtopic": "Sin subtema"
+			"noSubtopic": "Sin subtema",
+			"chartTitle": "Tendencia de respuestas por contenido",
+			"chartDescription": "Un gráfico por cada tema o subtema comparando respuestas totales (negro), aciertos (verde) y fallos (rojo)",
+			"chartRangeLabel": "Periodo seleccionado",
+			"chartItemAnswered": "Respuestas: {{count}}",
+			"correctShort": "Correctas",
+			"incorrectShort": "Falladas",
+			"chartMode": "Visualizar por",
+			"topicsOption": "Temas",
+			"subtopicsOption": "Subtemas",
+			"totalLine": "Total",
+			"correctLine": "Correctas",
+			"wrongLine": "Falladas"
 		}
 	},
 	"common": {

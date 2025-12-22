@@ -130,7 +130,19 @@
 			"itemsCount": "{{count}} items",
 			"noData": "No data for the selected range",
 			"unknown": "Unknown",
-			"noSubtopic": "No subtopic"
+			"noSubtopic": "No subtopic",
+			"chartTitle": "Answer trends by content",
+			"chartDescription": "One chart per topic or subtopic comparing total responses (black), correct (green) and incorrect (red) in the selected period",
+			"chartRangeLabel": "Selected period",
+			"chartItemAnswered": "Responses: {{count}}",
+			"correctShort": "Correct",
+			"incorrectShort": "Incorrect",
+			"chartMode": "View by",
+			"topicsOption": "Topics",
+			"subtopicsOption": "Subtopics",
+			"totalLine": "Total",
+			"correctLine": "Correct",
+			"wrongLine": "Incorrect"
 		}
 	},
 	"common": {

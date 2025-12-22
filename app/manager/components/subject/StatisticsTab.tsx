@@ -1,6 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+    CartesianGrid,
+    Legend,
+    Line,
+    LineChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from "recharts";
 import { useManagerTranslation } from "../../hooks/useManagerTranslation";
 
 interface StatisticsTabProps {
@@ -14,12 +24,21 @@ interface QuestionEntry {
     subtopicTitle?: string;
     answer?: number;
     studentAnswer?: number;
+    createdAt?: string;
 }
 
 interface AggregatedStat {
     label: string;
     total: number;
     correct: number;
+    wrong: number;
+    timeline: ChartPoint[];
+}
+interface ChartPoint {
+    date: string;
+    total: number;
+    correct: number;
+    wrong: number;
 }
 
 const formatDateInput = (date: Date) => date.toISOString().split("T")[0];
@@ -41,6 +60,12 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
     const [summary, setSummary] = useState({ total: 0, correct: 0, wrong: 0 });
     const [topicStats, setTopicStats] = useState<AggregatedStat[]>([]);
     const [subtopicStats, setSubtopicStats] = useState<AggregatedStat[]>([]);
+    const [chartMode, setChartMode] = useState<"topics" | "subtopics">("subtopics");
+
+    const selectedStats = useMemo(
+        () => (chartMode === "topics" ? topicStats : subtopicStats),
+        [chartMode, subtopicStats, topicStats]
+    );
 
     useEffect(() => {
         fetchStatistics();
@@ -51,23 +76,51 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
         items: QuestionEntry[],
         getLabel: (question: QuestionEntry) => string
     ): AggregatedStat[] => {
-        const accumulator = new Map<string, AggregatedStat>();
-
+        const accumulator = new Map<
+            string,
+            { stat: AggregatedStat; timelineMap: Map<string, ChartPoint> }
+        >();
         items.forEach((question) => {
             const label = getLabel(question) || t("subjectDetail.statistics.unknown");
-            const current = accumulator.get(label) || {
-                label,
-                total: 0,
-                correct: 0,
-            };
-
             const isCorrect = question.studentAnswer === question.answer;
-            current.total += 1;
-            current.correct += isCorrect ? 1 : 0;
-            accumulator.set(label, current);
+            const existing = accumulator.get(label);
+
+            if (!existing) {
+                accumulator.set(label, {
+                    stat: {
+                        label,
+                        total: 0,
+                        correct: 0,
+                        wrong: 0,
+                        timeline: [],
+                    },
+                    timelineMap: new Map(),
+                });
+            }
+
+            const entry = accumulator.get(label)!;
+            entry.stat.total += 1;
+            entry.stat.correct += isCorrect ? 1 : 0;
+            entry.stat.wrong += isCorrect ? 0 : 1;
+
+            const dateValue = question.createdAt ? new Date(question.createdAt) : null;
+            if (!Number.isNaN(dateValue?.getTime())) {
+                const dateKey = dateValue!.toISOString().split("T")[0];
+                const point =
+                    entry.timelineMap.get(dateKey) ||
+                    ({ date: dateKey, total: 0, correct: 0, wrong: 0 } as ChartPoint);
+
+                point.total += 1;
+                point.correct += isCorrect ? 1 : 0;
+                point.wrong += isCorrect ? 0 : 1;
+                entry.timelineMap.set(dateKey, point);
+            }
         });
 
-        const aggregates = Array.from(accumulator.values());
+        const aggregates = Array.from(accumulator.values()).map(({ stat, timelineMap }) => ({
+            ...stat,
+            timeline: Array.from(timelineMap.values()).sort((a, b) => a.date.localeCompare(b.date)),
+        }));
 
         return aggregates.sort((a, b) => b.total - a.total);
     };
@@ -86,6 +139,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                 typeof question.studentAnswer === "number"
                     ? question.studentAnswer
                     : Number(question.studentAnswer),
+            createdAt: question.createdAt || question.created_at,
         }));
     };
 
@@ -248,6 +302,143 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
         </div>
     );
 
+    const renderPerformanceChart = () => (
+        <div className="bg-white shadow rounded-lg p-6">
+            <div className="flex flex-col gap-4">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                            {t("subjectDetail.statistics.chartTitle")}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                            {t("subjectDetail.statistics.chartDescription")}
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <label className="text-sm font-medium text-gray-700">
+                            {t("subjectDetail.statistics.chartMode")}
+                        </label>
+                        <select
+                            className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            value={chartMode}
+                            onChange={(event) =>
+                                setChartMode(event.target.value as "topics" | "subtopics")
+                            }
+                        >
+                            <option value="topics">
+                                {t("subjectDetail.statistics.topicsOption")}
+                            </option>
+                            <option value="subtopics">
+                                {t("subjectDetail.statistics.subtopicsOption")}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                {selectedStats.length === 0 ? (
+                    <p className="text-sm text-gray-500">
+                        {t("subjectDetail.statistics.noData")}
+                    </p>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {selectedStats.map((stat) => {
+                            const chartData =
+                                stat.timeline.length > 0
+                                    ? stat.timeline
+                                    : ([
+                                          {
+                                              date: t("subjectDetail.statistics.chartRangeLabel"),
+                                              total: stat.total,
+                                              correct: stat.correct,
+                                              wrong: stat.wrong,
+                                          },
+                                      ] as ChartPoint[]);
+                            const successRate = stat.total
+                                ? Math.round((stat.correct / stat.total) * 100)
+                                : 0;
+                            const failureRate = 100 - successRate;
+
+                            return (
+                                <div
+                                    key={`${chartMode}-${stat.label}`}
+                                    className="border rounded-lg p-4 flex flex-col gap-3"
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h4 className="text-md font-semibold text-gray-900">
+                                                {stat.label}
+                                            </h4>
+                                            <p className="text-xs text-gray-500">
+                                                {t("subjectDetail.statistics.chartItemAnswered", {
+                                                    count: stat.total,
+                                                })}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs text-green-600">
+                                                {t("subjectDetail.statistics.correctShort")}: {successRate}%
+                                            </p>
+                                            <p className="text-xs text-red-600">
+                                                {t("subjectDetail.statistics.incorrectShort")}: {failureRate}%
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="h-48">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart
+                                                data={chartData}
+                                                margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                                                <XAxis
+                                                    dataKey="date"
+                                                    tick={{ fontSize: 12 }}
+                                                    height={20}
+                                                    tickFormatter={(value) => value}
+                                                />
+                                                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                                                <Tooltip
+                                                    formatter={(value: number) => value.toLocaleString()}
+                                                    labelStyle={{ fontWeight: 600 }}
+                                                />
+                                                <Legend />
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="total"
+                                                    name={t("subjectDetail.statistics.totalLine")}
+                                                    stroke="#111827"
+                                                    strokeWidth={2}
+                                                    dot={{ r: 4 }}
+                                                />
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="correct"
+                                                    name={t("subjectDetail.statistics.correctLine")}
+                                                    stroke="#16A34A"
+                                                    strokeWidth={2}
+                                                    dot={{ r: 4 }}
+                                                />
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="wrong"
+                                                    name={t("subjectDetail.statistics.wrongLine")}
+                                                    stroke="#DC2626"
+                                                    strokeWidth={2}
+                                                    dot={{ r: 4 }}
+                                                />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col lg:flex-row lg:items-end lg:space-x-4 space-y-4 lg:space-y-0">
@@ -333,6 +524,8 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                     </dd>
                 </div>
             </div>
+
+            {renderPerformanceChart()}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {renderAggregateTable(
