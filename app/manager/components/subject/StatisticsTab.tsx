@@ -346,13 +346,13 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                                 stat.timeline.length > 0
                                     ? stat.timeline
                                     : ([
-                                          {
-                                              date: t("subjectDetail.statistics.chartRangeLabel"),
-                                              total: stat.total,
-                                              correct: stat.correct,
-                                              wrong: stat.wrong,
-                                          },
-                                      ] as ChartPoint[]);
+                                        {
+                                            date: t("subjectDetail.statistics.chartRangeLabel"),
+                                            total: stat.total,
+                                            correct: stat.correct,
+                                            wrong: stat.wrong,
+                                        },
+                                    ] as ChartPoint[]);
                             const successRate = stat.total
                                 ? Math.round((stat.correct / stat.total) * 100)
                                 : 0;
@@ -405,19 +405,12 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                                                 <Legend />
                                                 <Line
                                                     type="monotone"
-                                                    dataKey="total"
-                                                    name={t("subjectDetail.statistics.totalLine")}
-                                                    stroke="#111827"
-                                                    strokeWidth={2}
-                                                    dot={{ r: 4 }}
-                                                />
-                                                <Line
-                                                    type="monotone"
                                                     dataKey="correct"
                                                     name={t("subjectDetail.statistics.correctLine")}
                                                     stroke="#16A34A"
                                                     strokeWidth={2}
-                                                    dot={{ r: 4 }}
+                                                    dot={false}
+                                                    activeDot={{ r: 0 }}
                                                 />
                                                 <Line
                                                     type="monotone"
@@ -425,7 +418,8 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                                                     name={t("subjectDetail.statistics.wrongLine")}
                                                     stroke="#DC2626"
                                                     strokeWidth={2}
-                                                    dot={{ r: 4 }}
+                                                    dot={false}
+                                                    activeDot={{ r: 0 }}
                                                 />
                                             </LineChart>
                                         </ResponsiveContainer>
