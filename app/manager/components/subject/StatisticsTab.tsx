@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     CartesianGrid,
     Legend,
@@ -41,6 +41,15 @@ interface ChartPoint {
     wrong: number;
 }
 
+const capitalizeFirstLetter = (text: string) => {
+    if (!text) return text;
+    const trimmed = text.trim();
+
+    if (!trimmed) return text;
+
+    return `${trimmed.charAt(0).toUpperCase()}${trimmed.slice(1)}`;
+};
+
 const formatDateInput = (date: Date) => date.toISOString().split("T")[0];
 
 const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
@@ -57,73 +66,152 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [errorDetail, setErrorDetail] = useState<string | null>(null);
-    const [summary, setSummary] = useState({ total: 0, correct: 0, wrong: 0 });
+    const [questions, setQuestions] = useState<QuestionEntry[]>([]);
     const [topicStats, setTopicStats] = useState<AggregatedStat[]>([]);
     const [subtopicStats, setSubtopicStats] = useState<AggregatedStat[]>([]);
     const [chartMode, setChartMode] = useState<"topics" | "subtopics">("subtopics");
 
-    const selectedStats = useMemo(
+    const [selectedItem, setSelectedItem] = useState<string>("all");
+
+    const getTopicLabel = useCallback(
+        (question: QuestionEntry) =>
+            capitalizeFirstLetter(question.topic || "") ||
+            t("subjectDetail.statistics.unknown"),
+        [t]
+    );
+
+    const getSubtopicLabel = useCallback(
+        (question: QuestionEntry) =>
+            capitalizeFirstLetter(
+                question.subTopic ||
+                question.subtopicTitle ||
+                question.subtopic ||
+                t("subjectDetail.statistics.noSubtopic")
+            ),
+        [t]
+    );
+
+    const buildAggregates = useCallback(
+        (items: QuestionEntry[], getLabel: (question: QuestionEntry) => string): AggregatedStat[] => {
+            const accumulator = new Map<
+                string,
+                { stat: AggregatedStat; timelineMap: Map<string, ChartPoint> }
+            >();
+            items.forEach((question) => {
+                const label = getLabel(question) || t("subjectDetail.statistics.unknown");
+                const isCorrect = question.studentAnswer === question.answer;
+                const existing = accumulator.get(label);
+
+                if (!existing) {
+                    accumulator.set(label, {
+                        stat: {
+                            label,
+                            total: 0,
+                            correct: 0,
+                            wrong: 0,
+                            timeline: [],
+                        },
+                        timelineMap: new Map(),
+                    });
+                }
+
+                const entry = accumulator.get(label)!;
+                entry.stat.total += 1;
+                entry.stat.correct += isCorrect ? 1 : 0;
+                entry.stat.wrong += isCorrect ? 0 : 1;
+
+                const dateValue = question.createdAt ? new Date(question.createdAt) : null;
+                if (!Number.isNaN(dateValue?.getTime())) {
+                    const dateKey = dateValue!.toISOString().split("T")[0];
+                    const point =
+                        entry.timelineMap.get(dateKey) ||
+                        ({ date: dateKey, total: 0, correct: 0, wrong: 0 } as ChartPoint);
+
+                    point.total += 1;
+                    point.correct += isCorrect ? 1 : 0;
+                    point.wrong += isCorrect ? 0 : 1;
+                    entry.timelineMap.set(dateKey, point);
+                }
+            });
+
+            const aggregates = Array.from(accumulator.values()).map(({ stat, timelineMap }) => ({
+                ...stat,
+                timeline: Array.from(timelineMap.values()).sort((a, b) => a.date.localeCompare(b.date)),
+            }));
+
+            return aggregates.sort((a, b) => b.total - a.total);
+        },
+        [t]
+    );
+
+    const availableOptions = useMemo(
         () => (chartMode === "topics" ? topicStats : subtopicStats),
         [chartMode, subtopicStats, topicStats]
     );
+
+    const selectedStats = useMemo(() => {
+        const stats = chartMode === "topics" ? topicStats : subtopicStats;
+
+        if (selectedItem === "all") {
+            return stats;
+        }
+
+        return stats.filter((stat) => stat.label === selectedItem);
+    }, [chartMode, selectedItem, subtopicStats, topicStats]);
+
+    const filteredQuestions = useMemo(() => {
+        if (selectedItem === "all") {
+            return questions;
+        }
+
+        if (chartMode === "topics") {
+            return questions.filter((question) => getTopicLabel(question) === selectedItem);
+        }
+
+        return questions.filter((question) => getSubtopicLabel(question) === selectedItem);
+    }, [chartMode, getSubtopicLabel, getTopicLabel, questions, selectedItem]);
+
+    const displayedSummary = useMemo(() => {
+        const total = filteredQuestions.length;
+        const correct = filteredQuestions.filter(
+            (question) => question.studentAnswer === question.answer
+        ).length;
+
+        return { total, correct, wrong: total - correct };
+    }, [filteredQuestions]);
+
+    const subtopicsByTopic = useMemo(() => {
+        const groups = new Map<string, QuestionEntry[]>();
+
+        questions.forEach((question) => {
+            const topicLabel = getTopicLabel(question);
+            const bucket = groups.get(topicLabel) || [];
+            bucket.push(question);
+            groups.set(topicLabel, bucket);
+        });
+
+        return Array.from(groups.entries()).map(([topic, topicQuestions]) => ({
+            topic,
+            stats: buildAggregates(topicQuestions, (question) => getSubtopicLabel(question)),
+        }));
+    }, [buildAggregates, getSubtopicLabel, getTopicLabel, questions]);
 
     useEffect(() => {
         fetchStatistics();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const buildAggregates = (
-        items: QuestionEntry[],
-        getLabel: (question: QuestionEntry) => string
-    ): AggregatedStat[] => {
-        const accumulator = new Map<
-            string,
-            { stat: AggregatedStat; timelineMap: Map<string, ChartPoint> }
-        >();
-        items.forEach((question) => {
-            const label = getLabel(question) || t("subjectDetail.statistics.unknown");
-            const isCorrect = question.studentAnswer === question.answer;
-            const existing = accumulator.get(label);
+    useEffect(() => {
+        setSelectedItem("all");
+    }, [chartMode]);
 
-            if (!existing) {
-                accumulator.set(label, {
-                    stat: {
-                        label,
-                        total: 0,
-                        correct: 0,
-                        wrong: 0,
-                        timeline: [],
-                    },
-                    timelineMap: new Map(),
-                });
-            }
+    useEffect(() => {
+        const labels = availableOptions.map((option) => option.label);
 
-            const entry = accumulator.get(label)!;
-            entry.stat.total += 1;
-            entry.stat.correct += isCorrect ? 1 : 0;
-            entry.stat.wrong += isCorrect ? 0 : 1;
-
-            const dateValue = question.createdAt ? new Date(question.createdAt) : null;
-            if (!Number.isNaN(dateValue?.getTime())) {
-                const dateKey = dateValue!.toISOString().split("T")[0];
-                const point =
-                    entry.timelineMap.get(dateKey) ||
-                    ({ date: dateKey, total: 0, correct: 0, wrong: 0 } as ChartPoint);
-
-                point.total += 1;
-                point.correct += isCorrect ? 1 : 0;
-                point.wrong += isCorrect ? 0 : 1;
-                entry.timelineMap.set(dateKey, point);
-            }
-        });
-
-        const aggregates = Array.from(accumulator.values()).map(({ stat, timelineMap }) => ({
-            ...stat,
-            timeline: Array.from(timelineMap.values()).sort((a, b) => a.date.localeCompare(b.date)),
-        }));
-
-        return aggregates.sort((a, b) => b.total - a.total);
-    };
+        if (selectedItem !== "all" && !labels.includes(selectedItem)) {
+            setSelectedItem("all");
+        }
+    }, [availableOptions, selectedItem]);
 
     const parseQuestions = (data: any): QuestionEntry[] => {
         if (!data) return [];
@@ -196,29 +284,17 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
 
             const data = await response.json();
             const questions = parseQuestions(data);
-            const total = questions.length;
-            const correct = questions.filter(
-                (question) => question.studentAnswer === question.answer
-            ).length;
-            const wrong = total - correct;
 
-            setSummary({ total, correct, wrong });
+            setQuestions(questions);
 
             setTopicStats(
-                buildAggregates(questions, (question) => question.topic || "")
+                buildAggregates(questions, (question) => getTopicLabel(question))
             );
             setSubtopicStats(
-                buildAggregates(questions, (question) => {
-                    return (
-                        question.subTopic ||
-                        question.subtopicTitle ||
-                        question.subtopic ||
-                        t("subjectDetail.statistics.noSubtopic")
-                    );
-                })
+                buildAggregates(questions, (question) => getSubtopicLabel(question))
             );
         } catch (err: any) {
-            const fallbackMessage = t("subjectDetail.statistics.error");
+            const fallbackMessage = t("subjectDetail.statistics.error")
             const userMessage = err?.userMessage || fallbackMessage;
             const detail = err?.detail || (err?.message !== userMessage ? err?.message : null);
 
@@ -305,34 +381,13 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
     const renderPerformanceChart = () => (
         <div className="bg-white shadow rounded-lg p-6">
             <div className="flex flex-col gap-4">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-                    <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
-                            {t("subjectDetail.statistics.chartTitle")}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                            {t("subjectDetail.statistics.chartDescription")}
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <label className="text-sm font-medium text-gray-700">
-                            {t("subjectDetail.statistics.chartMode")}
-                        </label>
-                        <select
-                            className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            value={chartMode}
-                            onChange={(event) =>
-                                setChartMode(event.target.value as "topics" | "subtopics")
-                            }
-                        >
-                            <option value="topics">
-                                {t("subjectDetail.statistics.topicsOption")}
-                            </option>
-                            <option value="subtopics">
-                                {t("subjectDetail.statistics.subtopicsOption")}
-                            </option>
-                        </select>
-                    </div>
+                <div className="flex flex-col gap-1">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                        {t("subjectDetail.statistics.chartTitle")}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                        {t("subjectDetail.statistics.chartDescription")}
+                    </p>
                 </div>
 
                 {selectedStats.length === 0 ? (
@@ -470,38 +525,90 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                     </button>
                 </div>
             </div>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <label className="text-sm font-medium text-gray-700">
+                        {t("subjectDetail.statistics.chartMode")}
+                    </label>
+                    <select
+                        className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        value={chartMode}
+                        onChange={(event) =>
+                            setChartMode(event.target.value as "topics" | "subtopics")
+                        }
+                    >
+                        <option value="topics">
+                            {t("subjectDetail.statistics.topicsOption")}
+                        </option>
+                        <option value="subtopics">
+                            {t("subjectDetail.statistics.subtopicsOption")}
+                        </option>
+                    </select>
+                </div>
 
-            {error && (
-                <div className="rounded-md bg-red-50 p-4">
-                    <div className="flex">
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800">
-                                {t("subjectDetail.statistics.error")}
-                            </h3>
-                            {errorDetail && (
-                                <div className="mt-2 text-sm text-red-700">
-                                    <p>{errorDetail}</p>
-                                </div>
-                            )}
+                <div className="flex items-center gap-3">
+                    <label className="text-sm font-medium text-gray-700">
+                        {chartMode === "topics"
+                            ? t("subjectDetail.statistics.topicSelectorLabel")
+                            : t("subjectDetail.statistics.subtopicSelectorLabel")}
+                    </label>
+                    <select
+                        className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        value={selectedItem}
+                        onChange={(event) => setSelectedItem(event.target.value)}
+                    >
+                        <option value="all">
+                            {chartMode === "topics"
+                                ? t("subjectDetail.statistics.allTopicsOption")
+                                : t("subjectDetail.statistics.allSubtopicsOption")}
+                        </option>
+                        {availableOptions.map((option) => (
+                            <option key={`${chartMode}-${option.label}`} value={option.label}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            {
+                error && (
+                    <div className="rounded-md bg-red-50 p-4">
+                        <div className="flex">
+                            <div className="ml-3">
+                                <h3 className="text-sm font-medium text-red-800">
+                                    {t("subjectDetail.statistics.error")}
+                                </h3>
+                                {errorDetail && (
+                                    <div className="mt-2 text-sm text-red-700">
+                                        <p>{errorDetail}</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white shadow rounded-lg p-4">
                     <dt className="text-sm font-medium text-gray-500 truncate">
                         {t("subjectDetail.statistics.totalAnswered")}
                     </dt>
-                    <dd className="mt-1 text-3xl font-semibold text-gray-900">{summary.total}</dd>
+                    <dd className="mt-1 text-3xl font-semibold text-gray-900">
+                        {displayedSummary.total}
+                    </dd>
                 </div>
                 <div className="bg-white shadow rounded-lg p-4">
                     <dt className="text-sm font-medium text-gray-500 truncate">
                         {t("subjectDetail.statistics.successPercentage")}
                     </dt>
                     <dd className="mt-1 text-3xl font-semibold text-green-600">
-                        {summary.total
-                            ? Math.round((summary.correct / summary.total) * 100)
+                        {displayedSummary.total
+                            ? Math.round(
+                                (displayedSummary.correct / displayedSummary.total) *
+                                100
+                            )
                             : 0}
                         %
                     </dd>
@@ -511,8 +618,10 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                         {t("subjectDetail.statistics.failurePercentage")}
                     </dt>
                     <dd className="mt-1 text-3xl font-semibold text-red-600">
-                        {summary.total
-                            ? Math.round((summary.wrong / summary.total) * 100)
+                        {displayedSummary.total
+                            ? Math.round(
+                                (displayedSummary.wrong / displayedSummary.total) * 100
+                            )
                             : 0}
                         %
                     </dd>
@@ -526,12 +635,33 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                     t("subjectDetail.statistics.topicBreakdown"),
                     topicStats
                 )}
-                {renderAggregateTable(
-                    t("subjectDetail.statistics.subtopicBreakdown"),
-                    subtopicStats
-                )}
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                            {t("subjectDetail.statistics.subtopicBreakdown")}
+                        </h3>
+                        <span className="text-sm text-gray-500">
+                            {t("subjectDetail.statistics.itemsCount", {
+                                count: subtopicsByTopic.length,
+                            })}
+                        </span>
+                    </div>
+                    {subtopicsByTopic.length === 0 ? (
+                        <div className="bg-white shadow rounded-lg p-6">
+                            <p className="text-sm text-gray-500">
+                                {t("subjectDetail.statistics.noData")}
+                            </p>
+                        </div>
+                    ) : (
+                        subtopicsByTopic.map(({ topic, stats }) => (
+                            <div key={`subtopic-${topic}`}>
+                                {renderAggregateTable(topic, stats)}
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
-        </div>
+        </div >
     );
 };
 

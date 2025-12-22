@@ -140,6 +140,10 @@
 			"chartMode": "View by",
 			"topicsOption": "Topics",
 			"subtopicsOption": "Subtopics",
+			"topicSelectorLabel": "Topic",
+			"subtopicSelectorLabel": "Subtopic",
+			"allTopicsOption": "All topics",
+			"allSubtopicsOption": "All subtopics",
 			"totalLine": "Total",
 			"correctLine": "Correct",
 			"wrongLine": "Incorrect"

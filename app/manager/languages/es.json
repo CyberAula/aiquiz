@@ -140,6 +140,10 @@
 			"chartMode": "Visualizar por",
 			"topicsOption": "Temas",
 			"subtopicsOption": "Subtemas",
+			"topicSelectorLabel": "Tema",
+			"subtopicSelectorLabel": "Subtema",
+			"allTopicsOption": "Todos los temas",
+			"allSubtopicsOption": "Todos los subtemas",
 			"totalLine": "Total",
 			"correctLine": "Correctas",
 			"wrongLine": "Falladas"
