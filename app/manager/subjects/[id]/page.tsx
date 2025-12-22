@@ -12,6 +12,7 @@ import { Topic, useSubject } from "../../contexts/SubjectContext";
 // Importamos los componentes
 import TopicsTab from "../../components/subject/TopicsTab";
 import ProfessorsTab from "../../components/subject/ProfessorsTab";
+import StatisticsTab from "../../components/subject/StatisticsTab";
 import SettingsTab from "../../components/subject/SettingsTab";
 import InviteModal from "../../components/subject/InviteModal";
 import EditTopicModal from "../../components/subject/EditTopicModal";
@@ -469,6 +470,15 @@ export default function SubjectDetailPage() {
 							{t("subjectDetail.professors")}
 						</button>
 						<button
+							onClick={() => handleTabChange("statistics")}
+							className={`py-4 px-1 ${activeTab === "statistics"
+								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
+								: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+								}`}
+						>
+							{t("subjectDetail.statistics.tab")}
+						</button>
+						<button
 							onClick={() => handleTabChange("settings")}
 							className={`py-4 px-1 ${activeTab === "settings"
 								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
@@ -539,6 +549,12 @@ export default function SubjectDetailPage() {
 								/>
 							)}
 						</>
+					)}
+
+					{activeTab === "statistics" && subject && (
+						<StatisticsTab
+							subjectAcronym={subject.acronym}
+						/>
 					)}
 
 					{activeTab === "settings" && editedSubject && (
