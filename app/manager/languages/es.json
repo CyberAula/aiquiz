@@ -27,7 +27,6 @@
 		"errorSending": "Error al enviar el email de recuperación"
 	},
 	"navigation": {
-        "dashboard": "Panel de asignatuas",
 		"subjects": "Mis asignaturas",
 		"account": "Mi cuenta",
 		"logout": "Cerrar sesión"
