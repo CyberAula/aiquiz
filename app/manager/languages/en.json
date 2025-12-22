@@ -121,8 +121,8 @@
 			"totalAnswered": "Questions answered",
 			"successPercentage": "Accuracy",
 			"failurePercentage": "Errors",
-			"topicBreakdown": "By topics",
-			"subtopicBreakdown": "By subtopics",
+			"topicBreakdown": "Table of statistics by topics",
+			"subtopicBreakdown": "Table of statistics by subtopics",
 			"name": "Name",
 			"answered": "Answered",
 			"successRate": "Correct",
@@ -132,7 +132,6 @@
 			"unknown": "Unknown",
 			"noSubtopic": "No subtopic",
 			"chartTitle": "Answer trends by content",
-			"chartDescription": "One chart per topic or subtopic comparing total responses (black), correct (green) and incorrect (red) in the selected period",
 			"chartRangeLabel": "Selected period",
 			"chartItemAnswered": "Responses: {{count}}",
 			"correctShort": "Correct",
@@ -146,7 +145,13 @@
 			"allSubtopicsOption": "All subtopics",
 			"totalLine": "Total",
 			"correctLine": "Correct",
-			"wrongLine": "Incorrect"
+			"wrongLine": "Incorrect",
+
+			"topicHistogram": "Topic histogram",
+			"subtopicHistogram": "Subtopic histograms",
+			"tooltipTotal": "Questions: {{count}}",
+			"tooltipCorrect": "Correct: {{count}}",
+			"tooltipWrong": "Wrong: {{count}}"
 		}
 	},
 	"common": {

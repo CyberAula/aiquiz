@@ -121,8 +121,8 @@
 			"totalAnswered": "Preguntas respondidas",
 			"successPercentage": "% de aciertos",
 			"failurePercentage": "% de fallos",
-			"topicBreakdown": "Desglose por temas",
-			"subtopicBreakdown": "Desglose por subtemas",
+			"topicBreakdown": "Tabla de estadísticas por temas",
+			"subtopicBreakdown": "Tabla de estadísticas por subtemas",
 			"name": "Nombre",
 			"answered": "Respondidas",
 			"successRate": "Aciertos",
@@ -132,7 +132,6 @@
 			"unknown": "Sin datos",
 			"noSubtopic": "Sin subtema",
 			"chartTitle": "Tendencia de respuestas por contenido",
-			"chartDescription": "Un gráfico por cada tema o subtema comparando respuestas totales (negro), aciertos (verde) y fallos (rojo)",
 			"chartRangeLabel": "Periodo seleccionado",
 			"chartItemAnswered": "Respuestas: {{count}}",
 			"correctShort": "Correctas",
@@ -146,7 +145,13 @@
 			"allSubtopicsOption": "Todos los subtemas",
 			"totalLine": "Total",
 			"correctLine": "Correctas",
-			"wrongLine": "Falladas"
+			"wrongLine": "Falladas",
+			
+			"topicHistogram": "Histograma por temas",
+			"subtopicHistogram": "Histograma por subtemas",
+			"tooltipTotal": "Preguntas: {{count}}",
+			"tooltipCorrect": "Aciertos: {{count}}",
+			"tooltipWrong": "Fallos: {{count}}"
 		}
 	},
 	"common": {
