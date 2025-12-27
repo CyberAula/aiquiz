@@ -104,6 +104,16 @@ const questionSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    professorCorrection: {
+        type: Boolean,
+        default: false,
+        required: true,
+    },
+    correctedQuestion: {
+        type: Boolean,
+        default: false,
+        required: true,
+    },
 
     // Identificador de pull request (Identificador de cuestionario)
     pull_id: {

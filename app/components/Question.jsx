@@ -116,7 +116,8 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         let md5Prompt = '';
         let prompt = '';
         let pull_id = null;
-
+        let professorCorrection = false;
+        let correctedQuestion = false;
 
         const urlStudent = urljoin(basePath, `/api/student`);
         const responseStudent = await fetch(urlStudent, {
@@ -161,6 +162,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.md5Prompt = md5Prompt;
         data.prompt = prompt;
         data.pull_id = pull_id;
+
         if (report) {
             data.studentReport = true;
             data.studentAnswer = selectedChoiceIndex; //if reported, we can use the state to keep what the user selected or -1 if nothing selected
@@ -168,6 +170,9 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
             data.studentReport = isSubmittedReport; //if not reported, we can use the state to keep if the user reported or not
             data.studentAnswer = choiceIndex;
         }
+        data.professorCorrection = professorCorrection;
+        data.correctedQuestion = correctedQuestion;
+
         data.correct = answer === choiceIndex;
         console.log("data to save: ", data);
 
