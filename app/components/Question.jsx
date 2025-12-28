@@ -118,6 +118,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         let pull_id = null;
         let professorCorrection = false;
         let correctedQuestion = false;
+        let professorAnswer = -1;
 
         const urlStudent = urljoin(basePath, `/api/student`);
         const responseStudent = await fetch(urlStudent, {
@@ -172,6 +173,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         }
         data.professorCorrection = professorCorrection;
         data.correctedQuestion = correctedQuestion;
+        data.professorAnswer = professorAnswer;
 
         data.correct = answer === choiceIndex;
         console.log("data to save: ", data);

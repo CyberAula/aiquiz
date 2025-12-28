@@ -13,6 +13,7 @@ import { Topic, useSubject } from "../../contexts/SubjectContext";
 import TopicsTab from "../../components/subject/TopicsTab";
 import ProfessorsTab from "../../components/subject/ProfessorsTab";
 import StatisticsTab from "../../components/subject/StatisticsTab";
+import CorrectionsTab from "../../components/subject/CorrectionsTab";
 import SettingsTab from "../../components/subject/SettingsTab";
 import InviteModal from "../../components/subject/InviteModal";
 import EditTopicModal from "../../components/subject/EditTopicModal";
@@ -470,6 +471,15 @@ export default function SubjectDetailPage() {
 							{t("subjectDetail.statistics.tab")}
 						</button>
 						<button
+							onClick={() => handleTabChange("corrections")}
+							className={`py-4 px-1 ${activeTab === "corrections"
+								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
+								: "border-b-2 border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+								}`}
+						>
+							{t("subjectDetail.corrections.tab") || "Correcciones"}
+						</button>
+						<button
 							onClick={() => handleTabChange("professors")}
 							className={`py-4 px-1 ${activeTab === "professors"
 								? "border-b-2 border-indigo-500 font-medium text-indigo-600"
@@ -553,6 +563,13 @@ export default function SubjectDetailPage() {
 
 					{activeTab === "statistics" && subject && (
 						<StatisticsTab
+							subjectAcronym={subject.acronym}
+						/>
+					)}
+
+					{activeTab === "corrections" && subject && (
+						<CorrectionsTab
+							subjectId={subject.id}
 							subjectAcronym={subject.acronym}
 						/>
 					)}

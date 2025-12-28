@@ -109,6 +109,11 @@ const questionSchema = new Schema({
         default: false,
         required: true,
     },
+    professorAnswer: {
+        type: Number,
+        default: -1,
+        required: true,
+    },
     correctedQuestion: {
         type: Boolean,
         default: false,
