@@ -15,11 +15,18 @@ interface CorrectionQuestion {
     createdAt?: string;
     correctedQuestion?: boolean;
     professorAnswer?: number;
+    topic?: string;
+    subTopic?: string;
 }
 
 interface CorrectionsTabProps {
     subjectId: string;
     subjectAcronym?: string;
+    topics?: Array<{
+        id: string;
+        title: string;
+        subtopics?: Array<{ id: string; title: string }>;
+    }>;
 }
 
 const REASONS_KEYS = [
@@ -29,7 +36,7 @@ const REASONS_KEYS = [
     "subjectDetail.corrections.reasons.offTopic",
 ];
 
-const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
+const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId, topics = [] }) => {
     const { t } = useManagerTranslation();
 
     const [activeSection, setActiveSection] = useState<"reported" | "corrected">(
@@ -56,6 +63,8 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
     const [saving, setSaving] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
     const [downloading, setDownloading] = useState<boolean>(false);
+    const [selectedTopicId, setSelectedTopicId] = useState<string>("");
+    const [selectedSubtopicId, setSelectedSubtopicId] = useState<string>("");
 
     const { makeRequest: fetchCorrections } = useApiRequest(
         `/aiquiz/api/manager/subjects/${subjectId}/corrections?status=reported`,
@@ -101,14 +110,28 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
     );
 
     const currentQuestions = sectionData[activeSection] || [];
+    const selectedTopic = topics.find((topic) => topic.id === selectedTopicId);
+    const availableSubtopics = selectedTopic?.subtopics || [];
 
     const loadSection = async (section: "reported" | "corrected") => {
         setLoadingSection(true);
         try {
+            const params = new URLSearchParams({ status: section });
+            if (selectedTopic?.id) {
+                params.append("topicId", selectedTopic.id);
+                params.append("topicTitle", selectedTopic.title);
+            }
+            const selectedSubtopic = availableSubtopics.find(
+                (subtopic) => subtopic.id === selectedSubtopicId
+            );
+            if (selectedSubtopic?.id) {
+                params.append("subtopicId", selectedSubtopic.id);
+                params.append("subtopicTitle", selectedSubtopic.title);
+            }
             const response = await fetchCorrections(
                 null,
                 true,
-                `/aiquiz/api/manager/subjects/${subjectId}/corrections?status=${section}`
+                `/aiquiz/api/manager/subjects/${subjectId}/corrections?${params.toString()}`
             );
 
             if (response?.questions) {
@@ -139,6 +162,12 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
     useEffect(() => {
         setSelectedIds(new Set());
     }, [activeSection]);
+
+    useEffect(() => {
+        setLoadedSections({ reported: false, corrected: false });
+        loadSection(activeSection);
+        setSelectedIds(new Set());
+    }, [selectedTopicId, selectedSubtopicId]);
 
     const toggleSelection = (id: string) => {
         setSelectedIds((prev) => {
@@ -270,55 +299,76 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
         }
     };
 
-    const renderChoices = (question: CorrectionQuestion) => (
-        <div className="space-y-2">
-            {question.choices?.map((choice, index) => {
-                const choiceText = typeof choice === "string" ? choice : choice.text;
-                const isCorrectChoice =
-                    typeof choice === "string"
-                        ? question.answer === index
-                        : choice.isCorrect;
-                const isStudentAnswer = question.studentAnswer === index;
-                const isProfessorAnswer = question.professorAnswer === index;
+    const renderChoices = (question: CorrectionQuestion) => {
+        const noneOptionIndex = question.choices?.length ?? 0;
+        const showNoneOption = question.professorAnswer === noneOptionIndex;
+        return (
+            <div className="space-y-2">
+                {question.choices?.map((choice, index) => {
+                    const choiceText = typeof choice === "string" ? choice : choice.text;
+                    const isCorrectChoice =
+                        typeof choice === "string"
+                            ? question.answer === index
+                            : choice.isCorrect;
+                    const isStudentAnswer = question.studentAnswer === index;
+                    const isProfessorAnswer = question.professorAnswer === index;
+                    const baseClasses = "rounded-md border px-3 py-2";
+                    const correctClasses = isCorrectChoice
+                        ? "border-green-500 bg-green-50"
+                        : "border-gray-200";
+                    const professorClasses = isProfessorAnswer
+                        ? "border-orange-500 bg-orange-50"
+                        : "";
 
-                return (
-                    <div
-                        key={`${question._id}-${index}`}
-                        className={`rounded-md border px-3 py-2 ${isCorrectChoice
-                            ? "border-green-500 bg-green-50"
-                            : "border-gray-200"
-                            } ${isStudentAnswer ? "ring-2 ring-blue-400" : ""}`}
-                    >
+                    return (
+                        <div
+                            key={`${question._id}-${index}`}
+                            className={`${baseClasses} ${correctClasses} ${professorClasses} ${isStudentAnswer ? "ring-2 ring-blue-400" : ""}`}
+                        >
+                            <div className="flex items-start justify-between">
+                                <div className="font-medium text-gray-800">
+                                    {String.fromCharCode(65 + index)}. {choiceText}
+                                </div>
+                                <div className="flex flex-col items-end gap-1 text-right text-sm font-semibold">
+                                    {isCorrectChoice && (
+                                        <span className="text-green-700">
+                                            {t("subjectDetail.corrections.correctAnswer") ||
+                                                "Respuesta del modelo"}
+                                        </span>
+                                    )}
+                                    {isProfessorAnswer && (
+                                        <span className="text-orange-700">
+                                            {t("subjectDetail.corrections.professorAnswer") ||
+                                                "Corrección del profesor"}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                            {isStudentAnswer && (
+                                <div className="mt-1 text-sm text-blue-700">
+                                    {t("subjectDetail.corrections.studentSelected") ||
+                                        "Opción marcada por el alumno"}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+                {showNoneOption && (
+                    <div className="rounded-md border border-orange-500 bg-orange-50 px-3 py-2">
                         <div className="flex items-start justify-between">
                             <div className="font-medium text-gray-800">
-                                {String.fromCharCode(65 + index)}. {choiceText}
-                            </div>
-                            <div className="flex flex-col items-end gap-1 text-right text-sm font-semibold">
-                                {isCorrectChoice && (
-                                    <span className="text-green-700">
-                                        {t("subjectDetail.corrections.correctAnswer") ||
-                                            "Respuesta correcta"}
-                                    </span>
-                                )}
-                                {isProfessorAnswer && (
-                                    <span className="text-indigo-700">
-                                        {t("subjectDetail.corrections.professorAnswer") ||
-                                            "Corrección del profesor"}
-                                    </span>
-                                )}
+                                {String.fromCharCode(65 + noneOptionIndex)}.{" "}
+                                {t("subjectDetail.corrections.noneOption") || "Ninguna de las anteriores"}                            </div>
+                            <div className="text-sm font-semibold text-orange-700">
+                                {t("subjectDetail.corrections.professorAnswer") ||
+                                    "Corrección del profesor"}
                             </div>
                         </div>
-                        {isStudentAnswer && (
-                            <div className="mt-1 text-sm text-blue-700">
-                                {t("subjectDetail.corrections.studentSelected") ||
-                                    "Opción marcada por el alumno"}
-                            </div>
-                        )}
                     </div>
-                );
-            })}
-        </div>
-    );
+                )}
+            </div>
+        );
+    };
 
     return (
         <div>
@@ -343,43 +393,89 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                 </button>
             </div>
 
-            <div className="mb-4 flex items-center justify-between">
-                <div className="text-sm text-gray-600">
-                    {activeSection === "reported"
-                        ? t("subjectDetail.corrections.reportedHelper") ||
-                        "Últimas 25 preguntas reportadas por los alumnos"
-                        : t("subjectDetail.corrections.correctedHelper") ||
-                        "Preguntas revisadas más recientes"}
-                </div>
-                <div className="flex gap-2">
-                    {activeSection === "corrected" && (
+            <div className="mb-4 flex flex-col gap-4 rounded-md border border-gray-200 bg-white p-4">
+                <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+                    <div className="text-sm text-gray-600">
+                        {activeSection === "reported"
+                            ? t("subjectDetail.corrections.reportedHelper") ||
+                            "Últimas 25 preguntas reportadas por los alumnos"
+                            : t("subjectDetail.corrections.correctedHelper") ||
+                            "Preguntas revisadas más recientes"}
+                    </div>
+                    <div className="flex gap-2">
+                        {activeSection === "corrected" && (
+                            <button
+                                onClick={handleDownloadSelected}
+                                disabled={selectedIds.size === 0 || downloading}
+                                className={`rounded-md px-3 py-2 text-sm font-semibold text-white ${selectedIds.size === 0 || downloading
+                                    ? "bg-gray-400"
+                                    : "bg-emerald-600 hover:bg-emerald-700"
+                                    }`}
+                            >
+                                {downloading
+                                    ? t("subjectDetail.corrections.downloading") || "Descargando..."
+                                    : t("subjectDetail.corrections.downloadPdf") ||
+                                    "Descargar PDF"}
+                            </button>
+                        )}
                         <button
-                            onClick={handleDownloadSelected}
-                            disabled={selectedIds.size === 0 || downloading}
-                            className={`rounded-md px-3 py-2 text-sm font-semibold text-white ${selectedIds.size === 0 || downloading
+                            onClick={handleDeleteSelected}
+                            disabled={selectedIds.size === 0 || deleting}
+                            className={`rounded-md px-3 py-2 text-sm font-semibold text-white ${selectedIds.size === 0 || deleting
                                 ? "bg-gray-400"
-                                : "bg-emerald-600 hover:bg-emerald-700"
+                                : "bg-red-600 hover:bg-red-700"
                                 }`}
                         >
-                            {downloading
-                                ? t("subjectDetail.corrections.downloading") || "Descargando..."
-                                : t("subjectDetail.corrections.downloadPdf") ||
-                                "Descargar PDF"}
+                            {deleting
+                                ? t("subjectDetail.corrections.deleting") || "Eliminando..."
+                                : t("subjectDetail.corrections.deleteSelected") ||
+                                "Eliminar seleccionadas"}
                         </button>
-                    )}
-                    <button
-                        onClick={handleDeleteSelected}
-                        disabled={selectedIds.size === 0 || deleting}
-                        className={`rounded-md px-3 py-2 text-sm font-semibold text-white ${selectedIds.size === 0 || deleting
-                            ? "bg-gray-400"
-                            : "bg-red-600 hover:bg-red-700"
-                            }`}
-                    >
-                        {deleting
-                            ? t("subjectDetail.corrections.deleting") || "Eliminando..."
-                            : t("subjectDetail.corrections.deleteSelected") ||
-                            "Eliminar seleccionadas"}
-                    </button>
+                    </div>
+                </div>
+                <div className="flex flex-col gap-3 md:flex-row md:items-end">
+                    <div className="flex flex-1 flex-col gap-1">
+                        <label className="text-xs font-semibold text-gray-500">
+                            {t("subjectDetail.corrections.filterTopic") || "Filtrar por tema"}
+                        </label>
+                        <select
+                            value={selectedTopicId}
+                            onChange={(event) => {
+                                setSelectedTopicId(event.target.value);
+                                setSelectedSubtopicId("");
+                            }}
+                            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                        >
+                            <option value="">
+                                {t("subjectDetail.corrections.allTopics") || "Todos los temas"}
+                            </option>
+                            {topics.map((topic) => (
+                                <option key={topic.id} value={topic.id}>
+                                    {topic.title}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="flex flex-1 flex-col gap-1">
+                        <label className="text-xs font-semibold text-gray-500">
+                            {t("subjectDetail.corrections.filterSubtopic") || "Filtrar por subtema"}
+                        </label>
+                        <select
+                            value={selectedSubtopicId}
+                            onChange={(event) => setSelectedSubtopicId(event.target.value)}
+                            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                            disabled={!selectedTopicId}
+                        >
+                            <option value="">
+                                {t("subjectDetail.corrections.allSubtopics") || "Todos los subtemas"}
+                            </option>
+                            {availableSubtopics.map((subtopic) => (
+                                <option key={subtopic.id} value={subtopic.id}>
+                                    {subtopic.title}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -411,12 +507,13 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                     {currentQuestions.map((question) => (
                         <div
                             key={question._id}
-                            className="flex items-start gap-3 rounded-md border border-gray-200 bg-white p-4 shadow-sm"
-                        >
+                            className="flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 bg-white p-4 shadow-sm transition hover:border-indigo-300"
+                            onClick={() => toggleSelection(question._id)}                        >
                             <input
                                 type="checkbox"
                                 checked={selectedIds.has(question._id)}
                                 onChange={() => toggleSelection(question._id)}
+                                onClick={(event) => event.stopPropagation()}
                                 className="mt-1"
                             />
                             <div className="flex-1">
@@ -451,7 +548,11 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                                 </div>
                                 <div className="mt-3 flex justify-end">
                                     <button
-                                        onClick={() => openQuestionModal(question)}
+                                        onMouseDown={(event) => event.stopPropagation()}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            openQuestionModal(question);
+                                        }}
                                         className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
                                     >
                                         {activeSection === "reported"
@@ -502,6 +603,17 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                                 )}
                             </div>
 
+                            {activeSection === "corrected" && modalQuestion.teacherComments?.length > 0 && (
+                                <div className="rounded-md border border-orange-200 bg-orange-50 p-3 text-sm text-orange-800">
+                                    <strong>
+                                        {t("subjectDetail.corrections.teacherComments") ||
+                                            "Comentario del profesor"}
+                                        :
+                                    </strong>{" "}
+                                    {modalQuestion.teacherComments.join("; ")}
+                                </div>
+                            )}
+
                             {activeSection === "reported" && (
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     <button
@@ -549,6 +661,22 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                                                 </button>
                                             );
                                         })}
+                                        <button
+                                            key={`${modalQuestion._id}-professor-none`}
+                                            type="button"
+                                            onClick={() =>
+                                                setSelectedProfessorAnswer(
+                                                    modalQuestion.choices?.length ?? 0
+                                                )
+                                            }
+                                            className={`w-full rounded-md border px-3 py-2 text-left text-sm font-medium ${selectedProfessorAnswer === (modalQuestion.choices?.length ?? 0)
+                                                ? "border-indigo-500 bg-indigo-50 text-indigo-900"
+                                                : "border-gray-200 text-gray-800 hover:border-indigo-300"
+                                                }`}
+                                        >
+                                            {t("subjectDetail.corrections.noneOption") ||
+                                                "Ninguna de las anteriores"}
+                                        </button>
                                     </div>
                                 </div>
                             )}
@@ -612,7 +740,7 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                             >
                                 {t("subjectDetail.corrections.cancel") || "Cerrar"}
                             </button>
-                            
+
                             {activeSection === "reported" && (
                                 <button
                                     onClick={handleUpdateCorrection}

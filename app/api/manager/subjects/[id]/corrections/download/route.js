@@ -49,16 +49,19 @@ async function downloadCorrections(request, { params }) {
             );
         }
 
-        return generateCorrectionsPDF(questions, params.id);
+        const subject = await Subject.findById(params.id).lean();
+        return generateCorrectionsPDF(questions, subject);
     } catch (error) {
         return handleError(error, 'Error generando PDF de correcciones');
     }
 }
 
-function generateCorrectionsPDF(questions, subjectId) {
+function generateCorrectionsPDF(questions, subject) {
     try {
         const { jsPDF } = require('jspdf');
         const doc = new jsPDF();
+        const subjectTitle = subject?.title || subject?.name || subject?._id || 'Asignatura';
+        const subjectId = subject?._id?.toString() || 'subject';
 
         const margin = 20;
         const lineHeight = 7;
@@ -73,7 +76,7 @@ function generateCorrectionsPDF(questions, subjectId) {
 
         doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
-        doc.text(`Asignatura: ${subjectId}`, margin, yPosition);
+        doc.text(`Asignatura: ${subjectTitle}`, margin, yPosition);
         yPosition += lineHeight;
         doc.text(`Número de preguntas: ${questions.length}`, margin, yPosition);
         yPosition += lineHeight;
@@ -89,8 +92,39 @@ function generateCorrectionsPDF(questions, subjectId) {
 
         const splitText = (text, maxWidth) => doc.splitTextToSize(text, maxWidth);
 
+        const renderUnderlinedText = (text, x, underlineColor) => {
+            const lines = splitText(text, maxLineWidth - 20);
+            lines.forEach((line) => {
+                checkPageBreak(lineHeight);
+                if (underlineColor) {
+                    doc.setTextColor(underlineColor.r, underlineColor.g, underlineColor.b);
+                } else {
+                    doc.setTextColor(0, 0, 0);
+                }
+                doc.text(line, x, yPosition);
+                if (underlineColor) {
+                    const width = doc.getTextWidth(line);
+                    doc.setDrawColor(underlineColor.r, underlineColor.g, underlineColor.b);
+                    doc.setLineWidth(0.5);
+                    doc.line(x, yPosition + 1, x + width, yPosition + 1);
+                }
+                yPosition += lineHeight;
+            });
+            doc.setTextColor(0, 0, 0);
+            doc.setDrawColor(0, 0, 0);
+        };
+
         questions.forEach((question, index) => {
             checkPageBreak(30);
+            const topicLabel = question.topic || 'Sin tema';
+            const subtopicLabel = question.subTopic || 'Sin subtema';
+
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Tema: ${topicLabel}`, margin, yPosition);
+            yPosition += lineHeight;
+            doc.text(`Subtema: ${subtopicLabel}`, margin, yPosition);
+            yPosition += lineHeight + 2;
 
             doc.setFontSize(12);
             doc.setFont(undefined, 'bold');
@@ -104,42 +138,39 @@ function generateCorrectionsPDF(questions, subjectId) {
                 doc.setFontSize(10);
                 doc.setFont(undefined, 'normal');
 
-                question.choices.forEach((choice, choiceIndex) => {
+                const professorAnswerIndex =
+                    typeof question.professorAnswer === 'number' ? question.professorAnswer : -1;
+                const modelAnswerIndex =
+                    typeof question.answer === 'number' ? question.answer : -1;
+                const professorMatchesModel =
+                    professorAnswerIndex >= 0 && professorAnswerIndex === modelAnswerIndex;
+                const choices = [...question.choices];
+                const noneOptionIndex = choices.length;
+                if (professorAnswerIndex === noneOptionIndex) {
+                    choices.push({
+                        text: 'Ninguna de las anteriores',
+                    });
+                }
+
+                choices.forEach((choice, choiceIndex) => {
                     const letter = String.fromCharCode(65 + choiceIndex);
-                    const isCorrect = typeof choice === 'object' ? choice.isCorrect : choiceIndex === question.answer;
                     const choiceText = typeof choice === 'object' ? choice.text : choice;
 
-                    checkPageBreak(10);
-
-                    let optionText = `   ${letter}) ${choiceText}`;
-                    if (isCorrect) {
-                        optionText += ' ✓';
-                        doc.setFont(undefined, 'bold');
+                    let underlineColor = null;
+                    if (professorMatchesModel && choiceIndex === professorAnswerIndex) {
+                        underlineColor = { r: 34, g: 139, b: 34 };
+                    } else if (!professorMatchesModel) {
+                        if (choiceIndex === modelAnswerIndex) {
+                            underlineColor = { r: 220, g: 38, b: 38 };
+                        }
+                        if (choiceIndex === professorAnswerIndex) {
+                            underlineColor = { r: 34, g: 139, b: 34 };
+                        }
                     }
 
-                    const choiceLines = splitText(optionText, maxLineWidth - 20);
-                    doc.text(choiceLines, margin + 10, yPosition);
-                    yPosition += choiceLines.length * lineHeight;
-
-                    doc.setFont(undefined, 'normal');
+                    const optionText = `   ${letter}) ${choiceText}`;
+                    renderUnderlinedText(optionText, margin + 10, underlineColor);
                 });
-            }
-
-            const professorAnswerIndex =
-                typeof question.professorAnswer === 'number' ? question.professorAnswer : -1;
-            if (question.choices && professorAnswerIndex >= 0) {
-                const answerChoice = question.choices[professorAnswerIndex];
-                const answerText = typeof answerChoice === 'object' ? answerChoice.text : answerChoice;
-                checkPageBreak(10);
-                yPosition += 2;
-                doc.setFont(undefined, 'bold');
-                const professorAnswerText = `Respuesta corregida por el profesor: ${String.fromCharCode(
-                    65 + professorAnswerIndex
-                )}) ${answerText}`;
-                const professorLines = splitText(professorAnswerText, maxLineWidth - 20);
-                doc.text(professorLines, margin + 10, yPosition);
-                yPosition += professorLines.length * lineHeight;
-                doc.setFont(undefined, 'normal');
             }
 
             if (question.teacherComments?.length) {
@@ -167,42 +198,56 @@ function generateCorrectionsPDF(questions, subjectId) {
             headers,
         });
     } catch (error) {
-        return generateCorrectionsFallback(questions, subjectId);
+        return generateCorrectionsFallback(questions, subject);
     }
 }
 
-function generateCorrectionsFallback(questions, subjectId) {
+function generateCorrectionsFallback(questions, subject) {
+    const subjectTitle = subject?.title || subject?.name || subject?._id || 'Asignatura';
+    const subjectId = subject?._id?.toString() || 'subject';
     let content = `PREGUNTAS CORREGIDAS\n\n`;
-    content += `Asignatura: ${subjectId}\n`;
+    content += `Asignatura: ${subjectTitle}\n`;
     content += `Número de preguntas: ${questions.length}\n`;
     content += `Generado: ${new Date().toLocaleDateString()}\n\n`;
     content += '='.repeat(60) + '\n\n';
 
     questions.forEach((question, index) => {
+        const topicLabel = question.topic || 'Sin tema';
+        const subtopicLabel = question.subTopic || 'Sin subtema';
+        content += `Tema: ${topicLabel}\n`;
+        content += `Subtema: ${subtopicLabel}\n`;
         content += `${index + 1}. ${question.text || question.query}\n`;
 
         if (question.choices && Array.isArray(question.choices)) {
-            question.choices.forEach((choice, choiceIndex) => {
+            const professorAnswerIndex =
+                typeof question.professorAnswer === 'number' ? question.professorAnswer : -1;
+            const modelAnswerIndex =
+                typeof question.answer === 'number' ? question.answer : -1;
+            const professorMatchesModel =
+                professorAnswerIndex >= 0 && professorAnswerIndex === modelAnswerIndex;
+            const choices = [...question.choices];
+            const noneOptionIndex = choices.length;
+            if (professorAnswerIndex === noneOptionIndex) {
+                choices.push({ text: 'Ninguna de las anteriores' });
+            }
+
+            choices.forEach((choice, choiceIndex) => {
                 const letter = String.fromCharCode(65 + choiceIndex);
-                const isCorrect = typeof choice === 'object' ? choice.isCorrect : choiceIndex === question.answer;
                 const choiceText = typeof choice === 'object' ? choice.text : choice;
 
-                content += `   ${letter}) ${choiceText}`;
-                if (isCorrect) {
-                    content += ' ✓';
+                let suffix = '';
+                if (professorMatchesModel && choiceIndex === professorAnswerIndex) {
+                    suffix = ' [PROFESOR]';
+                } else if (!professorMatchesModel) {
+                    if (choiceIndex === modelAnswerIndex) {
+                        suffix = ' [MODELO INCORRECTA]';
+                    }
+                    if (choiceIndex === professorAnswerIndex) {
+                        suffix = ' [PROFESOR]';
+                    }
                 }
-                content += '\n';
+                content += `   ${letter}) ${choiceText}${suffix}\n`;
             });
-        }
-
-        const professorAnswerIndex =
-            typeof question.professorAnswer === 'number' ? question.professorAnswer : -1;
-        if (question.choices && professorAnswerIndex >= 0) {
-            const answerChoice = question.choices[professorAnswerIndex];
-            const answerText = typeof answerChoice === 'object' ? answerChoice.text : answerChoice;
-            content += `\n   Respuesta corregida por el profesor: ${String.fromCharCode(
-                65 + professorAnswerIndex
-            )}) ${answerText}\n`;
         }
 
         if (question.teacherComments?.length) {

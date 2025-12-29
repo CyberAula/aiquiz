@@ -23,8 +23,27 @@ async function getCorrections(request, { params }) {
         await dbConnect();
 
         const { searchParams } = new URL(request.url);
-        const status = searchParams.get('status') || 'reported';
-        const limit = parseInt(searchParams.get('limit') || '25', 10);
+        const status = searchParams.get("status") || "reported";
+        const limit = parseInt(searchParams.get("limit") || "25", 10);
+
+        // ✅ Acepta varias formas de los mismos params
+        const topicId = searchParams.get("topicId") || searchParams.get("topicRef");
+        const topicTitle = searchParams.get("topicTitle") || searchParams.get("topic");
+
+        const subtopicId =
+            searchParams.get("subtopicId") ||
+            searchParams.get("subTopicId") ||
+            searchParams.get("subtopicRef") ||
+            searchParams.get("subTopicRef");
+
+        const subtopicTitle =
+            searchParams.get("subtopicTitle") ||
+            searchParams.get("subTopicTitle") ||
+            searchParams.get("subtopic") ||
+            searchParams.get("subTopic");
+
+        const topicTitleNorm = topicTitle?.trim().toLowerCase();
+        const subtopicTitleNorm = subtopicTitle?.trim().toLowerCase();
 
         const subjectFilter = await buildSubjectFilter(params.id);
 
@@ -32,7 +51,7 @@ async function getCorrections(request, { params }) {
             ...subjectFilter,
         };
 
-        if (status === 'corrected') {
+        if (status === "corrected") {
             filters.professorCorrection = true;
             filters.correctedQuestion = true;
         } else {
@@ -43,9 +62,44 @@ async function getCorrections(request, { params }) {
             ];
         }
 
+        const extraFilters = [];
+
+        if (topicId || topicTitleNorm) {
+            const topicConditions = [];
+            if (topicId) {
+                topicConditions.push({ topicRef: topicId });
+                topicConditions.push({ topic: topicId });
+            }
+            if (topicTitleNorm) {
+                topicConditions.push({ topic: topicTitleNorm });
+            }
+            extraFilters.push({ $or: topicConditions });
+        }
+
+        if (subtopicId || subtopicTitleNorm) {
+            const subtopicConditions = [];
+            if (subtopicId) {
+                // ✅ Cubre ids y refs con varios nombres posibles
+                subtopicConditions.push({ subtopicRef: subtopicId });
+                subtopicConditions.push({ subTopicRef: subtopicId });
+                subtopicConditions.push({ subtopic: subtopicId });
+                subtopicConditions.push({ subTopic: subtopicId });
+            }
+            if (subtopicTitleNorm) {
+                // ✅ Cubre ambos nombres de campo en BD
+                subtopicConditions.push({ subtopic: subtopicTitleNorm });
+                subtopicConditions.push({ subTopic: subtopicTitleNorm });
+            }
+            extraFilters.push({ $or: subtopicConditions });
+        }
+
+        if (extraFilters.length > 0) {
+            filters.$and = extraFilters;
+        }
+
         const query = Question.find(filters).sort({ createdAt: -1 });
 
-        if (status !== 'corrected') {
+        if (status !== "corrected") {
             query.limit(Number.isNaN(limit) ? 25 : limit);
         }
 
@@ -56,7 +110,7 @@ async function getCorrections(request, { params }) {
             questions,
         });
     } catch (error) {
-        return handleError(error, 'Error obteniendo preguntas reportadas');
+        return handleError(error, "Error obteniendo preguntas reportadas");
     }
 }
 

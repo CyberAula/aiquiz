@@ -571,6 +571,7 @@ export default function SubjectDetailPage() {
 						<CorrectionsTab
 							subjectId={subject.id}
 							subjectAcronym={subject.acronym}
+							topics={subject.topics || []}
 						/>
 					)}
 
