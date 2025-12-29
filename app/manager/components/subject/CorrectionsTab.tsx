@@ -64,7 +64,6 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId, topics = [] 
     const [deleting, setDeleting] = useState<boolean>(false);
     const [downloading, setDownloading] = useState<boolean>(false);
     const [selectedTopicId, setSelectedTopicId] = useState<string>("");
-    const [selectedSubtopicId, setSelectedSubtopicId] = useState<string>("");
 
     const { makeRequest: fetchCorrections } = useApiRequest(
         `/aiquiz/api/manager/subjects/${subjectId}/corrections?status=reported`,
@@ -111,7 +110,6 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId, topics = [] 
 
     const currentQuestions = sectionData[activeSection] || [];
     const selectedTopic = topics.find((topic) => topic.id === selectedTopicId);
-    const availableSubtopics = selectedTopic?.subtopics || [];
 
     const loadSection = async (section: "reported" | "corrected") => {
         setLoadingSection(true);
@@ -121,13 +119,7 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId, topics = [] 
                 params.append("topicId", selectedTopic.id);
                 params.append("topicTitle", selectedTopic.title);
             }
-            const selectedSubtopic = availableSubtopics.find(
-                (subtopic) => subtopic.id === selectedSubtopicId
-            );
-            if (selectedSubtopic?.id) {
-                params.append("subtopicId", selectedSubtopic.id);
-                params.append("subtopicTitle", selectedSubtopic.title);
-            }
+            
             const response = await fetchCorrections(
                 null,
                 true,
@@ -167,7 +159,7 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId, topics = [] 
         setLoadedSections({ reported: false, corrected: false });
         loadSection(activeSection);
         setSelectedIds(new Set());
-    }, [selectedTopicId, selectedSubtopicId]);
+    }, [selectedTopicId]);
 
     const toggleSelection = (id: string) => {
         setSelectedIds((prev) => {
@@ -442,7 +434,6 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId, topics = [] 
                             value={selectedTopicId}
                             onChange={(event) => {
                                 setSelectedTopicId(event.target.value);
-                                setSelectedSubtopicId("");
                             }}
                             className="rounded-md border border-gray-300 px-3 py-2 text-sm"
                         >
@@ -452,26 +443,6 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId, topics = [] 
                             {topics.map((topic) => (
                                 <option key={topic.id} value={topic.id}>
                                     {topic.title}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="flex flex-1 flex-col gap-1">
-                        <label className="text-xs font-semibold text-gray-500">
-                            {t("subjectDetail.corrections.filterSubtopic") || "Filtrar por subtema"}
-                        </label>
-                        <select
-                            value={selectedSubtopicId}
-                            onChange={(event) => setSelectedSubtopicId(event.target.value)}
-                            className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-                            disabled={!selectedTopicId}
-                        >
-                            <option value="">
-                                {t("subjectDetail.corrections.allSubtopics") || "Todos los subtemas"}
-                            </option>
-                            {availableSubtopics.map((subtopic) => (
-                                <option key={subtopic.id} value={subtopic.id}>
-                                    {subtopic.title}
                                 </option>
                             ))}
                         </select>
