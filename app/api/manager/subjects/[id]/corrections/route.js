@@ -65,7 +65,7 @@ async function updateCorrection(request, { params }) {
         await dbConnect();
 
         const body = await request.json();
-        const { questionId, isCorrect, reason, customReason } = body;
+        const { questionId, isCorrect, reason, customReason, professorAnswer } = body;
 
         if (!questionId || typeof isCorrect !== 'boolean') {
             return NextResponse.json(
@@ -83,7 +83,8 @@ async function updateCorrection(request, { params }) {
         const updatePayload = {
             professorCorrection: true,
             correctedQuestion: !isCorrect,
-            studentReport: false,
+            studentReport: true,
+            professorAnswer: typeof professorAnswer === 'number' ? professorAnswer : -1,
         };
 
         if (comments.length > 0) {

@@ -13,8 +13,8 @@ interface CorrectionQuestion {
     studentAnswer?: number;
     teacherComments?: string[];
     createdAt?: string;
-    studentEmail?: string;
     correctedQuestion?: boolean;
+    professorAnswer?: number;
 }
 
 interface CorrectionsTabProps {
@@ -51,6 +51,7 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
     const [markAsCorrect, setMarkAsCorrect] = useState<boolean>(true);
     const [selectedReason, setSelectedReason] = useState<string>("");
     const [customReason, setCustomReason] = useState<string>("");
+    const [selectedProfessorAnswer, setSelectedProfessorAnswer] = useState<number>(-1);
     const [feedback, setFeedback] = useState<string>("");
     const [saving, setSaving] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
@@ -167,10 +168,21 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
         setSelectedReason("");
         setCustomReason("");
         setFeedback("");
+        setSelectedProfessorAnswer(
+            typeof question.professorAnswer === "number" ? question.professorAnswer : -1
+        );
     };
 
     const handleUpdateCorrection = async () => {
         if (!modalQuestion) return;
+
+        if (!markAsCorrect && selectedProfessorAnswer < 0) {
+            setFeedback(
+                t("subjectDetail.corrections.selectProfessorAnswer") ||
+                "Selecciona la respuesta correcta"
+            );
+            return;
+        }
 
         if (!markAsCorrect && !selectedReason && !customReason.trim()) {
             setFeedback(
@@ -189,6 +201,7 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                 isCorrect: markAsCorrect,
                 reason: selectedReason,
                 customReason,
+                professorAnswer: markAsCorrect ? -1 : selectedProfessorAnswer,
             });
 
             if (response?.question) {
@@ -266,25 +279,34 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                         ? question.answer === index
                         : choice.isCorrect;
                 const isStudentAnswer = question.studentAnswer === index;
+                const isProfessorAnswer = question.professorAnswer === index;
 
                 return (
                     <div
                         key={`${question._id}-${index}`}
                         className={`rounded-md border px-3 py-2 ${isCorrectChoice
-                                ? "border-green-500 bg-green-50"
-                                : "border-gray-200"
+                            ? "border-green-500 bg-green-50"
+                            : "border-gray-200"
                             } ${isStudentAnswer ? "ring-2 ring-blue-400" : ""}`}
                     >
                         <div className="flex items-start justify-between">
                             <div className="font-medium text-gray-800">
                                 {String.fromCharCode(65 + index)}. {choiceText}
                             </div>
-                            {isCorrectChoice && (
-                                <span className="text-sm font-semibold text-green-700">
-                                    {t("subjectDetail.corrections.correctAnswer") ||
-                                        "Respuesta correcta"}
-                                </span>
-                            )}
+                            <div className="flex flex-col items-end gap-1 text-right text-sm font-semibold">
+                                {isCorrectChoice && (
+                                    <span className="text-green-700">
+                                        {t("subjectDetail.corrections.correctAnswer") ||
+                                            "Respuesta correcta"}
+                                    </span>
+                                )}
+                                {isProfessorAnswer && (
+                                    <span className="text-indigo-700">
+                                        {t("subjectDetail.corrections.professorAnswer") ||
+                                            "Corrección del profesor"}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         {isStudentAnswer && (
                             <div className="mt-1 text-sm text-blue-700">
@@ -304,8 +326,8 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                 <button
                     onClick={() => handleSectionChange("reported")}
                     className={`rounded-md px-4 py-2 text-sm font-semibold ${activeSection === "reported"
-                            ? "bg-indigo-600 text-white"
-                            : "bg-gray-100 text-gray-700"
+                        ? "bg-indigo-600 text-white"
+                        : "bg-gray-100 text-gray-700"
                         }`}
                 >
                     {t("subjectDetail.corrections.reported") || "Reportadas"}
@@ -313,8 +335,8 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                 <button
                     onClick={() => handleSectionChange("corrected")}
                     className={`rounded-md px-4 py-2 text-sm font-semibold ${activeSection === "corrected"
-                            ? "bg-indigo-600 text-white"
-                            : "bg-gray-100 text-gray-700"
+                        ? "bg-indigo-600 text-white"
+                        : "bg-gray-100 text-gray-700"
                         }`}
                 >
                     {t("subjectDetail.corrections.corrected") || "Corregidas"}
@@ -335,8 +357,8 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                             onClick={handleDownloadSelected}
                             disabled={selectedIds.size === 0 || downloading}
                             className={`rounded-md px-3 py-2 text-sm font-semibold text-white ${selectedIds.size === 0 || downloading
-                                    ? "bg-gray-400"
-                                    : "bg-emerald-600 hover:bg-emerald-700"
+                                ? "bg-gray-400"
+                                : "bg-emerald-600 hover:bg-emerald-700"
                                 }`}
                         >
                             {downloading
@@ -349,8 +371,8 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                         onClick={handleDeleteSelected}
                         disabled={selectedIds.size === 0 || deleting}
                         className={`rounded-md px-3 py-2 text-sm font-semibold text-white ${selectedIds.size === 0 || deleting
-                                ? "bg-gray-400"
-                                : "bg-red-600 hover:bg-red-700"
+                            ? "bg-gray-400"
+                            : "bg-red-600 hover:bg-red-700"
                             }`}
                     >
                         {deleting
@@ -400,11 +422,6 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                             <div className="flex-1">
                                 <div className="flex items-start justify-between gap-3">
                                     <div>
-                                        <div className="text-sm text-gray-500">
-                                            {question.studentEmail ||
-                                                t("subjectDetail.corrections.unknownStudent") ||
-                                                "Alumno"}
-                                        </div>
                                         <div className="text-base font-semibold text-gray-900">
                                             {question.text || question.query}
                                         </div>
@@ -417,8 +434,8 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                                 </div>
                                 <div className="mt-3 flex flex-wrap gap-2">
                                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ${activeSection === "corrected"
-                                            ? "bg-green-100 text-green-800"
-                                            : "bg-yellow-100 text-yellow-800"
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-yellow-100 text-yellow-800"
                                         }`}>
                                         {activeSection === "corrected"
                                             ? t("subjectDetail.corrections.corrected") ||
@@ -455,11 +472,6 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                     <div className="w-full max-w-3xl rounded-lg bg-white p-6 shadow-lg">
                         <div className="flex items-start justify-between">
                             <div>
-                                <div className="text-sm text-gray-500">
-                                    {modalQuestion.studentEmail ||
-                                        t("subjectDetail.corrections.unknownStudent") ||
-                                        "Alumno"}
-                                </div>
                                 <h3 className="text-xl font-bold text-gray-900">
                                     {modalQuestion.text || modalQuestion.query}
                                 </h3>
@@ -490,28 +502,58 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                                 )}
                             </div>
 
-                            <div className="mt-2 flex flex-wrap gap-2">
-                                <button
-                                    onClick={() => setMarkAsCorrect(true)}
-                                    className={`rounded-md px-4 py-2 text-sm font-semibold ${markAsCorrect
+                            {activeSection === "reported" && (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => setMarkAsCorrect(true)}
+                                        className={`rounded-md px-4 py-2 text-sm font-semibold ${markAsCorrect
                                             ? "bg-green-600 text-white"
                                             : "bg-gray-100 text-gray-800"
-                                        }`}
-                                >
-                                    {t("subjectDetail.corrections.markAsGood") || "Está bien"}
-                                </button>
-                                <button
-                                    onClick={() => setMarkAsCorrect(false)}
-                                    className={`rounded-md px-4 py-2 text-sm font-semibold ${!markAsCorrect
+                                            }`}
+                                    >
+                                        {t("subjectDetail.corrections.markAsGood") || "Está bien"}
+                                    </button>
+                                    <button
+                                        onClick={() => setMarkAsCorrect(false)}
+                                        className={`rounded-md px-4 py-2 text-sm font-semibold ${!markAsCorrect
                                             ? "bg-red-600 text-white"
                                             : "bg-gray-100 text-gray-800"
-                                        }`}
-                                >
-                                    {t("subjectDetail.corrections.markAsBad") || "Está mal"}
-                                </button>
-                            </div>
+                                            }`}
+                                    >
+                                        {t("subjectDetail.corrections.markAsBad") || "Está mal"}
+                                    </button>
+                                </div>
+                            )}
 
-                            {!markAsCorrect && (
+                            {!markAsCorrect && activeSection === "reported" && (
+                                <div className="mt-3">
+                                    <p className="text-sm font-semibold text-gray-800">
+                                        {t("subjectDetail.corrections.pickCorrectAnswer") ||
+                                            "Selecciona la respuesta correcta"}
+                                    </p>
+                                    <div className="mt-2 space-y-2">
+                                        {modalQuestion.choices?.map((choice, index) => {
+                                            const choiceText =
+                                                typeof choice === "string" ? choice : choice.text;
+                                            return (
+                                                <button
+                                                    key={`${modalQuestion._id}-professor-${index}`}
+                                                    type="button"
+                                                    onClick={() => setSelectedProfessorAnswer(index)}
+                                                    className={`w-full rounded-md border px-3 py-2 text-left text-sm font-medium ${selectedProfessorAnswer === index
+                                                        ? "border-indigo-500 bg-indigo-50 text-indigo-900"
+                                                        : "border-gray-200 text-gray-800 hover:border-indigo-300"
+                                                        }`}
+                                                >
+                                                    {String.fromCharCode(65 + index)}. {choiceText}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {!markAsCorrect && activeSection === "reported" && (
                                 <div className="mt-3">
                                     <p className="text-sm font-semibold text-gray-800">
                                         {t("subjectDetail.corrections.reasonTitle") ||
@@ -527,8 +569,8 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                                                     setCustomReason("");
                                                 }}
                                                 className={`w-full rounded-md border px-3 py-2 text-left text-sm font-medium ${selectedReason === option
-                                                        ? "border-indigo-500 bg-indigo-50 text-indigo-900"
-                                                        : "border-gray-200 text-gray-800 hover:border-indigo-300"
+                                                    ? "border-indigo-500 bg-indigo-50 text-indigo-900"
+                                                    : "border-gray-200 text-gray-800 hover:border-indigo-300"
                                                     }`}
                                             >
                                                 {option}
@@ -568,20 +610,23 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId }) => {
                                 onClick={() => setModalQuestion(null)}
                                 className="rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-200"
                             >
-                                {t("subjectDetail.corrections.cancel") || "Cancelar"}
+                                {t("subjectDetail.corrections.cancel") || "Cerrar"}
                             </button>
-                            <button
-                                onClick={handleUpdateCorrection}
-                                disabled={saving}
-                                className={`rounded-md px-4 py-2 text-sm font-semibold text-white ${saving
+                            
+                            {activeSection === "reported" && (
+                                <button
+                                    onClick={handleUpdateCorrection}
+                                    disabled={saving}
+                                    className={`rounded-md px-4 py-2 text-sm font-semibold text-white ${saving
                                         ? "bg-gray-400"
                                         : "bg-indigo-600 hover:bg-indigo-700"
-                                    }`}
-                            >
-                                {saving
-                                    ? t("subjectDetail.corrections.updating") || "Actualizando..."
-                                    : t("subjectDetail.corrections.update") || "Actualizar"}
-                            </button>
+                                        }`}
+                                >
+                                    {saving
+                                        ? t("subjectDetail.corrections.updating") || "Actualizando..."
+                                        : t("subjectDetail.corrections.update") || "Actualizar"}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

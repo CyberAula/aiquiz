@@ -125,6 +125,23 @@ function generateCorrectionsPDF(questions, subjectId) {
                 });
             }
 
+            const professorAnswerIndex =
+                typeof question.professorAnswer === 'number' ? question.professorAnswer : -1;
+            if (question.choices && professorAnswerIndex >= 0) {
+                const answerChoice = question.choices[professorAnswerIndex];
+                const answerText = typeof answerChoice === 'object' ? answerChoice.text : answerChoice;
+                checkPageBreak(10);
+                yPosition += 2;
+                doc.setFont(undefined, 'bold');
+                const professorAnswerText = `Respuesta corregida por el profesor: ${String.fromCharCode(
+                    65 + professorAnswerIndex
+                )}) ${answerText}`;
+                const professorLines = splitText(professorAnswerText, maxLineWidth - 20);
+                doc.text(professorLines, margin + 10, yPosition);
+                yPosition += professorLines.length * lineHeight;
+                doc.setFont(undefined, 'normal');
+            }
+
             if (question.teacherComments?.length) {
                 checkPageBreak(10);
                 yPosition += 2;
@@ -135,15 +152,6 @@ function generateCorrectionsPDF(questions, subjectId) {
                 yPosition += commentLines.length * lineHeight;
                 doc.setFont(undefined, 'normal');
             }
-
-            const studentAnswerText = typeof question.studentAnswer === 'number' && question.studentAnswer >= 0
-                ? `Respuesta del alumno: ${String.fromCharCode(65 + question.studentAnswer)}`
-                : 'Respuesta del alumno: No ha respondido';
-
-            checkPageBreak(8);
-            const studentLines = splitText(studentAnswerText, maxLineWidth - 20);
-            doc.text(studentLines, margin + 10, yPosition);
-            yPosition += studentLines.length * lineHeight;
 
             yPosition += lineHeight;
         });
@@ -187,14 +195,18 @@ function generateCorrectionsFallback(questions, subjectId) {
             });
         }
 
-        if (question.teacherComments?.length) {
-            content += `\n   Comentarios: ${question.teacherComments.join('; ')}\n`;
+        const professorAnswerIndex =
+            typeof question.professorAnswer === 'number' ? question.professorAnswer : -1;
+        if (question.choices && professorAnswerIndex >= 0) {
+            const answerChoice = question.choices[professorAnswerIndex];
+            const answerText = typeof answerChoice === 'object' ? answerChoice.text : answerChoice;
+            content += `\n   Respuesta corregida por el profesor: ${String.fromCharCode(
+                65 + professorAnswerIndex
+            )}) ${answerText}\n`;
         }
 
-        if (typeof question.studentAnswer === 'number' && question.studentAnswer >= 0) {
-            content += `   Respuesta del alumno: ${String.fromCharCode(65 + question.studentAnswer)}\n`;
-        } else {
-            content += '   Respuesta del alumno: No ha respondido\n';
+        if (question.teacherComments?.length) {
+            content += `\n   Comentarios: ${question.teacherComments.join('; ')}\n`;
         }
 
         content += '\n' + '-'.repeat(40) + '\n\n';
