@@ -188,7 +188,9 @@ function EndScreenFun() {
                 <div className='max-w-3xl flex flex-col content-between h-2/3   items-center mx-auto  my-4 md:my-8 justify-between z-10'>
                     <div className='flex flex-col items-center'>
                         <h2 className='mb-1.5'>{t('endscreen.title')}</h2>
-                        <h2 className={`score-box ${getScoreColorClass()} text-3xl md:text-5xl text-center fuente`}> {score * 100}%</h2>
+                        <h2 className={`score-box ${getScoreColorClass()} text-3xl md:text-5xl text-center fuente`}>
+                            {(score * 10).toFixed(1)}
+                        </h2>
                     </div>
                     <div className='gifs-container flex justify-center space-x-8 mt-5'>
                         <iframe

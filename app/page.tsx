@@ -54,24 +54,14 @@ const HomePage = () => {
   const checkEmailFromStorage = () => {
     if (typeof window !== 'undefined') {
       const storedEmail = localStorage.getItem('student_email');
-      const timestamp = localStorage.getItem('student_email_timestamp');
 
-      if (storedEmail && timestamp) {
-        const now = Date.now();
-        const stored = parseInt(timestamp);
-        // 1 hora = 3600000 ms
-        if (now - stored < 3600000) {
-          setUserEmail(storedEmail);
-        } else {
-          // Expiró, limpiar
-          // localStorage.removeItem('student_email');
-          // localStorage.removeItem('student_email_timestamp');
-        }
+      if (storedEmail) {
+        setUserEmail(storedEmail);
       }
     }
   };
 
-  // Guardar email con timestamp y comprobar Terminos y Política de Privacidad
+  // Guardar email y comprobar Terminos y Política de Privacidad
   const saveStudentEmail = () => {
     if (!inputEmail || !inputEmail.endsWith("@alumnos.upm.es")) {
       setShowAlert(inputEmail ? "El email debe terminar con @alumnos.upm.es" : "Por favor, introduce tu email");
@@ -86,7 +76,6 @@ const HomePage = () => {
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('student_email', inputEmail);
-      localStorage.setItem('student_email_timestamp', Date.now().toString());
       setUserEmail(inputEmail);
       setShowAlert("");
     }
@@ -96,7 +85,6 @@ const HomePage = () => {
   const logout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('student_email');
-      localStorage.removeItem('student_email_timestamp');
       setUserEmail(null);
       setInputEmail("");
     }
