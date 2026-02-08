@@ -52,10 +52,39 @@ export async function POST(request) {
         // SOLICITUD A LA API del LLM seleccionado para el alumno
         const responseLlmManager = await getModelResponse(assignedModel, finalPrompt);
         // Formatear la respuesta de la API
-        const formattedResponse = responseLlmManager.replace(/^\[|\]$/g, '').replace(/```json/g, '').replace(/```/g, '').trim();
+        const formattedResponse = responseLlmManager.text.replace(/^\[|\]$/g, '').replace(/```json/g, '').replace(/```/g, '').trim();
 
+        // Contar preguntas recibidas del LLM
+        let numQuestionsReceived = numQuestions;
+        try {
+            const parsed = JSON.parse(formattedResponse);
+            if (parsed.questions && Array.isArray(parsed.questions)) {
+                numQuestionsReceived = parsed.questions.length;
+            }
+        } catch (e) { /* si falla el parse, usamos numQuestions como fallback */ }
 
-        return new Response(formattedResponse);
+        // Calcular coste estimado
+        const usageData = responseLlmManager.usage || {};
+        const tokenPrice = responseLlmManager.tokenPrice || 0;
+        const estimatedCost = (usageData.total_tokens || 0) * tokenPrice;
+
+        console.log(chalk.bgCyan.black(`Token usage for ${assignedModel}: prompt=${usageData.prompt_tokens}, completion=${usageData.completion_tokens}, total=${usageData.total_tokens}, reasoning=${usageData.reasoning_tokens}`));
+        console.log(chalk.bgCyan.black(`Response time: ${responseLlmManager.responseTime}ms | Model ID: ${responseLlmManager.modelId} | Estimated cost: ${estimatedCost} | Questions requested: ${numQuestions}, received: ${numQuestionsReceived}`));
+
+        return new Response(formattedResponse, {
+            headers: {
+                'X-Usage-Prompt-Tokens': String(usageData.prompt_tokens || 0),
+                'X-Usage-Completion-Tokens': String(usageData.completion_tokens || 0),
+                'X-Usage-Total-Tokens': String(usageData.total_tokens || 0),
+                'X-Usage-Reasoning-Tokens': String(usageData.reasoning_tokens || 0),
+                'X-Response-Time': String(responseLlmManager.responseTime || 0),
+                'X-Model-Id': String(responseLlmManager.modelId || ''),
+                'X-Model-Config': JSON.stringify(responseLlmManager.modelConfig || {}),
+                'X-Num-Questions-Requested': String(numQuestions),
+                'X-Num-Questions-Received': String(numQuestionsReceived),
+                'X-Estimated-Cost': String(estimatedCost),
+            }
+        });
 
     } catch (error) {
         console.error('Error during request:', error.message);

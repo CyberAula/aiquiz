@@ -4,14 +4,10 @@ import { NextResponse } from 'next/server';
 import {subjects} from '../../constants/subjects';
 
 import Question from '../../models/Question.js';
+import { getModelResponse } from '../../utils/llmManager.js';
 
 //to get student track record
 await dbConnect();
-
-// Verificar si existe la clave API OpenAi
-if (!process.env.OPENAI_API_KEY) {
-    throw new Error('Falta la OpenAI API Key');
-}
 
 
 // Manejar las solicitudes HTTP POST
@@ -95,23 +91,13 @@ export async function POST(request) {
         newPrompt += ` Añade el siguiente contenido a esta estructura de div: <div className="recomendaciones"> <h2>Recommendations for the teacher </h2> <p className="pb-2 max-w-[66ch]">(Aqui tienes que poner el contenido de los parrados)... </p> </div> . El contenido de los parrafos son consejos e ideas para ayudar a los estudiantes a mejorar sus conocimientos. `;
         
         console.log("newPrompt: ", newPrompt);
-        // Configurar parámetros de la solicitud a la API de OpenAI.
-        const payload = {
-            model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: newPrompt }],
-            temperature: 1.0,
-            frequency_penalty: 0,
-            presence_penalty: 0,
-            max_tokens: 2048,
-            n: 1,
-        };
-        // Log del payload que estamos por enviar
-        console.log("Payload (dashboard) to send to OpenAI: ", payload);
+        // Usar el primer modelo disponible en models.json para generar insights
+        console.log("Prompt (dashboard) to send to LLM: ", newPrompt);
 
-        //const response1 = await OpenAIResponse(payload);
+        const response1 = await getModelResponse("OpenAI_GPT_5_Mini", newPrompt);
 
         // Log de la respuesta final
-        console.log("Response (dashboard) from OpenAI: ", response1);
+        console.log("Response (dashboard) from LLM: ", response1);
 
 
 
@@ -130,22 +116,12 @@ export async function POST(request) {
             newPrompt2 += `Identifica los problemas principales en las preguntas reportadas. En formato markdown. `;
             console.log("newPrompt2: ", newPrompt2);
             // Configurar parámetros de la solicitud a la API de OpenAI.
-            const payload2 = {
-                model: 'gpt-4o-mini',
-                messages: [{ role: 'user', content: newPrompt2 }],
-                temperature: 1.0,
-                frequency_penalty: 0,
-                presence_penalty: 0,
-                max_tokens: 2048,
-                n: 1,
-            };
-            // Log del payload que estamos por enviar
-            console.log("Payload (dashboard) to send to OpenAI: ", payload2);
+            console.log("Prompt2 (dashboard) to send to LLM: ", newPrompt2);
 
-            response2 = await OpenAIResponse(payload2);
+            response2 = await getModelResponse("OpenAI_GPT_5_Mini", newPrompt2);
 
             // Log de la respuesta final
-            console.log("Response (dashboard) from OpenAI: ", response2);
+            console.log("Response2 (dashboard) from LLM: ", response2);
         }
         */
 

@@ -75,6 +75,43 @@ const questionSchema = new mongoose.Schema({
         type: Number,
         required: false,
     },
+    usageData: {
+        prompt_tokens: { type: Number, required: false, default: 0 },
+        completion_tokens: { type: Number, required: false, default: 0 },
+        total_tokens: { type: Number, required: false, default: 0 },
+        reasoning_tokens: { type: Number, required: false, default: 0 },
+    },
+    responseTime: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
+    studentResponseTime: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
+    modelId: {
+        type: String,
+        required: false,
+    },
+    modelConfig: {
+        type: Object,
+        required: false,
+    },
+    numQuestionsRequested: {
+        type: Number,
+        required: false,
+    },
+    numQuestionsReceived: {
+        type: Number,
+        required: false,
+    },
+    estimatedCost: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
     teacherReport: {
         type: String,
         required: false,

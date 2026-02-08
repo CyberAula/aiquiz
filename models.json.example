@@ -1,31 +1,27 @@
 {
   "models": [
     {
-      "name": "OpenAI_GPT_4o_Mini",
+      "name": "OpenAI_GPT_5_Mini",
       "api_key": "YOUR_OPENAI_API_KEY",
       "organization_id": "YOUR_OPENAI_ORG_ID",
-      "model": "gpt-4o-mini",
+      "model": "gpt-5-mini",
       "tokenPrice": 0,
       "config": {
-        "temperature": 1.0,
+        "temperature": 0.7,
         "frequency_penalty": 0,
         "presence_penalty": 0,
-        "max_tokens": 2048,
-        "n": 1
+        "max_tokens": 4096
       }
     },
     {
-      "name": "OpenAI_GPT_3.5_Turbo",
-      "api_key": "YOUR_OPENAI_API_KEY",
-      "organization_id": "YOUR_OPENAI_ORG_ID",
-      "model": "gpt-3.5-turbo",
+      "name": "Google_Generative_Flash",
+      "api_key": "YOUR_GOOGLE_API_KEY",
+      "organization_id": "ORG_ID",
+      "model": "gemini-3-flash-preview",
       "tokenPrice": 0,
       "config": {
         "temperature": 1.0,
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
-        "max_tokens": 2048,
-        "n": 1
+        "max_tokens": 4096
       }
     }
   ],
@@ -38,7 +34,7 @@
       "Facebook": "Facebook_Llama"
     },
     "example": {
-      "OpenAI": "OpenAI_GPT_4o_Mini",
+      "OpenAI": "OpenAI_GPT_5_Mini",
       "Google": "Google_Generative_Flash",
       "Anthropic": "Anthropic_Claude",
       "Facebook": "Facebook_Llama"

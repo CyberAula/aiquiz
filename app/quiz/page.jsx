@@ -91,6 +91,24 @@ function QuizPageFun() {
                 throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
             }
 
+            // Leer datos de uso de tokens de las cabeceras
+            const usageData = {
+                prompt_tokens: Number(response.headers.get('X-Usage-Prompt-Tokens')) || 0,
+                completion_tokens: Number(response.headers.get('X-Usage-Completion-Tokens')) || 0,
+                total_tokens: Number(response.headers.get('X-Usage-Total-Tokens')) || 0,
+                reasoning_tokens: Number(response.headers.get('X-Usage-Reasoning-Tokens')) || 0,
+            };
+
+            // Leer datos adicionales para A/B testing
+            const responseTime = Number(response.headers.get('X-Response-Time')) || 0;
+            const modelId = response.headers.get('X-Model-Id') || '';
+            let modelConfig = {};
+            try { modelConfig = JSON.parse(response.headers.get('X-Model-Config') || '{}'); } catch (e) {}
+            const numQuestionsRequested = Number(response.headers.get('X-Num-Questions-Requested')) || numQuestions;
+            const numQuestionsReceived = Number(response.headers.get('X-Num-Questions-Received')) || numQuestions;
+            const estimatedCost = Number(response.headers.get('X-Estimated-Cost')) || 0;
+            console.log('Usage data from API:', usageData);
+
             console.log("--------------------------------------------------");
             console.log('SERVER ANSWER', response);
 
@@ -130,6 +148,16 @@ function QuizPageFun() {
 
             // Ajustar el número de preguntas mostradas en el cuestionario
             const questionsToShow = allQuestions.slice(0, numQuestions);
+            // Añadir datos de uso a cada pregunta (compartidos por lote de generación)
+            questionsToShow.forEach(q => {
+                q.usageData = usageData;
+                q.responseTime = responseTime;
+                q.modelId = modelId;
+                q.modelConfig = modelConfig;
+                q.numQuestionsRequested = numQuestionsRequested;
+                q.numQuestionsReceived = numQuestionsReceived;
+                q.estimatedCost = estimatedCost;
+            });
             setQuiz(questionsToShow); // Establecer el estado de quiz con las preguntas a mostrar                
         } catch (err) {
             console.log('Quiz Page:', err)

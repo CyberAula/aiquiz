@@ -17,13 +17,14 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
     //random id to identify the question in the db and not use the query
     const [id, setId] = useState(Math.floor(Math.random() * 1000000000));
 
-    const { query, choices, answer, explanation } = question
+    const { query, choices, answer, explanation, usageData, responseTime, modelId, modelConfig, numQuestionsRequested, numQuestionsReceived, estimatedCost } = question
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [isExplained, setIsExplained] = useState(false)
     const [isSelected, setIsSelected] = useState(false)
     const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(-1)
     const [selectedAnswer, setSelectedAnswer] = useState(null); // Nuevo
     const [isSubmittedReport, setIsSubmittedReport] = useState(false);
+    const [questionRenderedAt] = useState(Date.now()); // Timestamp de cuando se renderiza la pregunta
 
     //console.log("choices:", choices);
     let newChoiceObjects = choices.map((choice) => ({
@@ -160,6 +161,14 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.md5Prompt = md5Prompt;
         data.prompt = prompt;
         data.pull_id = pull_id;
+        data.usageData = usageData || {};
+        data.responseTime = responseTime || 0;
+        data.studentResponseTime = Date.now() - questionRenderedAt;
+        data.modelId = modelId || '';
+        data.modelConfig = modelConfig || {};
+        data.numQuestionsRequested = numQuestionsRequested || 0;
+        data.numQuestionsReceived = numQuestionsReceived || 0;
+        data.estimatedCost = estimatedCost || 0;
         if (report) {
             data.studentReport = true;
             data.studentAnswer = selectedChoiceIndex; //if reported, we can use the state to keep what the user selected or -1 if nothing selected

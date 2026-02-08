@@ -2,7 +2,7 @@ import fs from 'fs';
 import OpenAI from "openai";
 import Anthropic from '@anthropic-ai/sdk';
 import Groq from "groq-sdk";
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { GoogleGenAI, Type } from "@google/genai";
 
 const models = JSON.parse(fs.readFileSync('models.json'));
 
@@ -15,53 +15,51 @@ export async function getModelResponse(modelName, prompt) {
 
     switch (true) {
         case config.name.startsWith("OpenAI_GPT"):
-            const responseFormat = config.name.startsWith("OpenAI_GPT_4o")
-                ? {
-                    type: "json_schema",
-                    json_schema: {
-                        name: "quiz",
-                        schema: {
-                            type: "object",
-                            properties: {
-                                questions: {
-                                    type: "array",
-                                    description: "A list of quiz questions.",
-                                    items: {
-                                        type: "object",
-                                        properties: {
-                                            query: {
+            const responseFormat = {
+                type: "json_schema",
+                json_schema: {
+                    name: "quiz",
+                    schema: {
+                        type: "object",
+                        properties: {
+                            questions: {
+                                type: "array",
+                                description: "A list of quiz questions.",
+                                items: {
+                                    type: "object",
+                                    properties: {
+                                        query: {
+                                            type: "string",
+                                            description: "The quiz question."
+                                        },
+                                        choices: {
+                                            type: "array",
+                                            description: "A list of possible answers for the question.",
+                                            items: {
                                                 type: "string",
-                                                description: "The quiz question."
-                                            },
-                                            choices: {
-                                                type: "array",
-                                                description: "A list of possible answers for the question.",
-                                                items: {
-                                                    type: "string",
-                                                    description: "An answer choice."
-                                                }
-                                            },
-                                            answer: {
-                                                type: "integer",
-                                                description: "Index of the correct answer in the choices array."
-                                            },
-                                            explanation: {
-                                                type: "string",
-                                                description: "A brief explanation of why the answer is correct."
+                                                description: "An answer choice."
                                             }
                                         },
-                                        required: ["query", "choices", "answer", "explanation"],
-                                        additionalProperties: false
-                                    }
+                                        answer: {
+                                            type: "integer",
+                                            description: "Index of the correct answer in the choices array."
+                                        },
+                                        explanation: {
+                                            type: "string",
+                                            description: "A brief explanation of why the answer is correct."
+                                        }
+                                    },
+                                    required: ["query", "choices", "answer", "explanation"],
+                                    additionalProperties: false
                                 }
-                            },
-                            required: ["questions"],
-                            additionalProperties: false
+                            }
                         },
-                        strict: true
-                    }
+                        required: ["questions"],
+                        additionalProperties: false
+                    },
+                    strict: true
                 }
-                : { type: "json_object" };
+            };
             return await OpenAI_API_Request(config, prompt, responseFormat);
 
         case config.name.startsWith("Anthropic"):
@@ -93,23 +91,37 @@ async function OpenAI_API_Request(config, prompt, responseFormat) {
         // console.log("--------------------------------------------------");
         // console.log("prompt being sent to OpenAI: ", JSON.stringify(prompt, null, 2));
 
-        const response = await openai.chat.completions.create({
+        const requestParams = {
             model: config.model,
             messages: [{ role: 'user', content: prompt }],
             response_format: responseFormat,
             temperature: config.config.temperature,
             frequency_penalty: config.config.frequency_penalty,
             presence_penalty: config.config.presence_penalty,
-            max_tokens: config.config.max_tokens,
-            n: config.config.n,
-        });
+            max_completion_tokens: config.config.max_tokens,
+        };
+
+        if (config.config.reasoning_effort) {
+            requestParams.reasoning_effort = config.config.reasoning_effort;
+        }
+
+        const startTime = Date.now();
+        const response = await openai.chat.completions.create(requestParams);
+        const responseTime = Date.now() - startTime;
 
         const textResponse = response.choices[0].message.content;
+
+        const usage = {
+            prompt_tokens: response.usage?.prompt_tokens || 0,
+            completion_tokens: response.usage?.completion_tokens || 0,
+            total_tokens: response.usage?.total_tokens || 0,
+            reasoning_tokens: response.usage?.completion_tokens_details?.reasoning_tokens || 0,
+        };
 
         // console.log("text response to prompt: ", textResponse);
         // console.log("--------------------------------------------------");
 
-        return textResponse;
+        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice };
 
     } catch (error) {
         console.error("Error during OpenAI request: ", error);
@@ -132,19 +144,28 @@ async function Anthropic_API_Request(config, prompt) {
         // console.log("--------------------------------------------------");
         // console.log("prompt being sent to Anthropic: ", JSON.stringify(prompt, null, 2));
 
+        const startTime = Date.now();
         const response = await anthropic.messages.create({
             model: config.model,
             max_tokens: config.config.max_tokens,
             messages: [{ role: 'user', content: prompt }],
             temperature: config.config.temperature,
         });
+        const responseTime = Date.now() - startTime;
 
         const textResponse = response.content[0].text;
+
+        const usage = {
+            prompt_tokens: response.usage?.input_tokens || 0,
+            completion_tokens: response.usage?.output_tokens || 0,
+            total_tokens: (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0),
+            reasoning_tokens: 0,
+        };
 
         // console.log("text response to prompt: ", textResponse);
         // console.log("--------------------------------------------------");
 
-        return textResponse;
+        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice };
 
     } catch (error) {
         console.error("Error during Anthropic request: ", error);
@@ -160,74 +181,79 @@ async function Google_API_Request(config, prompt) {
         throw new Error(`Falta la ${config.name} API Key`);
     }
 
-    const google = new GoogleGenerativeAI(config.api_key);
+    const ai = new GoogleGenAI({ apiKey: config.api_key });
 
-    const schema = {
-        description: "List of questions and answers.",
-        type: SchemaType.ARRAY,
-        items: {
-            type: SchemaType.OBJECT,
-            properties: {
-                questions: {
-                    type: SchemaType.ARRAY,
-                    description: "A list of quiz questions.",
-                    items: {
-                        type: SchemaType.OBJECT,
-                        properties: {
-                            query: {
-                                type: SchemaType.STRING,
-                                description: "The quiz question."
-                            },
-                            choices: {
-                                type: SchemaType.ARRAY,
-                                description: "A list of possible answers for the question.",
-                                items: {
-                                    type: SchemaType.STRING,
-                                    description: "An answer choice."
-                                }
-                            },
-                            answer: {
-                                type: SchemaType.INTEGER,
-                                description: "Index of the correct answer in the choices array."
-                            },
-                            explanation: {
-                                type: SchemaType.STRING,
-                                description: "A brief explanation of why the answer is correct."
+    const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+            questions: {
+                type: Type.ARRAY,
+                description: "A list of quiz questions.",
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        query: {
+                            type: Type.STRING,
+                            description: "The quiz question."
+                        },
+                        choices: {
+                            type: Type.ARRAY,
+                            description: "A list of possible answers for the question.",
+                            items: {
+                                type: Type.STRING,
+                                description: "An answer choice."
                             }
                         },
-                        required: [
-                            "query",
-                            "choices",
-                            "answer",
-                            "explanation"
-                        ],
-                    }
+                        answer: {
+                            type: Type.INTEGER,
+                            description: "Index of the correct answer in the choices array."
+                        },
+                        explanation: {
+                            type: Type.STRING,
+                            description: "A brief explanation of why the answer is correct."
+                        }
+                    },
+                    required: ["query", "choices", "answer", "explanation"],
                 }
-            },
-            required: ["questions"],
+            }
         },
+        required: ["questions"],
     };
-
-    const model = google.getGenerativeModel({
-        model: config.model,
-        generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: schema,
-            maxOutputTokens: config.config.max_tokens,
-            temperature: config.config.temperature,
-        },
-    });
 
     try {
         // console.log("--------------------------------------------------");
         // console.log("prompt being sent to Google: ", JSON.stringify(prompt, null, 2));
 
-        const result = await model.generateContent(`${prompt}`,);
+        const generationConfig = {
+                responseMimeType: "application/json",
+                responseSchema: responseSchema,
+                maxOutputTokens: config.config.max_tokens,
+                temperature: config.config.temperature,
+            };
 
-        // console.log("text response to prompt: ", result.response.text());
+        if (config.config.thinking_budget != null) {
+            generationConfig.thinkingConfig = { thinkingBudget: config.config.thinking_budget };
+        }
+
+        const startTime = Date.now();
+        const result = await ai.models.generateContent({
+            model: config.model,
+            contents: prompt,
+            config: generationConfig,
+        });
+        const responseTime = Date.now() - startTime;
+
+        const usage = {
+            prompt_tokens: result.usageMetadata?.promptTokenCount || 0,
+            completion_tokens: result.usageMetadata?.candidatesTokenCount || 0,
+            total_tokens: result.usageMetadata?.totalTokenCount || 0,
+            reasoning_tokens: result.usageMetadata?.thoughtsTokenCount || 0,
+        };
+
+        // console.log("text response to prompt: ", result.text);
         // console.log("--------------------------------------------------");
 
-        return result.response.text();
+        return { text: result.text, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice };
 
     } catch (error) {
         console.error("Error during Google request: ", error);
@@ -247,7 +273,7 @@ async function Groq_API_Request(config, prompt) {
         // console.log("--------------------------------------------------");
         // console.log(`prompt being sent to ${config.name}:`, JSON.stringify(prompt, null, 2));
 
-        // Llama a la API y procesa la respuesta
+        const startTime = Date.now();
         const response = await groq.chat.completions.create({
             messages: [ 
                 { role: "user", content: prompt, }, 
@@ -257,14 +283,22 @@ async function Groq_API_Request(config, prompt) {
             temperature: config.config.temperature,
             max_tokens: config.config.max_tokens,
         });
+        const responseTime = Date.now() - startTime;
 
         // Procesa el contenido de la respuesta
         const textResponse = response.choices[0]?.message?.content;
 
+        const usage = {
+            prompt_tokens: response.usage?.prompt_tokens || 0,
+            completion_tokens: response.usage?.completion_tokens || 0,
+            total_tokens: response.usage?.total_tokens || 0,
+            reasoning_tokens: 0,
+        };
+
         // console.log("text response to prompt: ", textResponse);
         // console.log("--------------------------------------------------");
 
-        return textResponse;
+        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice };
 
     } catch (error) {
         console.error(`Error during ${config.name} request: `, error);
