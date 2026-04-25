@@ -52,6 +52,52 @@ export async function GET(req) {
     if (searchParams.get('asignatura')) {
       filters.subject = searchParams.get('asignatura')
     }
+
+    if (searchParams.get('studentEmail')) {
+      filters.studentEmail = searchParams.get('studentEmail');
+    }
+
+    if (searchParams.get('summaryBySubject') === 'true') {
+      const asignaturasParam = searchParams.get('asignaturas');
+      const requestedSubjects = (asignaturasParam ?? '')
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      if (requestedSubjects.length > 0) {
+        filters.subject = { $in: requestedSubjects };
+      }
+
+      const grouped = await Question.aggregate([
+        { $match: filters },
+        {
+          $group: {
+            _id: '$subject',
+            total: { $sum: 1 },
+            correct: {
+              $sum: {
+                $cond: [{ $eq: ['$studentAnswer', '$answer'] }, 1, 0],
+              },
+            },
+          },
+        },
+      ]);
+
+      const groupedBySubject = Object.fromEntries(
+        grouped.map((row) => [row._id, { total: row.total, correct: row.correct }])
+      );
+
+      const orderedSubjects =
+        requestedSubjects.length > 0 ? requestedSubjects : Object.keys(groupedBySubject);
+
+      return Response.json({
+        subjects: orderedSubjects.map((subject) => ({
+          subject,
+          total: groupedBySubject[subject]?.total ?? 0,
+          correct: groupedBySubject[subject]?.correct ?? 0,
+        })),
+      });
+    }
     
     if (searchParams.get('dificultad')) {
       filters.difficulty = searchParams.get('dificultad');
