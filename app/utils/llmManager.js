@@ -118,8 +118,8 @@ async function OpenAI_API_Request(config, prompt, responseFormat) {
             reasoning_tokens: response.usage?.completion_tokens_details?.reasoning_tokens || 0,
         };
 
-        // console.log("text response to prompt: ", textResponse);
-        // console.log("--------------------------------------------------");
+        console.log("HOLAAAAAAAAAAAAAA text response to prompt: ", textResponse);
+        console.log("--------------------------------------------------");
 
         return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice };
 
