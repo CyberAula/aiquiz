@@ -62,7 +62,6 @@ const HomePage = ({ params: { subject } }) => {
   //alerts
   let alertEmptyMail = t("subject.alertEmptyMail");
   let alertUncheckedTermsPolicy = t("subject.alertUncheckedTermsPolicy");
-  let alertUPMMail = t("subject.alertUPMMail");
   let alertPickLang = t("subject.alertPickLang");
   let alertPickTopic = t("subject.alertPickTopic");
 
@@ -126,10 +125,6 @@ const HomePage = ({ params: { subject } }) => {
       inputEmail == "null"
     ) {
       setShowAlert(alertEmptyMail);
-
-    } else if (inputEmail.endsWith("@alumnos.upm.es") == false) {
-      // si el input no está vacío, comprobar que el final del input vaya con @alumnos.upm.es
-      setShowAlert(alertUPMMail);
 
     } else if (isChecked == false) {
       // Comprobar si el checkbox de los Términos y Política de Privacidad está marcado
