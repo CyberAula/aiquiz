@@ -177,11 +177,26 @@ async function Anthropic_API_Request(config, prompt) {
 }
 
 async function Google_API_Request(config, prompt) {
-    if (!config.api_key) {
-        throw new Error(`Falta la ${config.name} API Key`);
+    if (!config.vertex) {
+        throw new Error(`Faltan las credenciales de Vertex AI (service account) para ${config.name}`);
+    }
+    if (!config.project) {
+        throw new Error(`Falta el Google Cloud Project ID para ${config.name}`);
+    }
+    if (!config.location) {
+        throw new Error(`Falta el Google Cloud Location para ${config.name}`);
     }
 
-    const ai = new GoogleGenAI({ apiKey: config.api_key });
+    const ai = new GoogleGenAI({
+        vertexai: true,
+        project: config.project,
+        location: config.location,
+        googleAuthOptions: {
+            credentials: config.vertex,
+            scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+        },
+    });
+
 
     const responseSchema = {
         type: Type.OBJECT,
