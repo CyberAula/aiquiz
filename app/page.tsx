@@ -62,7 +62,15 @@ const HomePage = () => {
             >
               <p>Ingeniería Web</p>
               <p className="subject-acronym ">IWEB</p>
-            </Link>        
+            </Link>   
+	    <Link
+ 	    className="subject-button"
+            href={{ pathname: "/OFI" }}
+           id="ofi"
+            >
+          <p>Ofimática</p>
+          <p className="subject-acronym ">OFI</p>
+          </Link>     
             
           </div>
         </div>

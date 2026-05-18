@@ -27,7 +27,9 @@ const DashboardPage = () => {
             <Link  className="subject-button" id="bbdd" href={{pathname: '/dashboard/BBDD'}}><p> Bases de Datos </p>
             <p className="subject-acronym ">BBDD</p></Link>
             <Link  className="subject-button" id="iweb" href={{pathname: '/dashboard/IWEB'}}>  <p>Ingeniería Web</p>
-            <p className="subject-acronym ">IWEB</p></Link>            
+            <p className="subject-acronym ">IWEB</p></Link> 
+	                <Link  className="subject-button" id="ofi" href={{pathname: '/dashboard/OFI'}}>  <p>Ofimática</p>
+            <p className="subject-acronym ">OFI</p></Link>            
           </div>
         </div>
         <Footer/>
