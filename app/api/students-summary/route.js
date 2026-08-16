@@ -5,11 +5,11 @@ import Question from '../../models/Question.js';
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { emails, fechaInicio, fechaFin } = body;
+        const { studentIDs, fechaInicio, fechaFin } = body;
 
         await dbConnect();
 
-        const query = emails && Array.isArray(emails) ? { studentEmail: { $in: emails } } : {};
+        const query = studentIDs && Array.isArray(studentIDs) ? { studentEmail: { $in: studentIDs } } : {};
         const students = await Student.find(query).lean();
         const targetEmails = students.map(s => s.studentEmail);
 

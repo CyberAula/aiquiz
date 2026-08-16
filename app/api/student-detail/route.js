@@ -5,10 +5,10 @@ import Question from '../../models/Question.js';
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { email, subject } = body;
+        const { studentID, subject } = body;
 
-        if (!email) {
-            return new Response(JSON.stringify({ error: 'Email is required' }), {
+        if (!studentID) {
+            return new Response(JSON.stringify({ error: 'StudentID is required' }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -16,12 +16,12 @@ export async function POST(req) {
 
         await dbConnect();
 
-        const query = { studentEmail: email };
+        const query = { studentEmail: studentID };
         if (subject) {
             query.subject = { $regex: new RegExp(`^${subject}$`, 'i') };
         }
 
-        let student = await Student.findOne({ studentEmail: email }).lean();
+        let student = await Student.findOne({ studentEmail: studentID }).lean();
         const questions = await Question.find(query).lean();
 
         if (!student && questions.length === 0) {
@@ -89,7 +89,7 @@ export async function POST(req) {
         const globalDifficultyPct = Number((((globalDiffNum) / 2) * 100).toFixed(3));
 
         const result = {
-            studentEmail: email,
+            studentEmail: studentID,
             subjects: enrichedSubjects,
             totalTests: totalTests,
             totalCorrect: totalCorrect,
