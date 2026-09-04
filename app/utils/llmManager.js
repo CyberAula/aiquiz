@@ -6,12 +6,26 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 const models = JSON.parse(fs.readFileSync('models.json'));
 
-export async function getModelResponse(modelName, prompt) {
+// Tokens estimados necesarios por cada pregunta generada (query + choices + answer + explanation)
+const TOKENS_PER_QUESTION = 450;
+// Margen adicional para el JSON envolvente y variabilidad del modelo
+const BASE_TOKENS_BUFFER = 500;
+
+// Calcula el límite de tokens de salida en función del número de preguntas solicitadas,
+// usando el valor configurado en models.json como mínimo (nunca lo reduce)
+function calculateMaxTokens(configuredMaxTokens, numQuestions) {
+    const estimated = (numQuestions || 1) * TOKENS_PER_QUESTION + BASE_TOKENS_BUFFER;
+    return Math.max(configuredMaxTokens, estimated);
+}
+
+export async function getModelResponse(modelName, prompt, numQuestions) {
     const config = models.models.find(m => m.name === modelName);
 
     if (!config) {
         throw new Error(`Modelo ${modelName} no encontrado.`);
     }
+
+    const maxTokens = calculateMaxTokens(config.config.max_tokens, numQuestions);
 
     switch (true) {
         case config.name.startsWith("OpenAI_GPT"):
@@ -60,16 +74,16 @@ export async function getModelResponse(modelName, prompt) {
                     strict: true
                 }
             };
-            return await OpenAI_API_Request(config, prompt, responseFormat);
+            return await OpenAI_API_Request(config, prompt, responseFormat, maxTokens);
 
         case config.name.startsWith("Anthropic"):
-            return await Anthropic_API_Request(config, prompt);
+            return await Anthropic_API_Request(config, prompt, maxTokens);
 
         case config.name.startsWith("Google_Generative"):
-            return await Google_API_Request(config, prompt);
+            return await Google_API_Request(config, prompt, maxTokens);
 
         case config.name.startsWith("Groq"):
-            return await Groq_API_Request(config, prompt);
+            return await Groq_API_Request(config, prompt, maxTokens);
 
         default:
             throw new Error(`No se ha configurado el JSON para ${config.name}.`);
@@ -77,7 +91,7 @@ export async function getModelResponse(modelName, prompt) {
 }
 
 
-async function OpenAI_API_Request(config, prompt, responseFormat) {
+async function OpenAI_API_Request(config, prompt, responseFormat, maxTokens) {
     if (!config.api_key) {
         throw new Error(`Falta la ${config.name} API Key`);
     }
@@ -98,7 +112,7 @@ async function OpenAI_API_Request(config, prompt, responseFormat) {
             temperature: config.config.temperature,
             frequency_penalty: config.config.frequency_penalty,
             presence_penalty: config.config.presence_penalty,
-            max_completion_tokens: config.config.max_tokens,
+            max_completion_tokens: maxTokens,
         };
 
         if (config.config.reasoning_effort) {
@@ -108,6 +122,10 @@ async function OpenAI_API_Request(config, prompt, responseFormat) {
         const startTime = Date.now();
         const response = await openai.chat.completions.create(requestParams);
         const responseTime = Date.now() - startTime;
+
+        if (response.choices[0].finish_reason === 'length') {
+            console.warn(`[llmManager] Respuesta de ${config.name} truncada por límite de tokens (max_completion_tokens=${maxTokens}).`);
+        }
 
         const textResponse = response.choices[0].message.content;
 
@@ -131,7 +149,7 @@ async function OpenAI_API_Request(config, prompt, responseFormat) {
 
 }
 
-async function Anthropic_API_Request(config, prompt) {
+async function Anthropic_API_Request(config, prompt, maxTokens) {
     if (!config.api_key) {
         throw new Error(`Falta la ${config.name} API Key`);
     }
@@ -147,11 +165,15 @@ async function Anthropic_API_Request(config, prompt) {
         const startTime = Date.now();
         const response = await anthropic.messages.create({
             model: config.model,
-            max_tokens: config.config.max_tokens,
+            max_tokens: maxTokens,
             messages: [{ role: 'user', content: prompt }],
             temperature: config.config.temperature,
         });
         const responseTime = Date.now() - startTime;
+
+        if (response.stop_reason === 'max_tokens') {
+            console.warn(`[llmManager] Respuesta de ${config.name} truncada por límite de tokens (max_tokens=${maxTokens}).`);
+        }
 
         const textResponse = response.content[0].text;
 
@@ -176,7 +198,7 @@ async function Anthropic_API_Request(config, prompt) {
 
 }
 
-async function Google_API_Request(config, prompt) {
+async function Google_API_Request(config, prompt, maxTokens) {
     if (!config.vertex) {
         throw new Error(`Faltan las credenciales de Vertex AI (service account) para ${config.name}`);
     }
@@ -242,7 +264,7 @@ async function Google_API_Request(config, prompt) {
         const generationConfig = {
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
-                maxOutputTokens: config.config.max_tokens,
+                maxOutputTokens: maxTokens,
                 temperature: config.config.temperature,
             };
 
@@ -257,6 +279,10 @@ async function Google_API_Request(config, prompt) {
             config: generationConfig,
         });
         const responseTime = Date.now() - startTime;
+
+        if (result.candidates?.[0]?.finishReason === 'MAX_TOKENS') {
+            console.warn(`[llmManager] Respuesta de ${config.name} truncada por límite de tokens (maxOutputTokens=${maxTokens}).`);
+        }
 
         const usage = {
             prompt_tokens: result.usageMetadata?.promptTokenCount || 0,
@@ -277,7 +303,7 @@ async function Google_API_Request(config, prompt) {
     }
 }
 
-async function Groq_API_Request(config, prompt) {
+async function Groq_API_Request(config, prompt, maxTokens) {
     if (!config.api_key) {
         throw new Error(`Falta la ${config.name} API Key`);
     }
@@ -296,9 +322,13 @@ async function Groq_API_Request(config, prompt) {
             model: config.model,
             response_format: {"type": "json_object"},
             temperature: config.config.temperature,
-            max_tokens: config.config.max_tokens,
+            max_tokens: maxTokens,
         });
         const responseTime = Date.now() - startTime;
+
+        if (response.choices[0]?.finish_reason === 'length') {
+            console.warn(`[llmManager] Respuesta de ${config.name} truncada por límite de tokens (max_tokens=${maxTokens}).`);
+        }
 
         // Procesa el contenido de la respuesta
         const textResponse = response.choices[0]?.message?.content;

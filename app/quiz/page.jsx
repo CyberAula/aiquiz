@@ -102,6 +102,8 @@ function QuizPageFun() {
             // Leer datos adicionales para A/B testing
             const responseTime = Number(response.headers.get('X-Response-Time')) || 0;
             const modelId = response.headers.get('X-Model-Id') || '';
+            const assignedModel = response.headers.get('X-Assigned-Model') || '';
+            console.log(`Modelo asignado: ${assignedModel}`);
             let modelConfig = {};
             try { modelConfig = JSON.parse(response.headers.get('X-Model-Config') || '{}'); } catch (e) {}
             const numQuestionsRequested = Number(response.headers.get('X-Num-Questions-Requested')) || numQuestions;

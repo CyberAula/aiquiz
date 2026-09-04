@@ -50,7 +50,7 @@ export async function POST(request) {
         console.log(chalk.bgGreen.black("--------------------------------------------------------------------------------------------------------------"));
 
         // SOLICITUD A LA API del LLM seleccionado para el alumno
-        const responseLlmManager = await getModelResponse(assignedModel, finalPrompt);
+        const responseLlmManager = await getModelResponse(assignedModel, finalPrompt, numQuestions);
         // Formatear la respuesta de la API
         const formattedResponse = responseLlmManager.text.replace(/^\[|\]$/g, '').replace(/```json/g, '').replace(/```/g, '').trim();
 
@@ -79,6 +79,7 @@ export async function POST(request) {
                 'X-Usage-Reasoning-Tokens': String(usageData.reasoning_tokens || 0),
                 'X-Response-Time': String(responseLlmManager.responseTime || 0),
                 'X-Model-Id': String(responseLlmManager.modelId || ''),
+                'X-Assigned-Model': String(assignedModel || ''),
                 'X-Model-Config': JSON.stringify(responseLlmManager.modelConfig || {}),
                 'X-Num-Questions-Requested': String(numQuestions),
                 'X-Num-Questions-Received': String(numQuestionsReceived),
