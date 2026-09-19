@@ -111,11 +111,21 @@ async function OpenAI_API_Request(config, prompt, responseFormat, maxTokens) {
             model: config.model,
             messages: [{ role: 'user', content: prompt }],
             response_format: responseFormat,
-            temperature: config.config.temperature,
-            frequency_penalty: config.config.frequency_penalty,
-            presence_penalty: config.config.presence_penalty,
             max_completion_tokens: maxTokens,
         };
+
+        // Los modelos de razonamiento (GPT-5.x) rechazan temperature/top_p por el mero hecho de
+        // estar presentes, y fallan con frequency_penalty/presence_penalty: solo se envían si
+        // están definidos en models.json, para no romper modelos anteriores
+        if (config.config.temperature != null) {
+            requestParams.temperature = config.config.temperature;
+        }
+        if (config.config.frequency_penalty != null) {
+            requestParams.frequency_penalty = config.config.frequency_penalty;
+        }
+        if (config.config.presence_penalty != null) {
+            requestParams.presence_penalty = config.config.presence_penalty;
+        }
 
         if (config.config.reasoning_effort) {
             requestParams.reasoning_effort = config.config.reasoning_effort;

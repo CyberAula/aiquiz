@@ -21,7 +21,7 @@ export const ABC_Testing_List = {
     BBDD: {
         from_date: "2024-01-01",
         to_date: "2026-12-31",
-        models: ["Google_Generative_Flash"],
+        models: ["OpenAI_GPT_5_Mini"],
         prompt1: {
             content: `Eres un Sistema de Evaluación Adaptativa experto en '{topic}'. Tu objetivo es generar preguntas personalizadas que aborden específicamente las dificultades de aprendizaje del estudiante, basándote en un análisis detallado de sus respuestas previas. 
             Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. 
