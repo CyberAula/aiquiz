@@ -6,8 +6,10 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 const models = JSON.parse(fs.readFileSync('models.json'));
 
-// Tokens estimados necesarios por cada pregunta generada (query + choices + answer + explanation)
-const TOKENS_PER_QUESTION = 450;
+// Tokens estimados necesarios por cada pregunta generada (query + choices + answer + explanation).
+// Incluye margen para los tokens de razonamiento, que en Gemini 3.x cuentan contra maxOutputTokens
+// y varían mucho entre peticiones: ~50% de holgura sobre el peor caso medido.
+const TOKENS_PER_QUESTION = 700;
 // Margen adicional para el JSON envolvente y variabilidad del modelo
 const BASE_TOKENS_BUFFER = 500;
 
@@ -265,10 +267,18 @@ async function Google_API_Request(config, prompt, maxTokens) {
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
                 maxOutputTokens: maxTokens,
-                temperature: config.config.temperature,
             };
 
-        if (config.config.thinking_budget != null) {
+        // Gemini 3.x ignora temperature/top_p/top_k: solo se envía si está definido (modelos 2.x)
+        if (config.config.temperature != null) {
+            generationConfig.temperature = config.config.temperature;
+        }
+
+        // Gemini 3.x usa thinking_level ("minimal" | "low" | "medium" | "high");
+        // los modelos 2.x usan el thinking_budget numérico
+        if (config.config.thinking_level != null) {
+            generationConfig.thinkingConfig = { thinkingLevel: config.config.thinking_level };
+        } else if (config.config.thinking_budget != null) {
             generationConfig.thinkingConfig = { thinkingBudget: config.config.thinking_budget };
         }
 
