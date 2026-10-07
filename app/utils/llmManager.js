@@ -279,17 +279,17 @@ async function Google_API_Request(config, prompt, maxTokens) {
                 maxOutputTokens: maxTokens,
             };
 
-        // Gemini 3.x ignora temperature/top_p/top_k: solo se envía si está definido (modelos 2.x)
-        if (config.config.temperature != null) {
-            generationConfig.temperature = config.config.temperature;
+        // Google ha deprecado temperature/top_p/top_k y thinking_budget: los próximos modelos
+        // devolverán 400 INVALID_ARGUMENT si se envían. Nunca se mandan aunque estén en models.json.
+        const deprecatedParams = ["temperature", "top_p", "top_k", "thinking_budget"]
+            .filter(p => config.config[p] != null);
+        if (deprecatedParams.length > 0) {
+            console.warn(`[llmManager] ${config.name}: se ignoran parámetros deprecados por Gemini (${deprecatedParams.join(", ")}). Usa thinking_level en models.json.`);
         }
 
-        // Gemini 3.x usa thinking_level ("minimal" | "low" | "medium" | "high");
-        // los modelos 2.x usan el thinking_budget numérico
+        // thinking_level: "minimal" | "low" | "medium" | "high". Si no se define, se usa el valor por defecto del modelo
         if (config.config.thinking_level != null) {
             generationConfig.thinkingConfig = { thinkingLevel: config.config.thinking_level };
-        } else if (config.config.thinking_budget != null) {
-            generationConfig.thinkingConfig = { thinkingBudget: config.config.thinking_budget };
         }
 
         const startTime = Date.now();
