@@ -5,6 +5,7 @@ import './globals.css'
 import "./i18n";
 
 import { Inter, Poppins, Lato } from 'next/font/google'
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 const poppins = Poppins({ subsets: ['latin'], weight: '400' })
@@ -23,6 +24,12 @@ import Script from 'next/script'
 
 export default function RootLayout({ children }) {
     const { t, i18n } = useTranslation();
+
+    // Sin argumento, changeLanguage usa el LanguageDetector (localStorage → navigator).
+    // Se hace tras la hidratación para no generar diferencias con el HTML del servidor
+    useEffect(() => {
+        i18n.changeLanguage();
+    }, [i18n]);
 
     return (
         <html lang='en'>

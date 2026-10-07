@@ -14,6 +14,9 @@ import { es } from './constants/langs/es';
   i18n.use(initReactI18next).use(LanguageDetector).init({
     debug: true,
     supportedLngs: ['en', 'es'],
+    // Idioma fijo en el primer render para que coincida con el HTML del servidor (evita el error
+    // de hidratación de React). El idioma real se detecta tras el montaje en layout.tsx
+    lng: 'es',
     fallbackLng: 'es', // Set the fallback language to Spanish
     resources: {
       en: {
