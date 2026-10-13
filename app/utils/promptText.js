@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { difficultyLabel } from './studyDesign.js';
 
 // Funciones puras de construcción de prompts (sin acceso a base de datos),
 // para poder usarlas desde promptManager.js, los tests y los scripts.
@@ -34,6 +35,21 @@ export function getChoicesWithNumbers(choices) {
     //we remove the last comma
     return choicesWithNumbers.slice(0, -2);
 };
+
+// Prompt final del modo de estudio "per_pull": plantilla con las variables sustituidas + bloque JSON.
+// No usa {previousQuestions} ni {num_prev_questions}; la dificultad se envía en texto legible.
+export function buildStudyPrompt(template, { subjectName, topic, difficulty, subTopic, numQuestions, studentEmail, comment }) {
+    const variables = {
+        subjectName,
+        topic,
+        difficulty: difficultyLabel(difficulty),
+        subTopic,
+        numQuestions,
+        studentEmail,
+        comment: comment || '',
+    };
+    return fillVariables(template, variables) + JSON_FORMAT_BLOCK;
+}
 
 // Función que reemplaza las variables en un prompt dado un objeto de variables
 export function fillVariables(prompt, variables) {
