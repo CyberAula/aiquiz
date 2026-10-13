@@ -55,7 +55,7 @@ if (DIFFICULTY !== 'all' && !DIFFICULTIES.includes(DIFFICULTY)) {
 
 // ---------------------------------------------------------------- subtemas de BBDD
 const allSubtopics = subjects[SUBJECT].topics.flatMap(t =>
-    (t.subtopics || []).map(s => ({ topic: t.label, subTopic: s.title, comment: s.comment || '' })));
+    (t.subtopics || []).map(s => ({ topic: t.label, subTopic: s.title, comment: s.comment || '', focus: s.focus || '' })));
 const subtopics = SUBTOPICS_ARG === 'all'
     ? allSubtopics
     : SUBTOPICS_ARG.split(',').map(i => allSubtopics[Number(i)]).filter(Boolean);
@@ -75,6 +75,7 @@ for (let rep = 0; rep < N; rep++) {
                 numQuestions: NUM_QUESTIONS,
                 studentEmail: 'piloto@example.com',
                 comment: st.comment,
+                focus: st.focus,
             });
             jobs.push({ rep, promptId, difficulty, ...st, prompt });
         }

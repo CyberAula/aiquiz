@@ -7,6 +7,8 @@
 export const PROMPT_BASE = `Eres un profesor experto en '{topic}'. Tu objetivo es generar preguntas tipo test que ayuden al estudiante a repasar la materia. 
             Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. 
             
+            {classMaterial}
+            
             Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
             Las preguntas deben ser sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
             Las preguntas deben tener un nivel de dificultad {difficulty}. 
@@ -23,8 +25,8 @@ export const BLOQUE_LONGITUD = `
             Antes de devolver el resultado, revisa cada pregunta: si la respuesta correcta es la opción más larga, reescribe los distractores hasta que no lo sea.
             `;
 
-// Cierre común: comentario del subtema
-export const PROMPT_TAIL = `{comment} 
+// Cierre común: indicaciones sobre el material de clase y el focus del subtema (ver promptText.js)
+export const PROMPT_TAIL = `{classMaterialInstructions}
             `;
 
 export const ABC_Testing_List = {
@@ -177,7 +179,15 @@ export const ABC_Testing_List = {
      * - studentEmail: Correo electrónico del estudiante.
      * - num_prev_questions: Número de preguntas previas respondidas por el estudiante.
      * - previousQuestions: Preguntas previas respondidas sobre el mismo tema con la opción que respondió el estudiante (sirve para hacerlo adaptado a su nivel).
-     * - comment: Comentario asociado al subtema dentro del topic seleccionado.
+     * - classMaterial: material explicado en clase sobre el subtema (campo `comment` del subtema en
+     *   subjects.js), delimitado por <material_de_clase>...</material_de_clase> y con una frase que lo
+     *   presenta. Va como contexto ANTES de la tarea. Vacío si el subtema no tiene material.
+     * - classMaterialInstructions: indicaciones sobre cómo usar <material_de_clase> y, si existe, el
+     *   `focus` del subtema (qué deben evaluar las preguntas). Va con las instrucciones de la tarea.
+     *   Vacío si el subtema no tiene ni material ni focus.
+     * - comment: classMaterial + classMaterialInstructions en un único bloque (para prompts con un solo
+     *   hueco, como los de las asignaturas en modo antiguo).
+     *   Ver buildClassMaterial / buildClassMaterialInstructions en app/utils/promptText.js.
      *
      * Notas:
      * - Las fechas deben ser válidas y estar en formato "YYYY-MM-DD".

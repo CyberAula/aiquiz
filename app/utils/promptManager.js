@@ -5,7 +5,7 @@ import { subjects } from '../constants/subjects.js';
 import { createHash } from 'crypto';
 import { difficultyLabel } from './studyDesign.js';
 import chalk from 'chalk';
-import { fillVariables, getPreviousQuestionPrompt, buildStudyPrompt, JSON_FORMAT_BLOCK } from './promptText.js';
+import { fillVariables, getPreviousQuestionPrompt, buildStudyPrompt, findSubtopic, classMaterialVariables, buildClassMaterialSection, JSON_FORMAT_BLOCK } from './promptText.js';
 
 // console.log("--------------------------------------------------");
 // console.log('[promptManager.js] Connecting to database...');
@@ -19,16 +19,18 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, topic, diffic
 
     //console.log("FILLPROMPT with variables received: ", abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
 
-    // Obtenemos el comentario del tema corrigiendo el valor de subTopic de la URL
+    // Obtenemos el material de clase (comment) y las indicaciones (focus) del subtema corrigiendo el valor de subTopic de la URL
     // http://localhost:3000/aiquiz/quiz?topic=Java&difficulty=intermedio&subTopic=declaraci%C3%B3n+de+variables&numQuestions=5&subject=PRG
 
     let subjectName = subjects[subject]?.name;
-    let topicComment = subjects[subject]?.topics.find(t => t.label.toLowerCase() === topic.toLowerCase())?.subtopics.find(sub => sub.title.toLowerCase() === subTopic.toLowerCase())?.comment || '';
+    const subtopicData = findSubtopic(subjects, subject, topic, subTopic);
+    const topicComment = subtopicData?.comment || '';
+    const topicFocus = subtopicData?.focus || '';
 
     // MODO DE ESTUDIO "per_pull": plantilla fija para este pull, sin historial de respuestas anteriores
     if (options.promptTemplate) {
         const studyPrompt = buildStudyPrompt(options.promptTemplate, {
-            subjectName, topic, difficulty, subTopic, numQuestions, studentEmail, comment: topicComment
+            subjectName, topic, difficulty, subTopic, numQuestions, studentEmail, comment: topicComment, focus: topicFocus
         });
 
         existingStudent.subjects[subjectIndex].ABC_Testing = has_abctesting;
@@ -58,7 +60,8 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, topic, diffic
         studentEmail,
         num_prev_questions,
         previousQuestions,
-        comment: topicComment
+        // comment (material + indicaciones en un bloque), classMaterial y classMaterialInstructions
+        ...classMaterialVariables(subTopic, topicComment, topicFocus)
     };
 
     let finalPrompt = "";
@@ -153,9 +156,10 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, topic, diffic
         Las preguntas deben estar en un nivel ${difficulty} de dificultad. 
         Las preguntas deben ser sobre "${subTopic}" enmarcadas en el tema "${topic}". `;
         
-        //Si hay comentario extra sobre este tema tipo "ten en cuenta que esto lo he contado en clase así..." lo añadimos al prompt.
-        if(topicComment) {
-            finalPrompt += '"' + topicComment + '".';
+        //Si hay material de clase o indicaciones del profesor sobre este subtema, los añadimos al prompt.
+        const classMaterialSection = buildClassMaterialSection(subTopic, topicComment, topicFocus);
+        if(classMaterialSection) {
+            finalPrompt += '\n        ' + classMaterialSection;
         }
 
         console.log("--------------------------------------------------");

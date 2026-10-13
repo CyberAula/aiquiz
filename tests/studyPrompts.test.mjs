@@ -9,11 +9,11 @@ import { getPromptById } from '../app/utils/studyDesign.js';
 const BBDD = ABC_Testing_List.BBDD;
 const DIFFICULTIES = { facil: 'fácil', intermedio: 'intermedio', avanzado: 'avanzado' };
 
-// Todos los subtemas de BBDD, con su comentario (incluye los comentarios largos con <resumen>)
+// Todos los subtemas de BBDD, con su material de clase (comment) y focus
 const bbddSubtopics = subjects.BBDD.topics.flatMap(t =>
-    (t.subtopics || []).map(s => ({ topic: t.label, subTopic: s.title, comment: s.comment || '' })));
+    (t.subtopics || []).map(s => ({ topic: t.label, subTopic: s.title, comment: s.comment || '', focus: s.focus || '' })));
 
-const build = (promptId, difficulty, { topic, subTopic, comment }) =>
+const build = (promptId, difficulty, { topic, subTopic, comment, focus }) =>
     buildStudyPrompt(getPromptById(BBDD, promptId).content, {
         subjectName: subjects.BBDD.name,
         topic,
@@ -22,6 +22,7 @@ const build = (promptId, difficulty, { topic, subTopic, comment }) =>
         numQuestions: 5,
         studentEmail: 'alumno@alumnos.upm.es',
         comment,
+        focus,
     });
 
 test('hay subtemas de BBDD para probar', () => {
@@ -41,6 +42,13 @@ for (const promptId of ['control', 'longitud_equilibrada']) {
                 assert.ok(prompt.includes(st.subTopic));
                 assert.ok(prompt.includes(subjects.BBDD.name));
                 assert.ok(prompt.endsWith(JSON_FORMAT_BLOCK));
+                // material de clase delimitado y antes de la tarea
+                assert.ok(!/resumen>/i.test(prompt), 'quedan etiquetas <resumen>');
+                if (st.comment.trim()) {
+                    assert.ok(prompt.includes(`<material_de_clase>\n${st.comment.trim()}\n</material_de_clase>`));
+                    assert.ok(prompt.indexOf('</material_de_clase>') < prompt.indexOf('Dame 5 preguntas'));
+                    assert.ok(prompt.includes('Usa el contenido de <material_de_clase> como referencia principal'));
+                }
             }
         });
     }
@@ -61,7 +69,7 @@ test('las dos plantillas son idénticas salvo el bloque experimental', () => {
     const longitud = getPromptById(BBDD, 'longitud_equilibrada').content;
     assert.equal(longitud.replace(BLOQUE_LONGITUD, ''), control);
     assert.ok(control.startsWith(PROMPT_BASE));
-    assert.ok(control.endsWith('{comment} \n            '));
+    assert.ok(control.endsWith('{classMaterialInstructions}\n            '));
 });
 
 test('el texto literal de los prompts conserva los espacios finales del documento', () => {
