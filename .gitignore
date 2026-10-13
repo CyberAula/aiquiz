@@ -41,3 +41,5 @@ modelsall.json
 errors.log
 
 .vscode
+# salida de scripts/pilotPrompts.mjs
+scripts/output/
