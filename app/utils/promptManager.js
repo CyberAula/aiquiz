@@ -3,8 +3,9 @@ import Question from '../models/Question.js';
 import Student from '../models/Student.js';
 import { subjects } from '../constants/subjects.js';
 import { createHash } from 'crypto';
+import { difficultyLabel } from './studyDesign.js';
 import chalk from 'chalk';
-import { fillVariables, getPreviousQuestionPrompt, JSON_FORMAT_BLOCK } from './promptText.js';
+import { fillVariables, getPreviousQuestionPrompt, buildStudyPrompt, JSON_FORMAT_BLOCK } from './promptText.js';
 
 // console.log("--------------------------------------------------");
 // console.log('[promptManager.js] Connecting to database...');
@@ -12,14 +13,11 @@ await dbConnect();
 // console.log('[promptManager.js] Database connected successfully');
 // console.log("--------------------------------------------------");
 
-export async function fillPrompt(abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject) {
+// options.promptTemplate: plantilla del modo de estudio "per_pull" ya elegida por el servidor para este pull.
+// En ese modo no se consultan las preguntas anteriores del estudiante ni se toca su md5Prompt/prompt.
+export async function fillPrompt(abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject, options = {}) {
 
     //console.log("FILLPROMPT with variables received: ", abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
-
-    // DEFINIMOS LAS VARIABLES NECESARIAS PARA RELLENAR EL PROMPT
-    const num_prev_questions = await Question.countDocuments({ studentEmail: studentEmail, topic: topic, subTopic: subTopic, studentReport: false });
-    const neededQuestions = 10;
-    const previousQuestions = await getPreviousQuestions(studentEmail, topic, subTopic, neededQuestions);   
 
     // Obtenemos el comentario del tema corrigiendo el valor de subTopic de la URL
     // http://localhost:3000/aiquiz/quiz?topic=Java&difficulty=intermedio&subTopic=declaraci%C3%B3n+de+variables&numQuestions=5&subject=PRG
@@ -27,10 +25,31 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, topic, diffic
     let subjectName = subjects[subject]?.name;
     let topicComment = subjects[subject]?.topics.find(t => t.label.toLowerCase() === topic.toLowerCase())?.subtopics.find(sub => sub.title.toLowerCase() === subTopic.toLowerCase())?.comment || '';
 
+    // MODO DE ESTUDIO "per_pull": plantilla fija para este pull, sin historial de respuestas anteriores
+    if (options.promptTemplate) {
+        const studyPrompt = buildStudyPrompt(options.promptTemplate, {
+            subjectName, topic, difficulty, subTopic, numQuestions, studentEmail, comment: topicComment
+        });
+
+        existingStudent.subjects[subjectIndex].ABC_Testing = has_abctesting;
+        await existingStudent.save();
+
+        console.log("--------------------------------------------------");
+        console.log("[Prompt final per_pull] -> ", studyPrompt);
+        console.log("--------------------------------------------------");
+
+        return studyPrompt;
+    }
+
+    // DEFINIMOS LAS VARIABLES NECESARIAS PARA RELLENAR EL PROMPT
+    const num_prev_questions = await Question.countDocuments({ studentEmail: studentEmail, topic: topic, subTopic: subTopic, studentReport: false });
+    const neededQuestions = 10;
+    const previousQuestions = await getPreviousQuestions(studentEmail, topic, subTopic, neededQuestions);   
+
     const variables = {
         subjectName,
         topic,
-        difficulty,
+        difficulty: difficultyLabel(difficulty),
         subTopic,
         numQuestions,
         studentEmail,
