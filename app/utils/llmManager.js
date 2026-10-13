@@ -7,17 +7,29 @@ import { GoogleGenAI, Type } from "@google/genai";
 const models = JSON.parse(fs.readFileSync('models.json'));
 
 // Tokens estimados necesarios por cada pregunta generada (query + choices + answer + explanation).
-// Incluye margen para los tokens de razonamiento, que en Gemini 3.x cuentan contra maxOutputTokens
-// y varían mucho entre peticiones: ~50% de holgura sobre el peor caso medido.
+// Holgura amplia sobre lo medido (~200-400 tokens visibles por pregunta), porque algunos prompts
+// piden opciones más largas.
 const TOKENS_PER_QUESTION = 700;
 // Margen adicional para el JSON envolvente y variabilidad del modelo
 const BASE_TOKENS_BUFFER = 500;
+// Reserva para los tokens de razonamiento de los modelos que razonan (thinking_level / reasoning_effort).
+// Cuentan contra el límite de salida y NO dependen del número de preguntas: con Gemini 3.5 Flash en
+// thinking_level "medium" se han medido entre ~1.300 y ~3.100 por llamada, también con 2-3 preguntas.
+// Sin esta reserva, con pocas preguntas el límite se quedaba en 4096 y el JSON salía truncado
+// (sobre todo con el prompt longitud_equilibrada, que pide revisar y alargar los distractores).
+// Es un tope, no un gasto: solo se pagan los tokens que realmente se generan.
+const REASONING_TOKENS_RESERVE = 8192;
 
-// Calcula el límite de tokens de salida en función del número de preguntas solicitadas,
-// usando el valor configurado en models.json como mínimo (nunca lo reduce)
-function calculateMaxTokens(configuredMaxTokens, numQuestions) {
-    const estimated = (numQuestions || 1) * TOKENS_PER_QUESTION + BASE_TOKENS_BUFFER;
-    return Math.max(configuredMaxTokens, estimated);
+const isReasoningModel = (config) =>
+    config.config.thinking_level != null || config.config.reasoning_effort != null;
+
+// Calcula el límite de tokens de salida en función del número de preguntas solicitadas, sumando la
+// reserva de razonamiento en los modelos que razonan. Usa el valor configurado en models.json como
+// mínimo (nunca lo reduce)
+function calculateMaxTokens(config, numQuestions) {
+    const reasoningReserve = isReasoningModel(config) ? REASONING_TOKENS_RESERVE : 0;
+    const estimated = (numQuestions || 1) * TOKENS_PER_QUESTION + BASE_TOKENS_BUFFER + reasoningReserve;
+    return Math.max(config.config.max_tokens, estimated);
 }
 
 export async function getModelResponse(modelName, prompt, numQuestions) {
@@ -27,7 +39,7 @@ export async function getModelResponse(modelName, prompt, numQuestions) {
         throw new Error(`Modelo ${modelName} no encontrado.`);
     }
 
-    const maxTokens = calculateMaxTokens(config.config.max_tokens, numQuestions);
+    const maxTokens = calculateMaxTokens(config, numQuestions);
 
     switch (true) {
         case config.name.startsWith("OpenAI_GPT"):

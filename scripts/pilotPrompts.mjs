@@ -28,8 +28,10 @@ const config = ABC_Testing_List[SUBJECT];
 const MODEL_NAME = config.models[0];
 const PROMPT_IDS = [...new Set(config.conditions.map(c => c.promptId))];
 const DIFFICULTIES = ['facil', 'intermedio', 'avanzado'];
-// Mismo valor que llmManager.js (incluye tokens de razonamiento): cota superior de salida por pregunta
-const TOKENS_PER_QUESTION_UPPER = 700;
+// Estimación conservadora de tokens de salida por llamada, a partir de pulls reales con gemini-3.5-flash
+// (thinking_level "medium"): razonamiento casi fijo por llamada (~1.300-3.100) + ~200-400 visibles por pregunta
+const REASONING_TOKENS_PER_CALL_UPPER = 3500;
+const VISIBLE_TOKENS_PER_QUESTION_UPPER = 400;
 
 // ---------------------------------------------------------------- argumentos
 const args = process.argv.slice(2);
@@ -80,7 +82,7 @@ for (let rep = 0; rep < N; rep++) {
 }
 
 const estInputTokens = jobs.reduce((acc, j) => acc + Math.ceil(j.prompt.length / 3.5), 0);
-const estOutputTokens = jobs.length * NUM_QUESTIONS * TOKENS_PER_QUESTION_UPPER;
+const estOutputTokens = jobs.length * (REASONING_TOKENS_PER_CALL_UPPER + NUM_QUESTIONS * VISIBLE_TOKENS_PER_QUESTION_UPPER);
 
 console.log('------------------------------------------------------------');
 console.log(`Piloto ${SUBJECT} con el modelo ${MODEL_NAME}`);
