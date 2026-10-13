@@ -148,10 +148,9 @@ async function OpenAI_API_Request(config, prompt, responseFormat, maxTokens) {
             reasoning_tokens: response.usage?.completion_tokens_details?.reasoning_tokens || 0,
         };
 
-        console.log("HOLAAAAAAAAAAAAAA text response to prompt: ", textResponse);
-        console.log("--------------------------------------------------");
+        const finishReason = response.choices[0].finish_reason || null;
 
-        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice };
+        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, finishReason, truncated: finishReason === 'length' };
 
     } catch (error) {
         console.error("Error during OpenAI request: ", error);
@@ -199,7 +198,9 @@ async function Anthropic_API_Request(config, prompt, maxTokens) {
         // console.log("text response to prompt: ", textResponse);
         // console.log("--------------------------------------------------");
 
-        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice };
+        const finishReason = response.stop_reason || null;
+
+        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, finishReason, truncated: finishReason === 'max_tokens' };
 
     } catch (error) {
         console.error("Error during Anthropic request: ", error);
@@ -314,7 +315,9 @@ async function Google_API_Request(config, prompt, maxTokens) {
         // console.log("text response to prompt: ", result.text);
         // console.log("--------------------------------------------------");
 
-        return { text: result.text, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice };
+        const finishReason = result.candidates?.[0]?.finishReason || null;
+
+        return { text: result.text, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, finishReason, truncated: finishReason === 'MAX_TOKENS' };
 
     } catch (error) {
         console.error("Error during Google request: ", error);
@@ -363,7 +366,9 @@ async function Groq_API_Request(config, prompt, maxTokens) {
         // console.log("text response to prompt: ", textResponse);
         // console.log("--------------------------------------------------");
 
-        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice };
+        const finishReason = response.choices[0]?.finish_reason || null;
+
+        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, finishReason, truncated: finishReason === 'length' };
 
     } catch (error) {
         console.error(`Error during ${config.name} request: `, error);
