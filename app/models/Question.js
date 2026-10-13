@@ -112,6 +112,44 @@ const questionSchema = new mongoose.Schema({
         required: false,
         default: 0,
     },
+    // Campos del modo de estudio per_pull (ver app/constants/abctesting.js). Opcionales:
+    // las preguntas del modo antiguo no los tienen.
+    // En este modo `prompt` guarda el promptId; el prompt final está en la colección pulls (por pull_id).
+    promptId: {
+        type: String,
+        required: false,
+    },
+    // true si las opciones de ESTA pregunta se barajaron (false en pulls sin barajado o si malformed)
+    shuffled: {
+        type: Boolean,
+        required: false,
+    },
+    // opciones e índice correcto en el orden devuelto por el modelo
+    originalChoices: {
+        type: Array,
+        required: false,
+        default: undefined,
+    },
+    originalAnswer: {
+        type: Number,
+        required: false,
+    },
+    // choices[i] === originalChoices[permutation[i]]
+    permutation: {
+        type: [Number],
+        required: false,
+        default: undefined,
+    },
+    // respuesta del estudiante en el orden del modelo: permutation[studentAnswer] (-1 si no respondió)
+    studentAnswerOriginal: {
+        type: Number,
+        required: false,
+    },
+    // true si la pregunta no tenía 4 opciones o answer fuera de rango (no se barajó)
+    malformed: {
+        type: Boolean,
+        required: false,
+    },
     teacherReport: {
         type: String,
         required: false,

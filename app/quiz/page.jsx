@@ -111,6 +111,20 @@ function QuizPageFun() {
             const estimatedCost = Number(response.headers.get('X-Estimated-Cost')) || 0;
             console.log('Usage data from API:', usageData);
 
+            // Metadatos del pull en el modo de estudio per_pull: viajan con cada pregunta
+            // (no se leen del documento del estudiante al responder)
+            const pullIdHeader = response.headers.get('X-Pull-Id');
+            const pullMeta = pullIdHeader ? {
+                perPull: true,
+                pull_id: Number(pullIdHeader),
+                promptId: response.headers.get('X-Prompt-Id') || '',
+                md5Prompt: response.headers.get('X-Md5-Prompt') || '',
+                pullShuffled: response.headers.get('X-Shuffled') === 'true',
+                blockIndex: Number(response.headers.get('X-Block-Index')),
+                positionInBlock: Number(response.headers.get('X-Position-In-Block')),
+                llmModel: assignedModel,
+            } : null;
+
             console.log("--------------------------------------------------");
             console.log('SERVER ANSWER', response);
 
@@ -159,6 +173,10 @@ function QuizPageFun() {
                 q.numQuestionsRequested = numQuestionsRequested;
                 q.numQuestionsReceived = numQuestionsReceived;
                 q.estimatedCost = estimatedCost;
+                // Los campos por pregunta (originalChoices, permutation, shuffled, malformed...) ya vienen en el JSON
+                if (pullMeta) {
+                    Object.assign(q, pullMeta);
+                }
             });
             setQuiz(questionsToShow); // Establecer el estado de quiz con las preguntas a mostrar                
         } catch (err) {

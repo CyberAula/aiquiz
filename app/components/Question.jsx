@@ -17,7 +17,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
     //random id to identify the question in the db and not use the query
     const [id, setId] = useState(Math.floor(Math.random() * 1000000000));
 
-    const { query, choices, answer, explanation, usageData, responseTime, modelId, modelConfig, numQuestionsRequested, numQuestionsReceived, estimatedCost } = question
+    const { query, choices, answer, explanation, usageData, responseTime, modelId, modelConfig, numQuestionsRequested, numQuestionsReceived, estimatedCost, perPull } = question
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [isExplained, setIsExplained] = useState(false)
     const [isSelected, setIsSelected] = useState(false)
@@ -118,29 +118,40 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         let prompt = '';
         let pull_id = null;
 
-        const urlStudent = urljoin(basePath, `/api/student`);
-        const responseStudent = await fetch(urlStudent, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email: studentEmail }),
-        });
+        if (perPull) {
+            // Modo de estudio per_pull: los metadatos del pull vienen con la pregunta desde /api/questions.
+            // El prompt final rellenado se guarda en la colección pulls; aquí se guarda el promptId.
+            llmModel = question.llmModel;
+            ABC_Testing = true;
+            md5Prompt = question.md5Prompt;
+            prompt = question.promptId;
+            pull_id = question.pull_id;
+        } else {
+            // Modo antiguo: se leen del documento del estudiante
+            const urlStudent = urljoin(basePath, `/api/student`);
+            const responseStudent = await fetch(urlStudent, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: studentEmail }),
+            });
 
-        if (!responseStudent.ok) {
-            console.error('Failed to fetch student data');
-            return;
-        }
+            if (!responseStudent.ok) {
+                console.error('Failed to fetch student data');
+                return;
+            }
 
-        const student = await responseStudent.json();
-        const subjectData = student.subjects.find(s => s.subjectName === subject);
+            const student = await responseStudent.json();
+            const subjectData = student.subjects.find(s => s.subjectName === subject);
 
-        if (subjectData) {
-            llmModel = subjectData.subjectModel;
-            ABC_Testing = subjectData.ABC_Testing;
-            md5Prompt = subjectData.md5Prompt;
-            prompt = subjectData.prompt;
-            pull_id = subjectData.pull_id;
+            if (subjectData) {
+                llmModel = subjectData.subjectModel;
+                ABC_Testing = subjectData.ABC_Testing;
+                md5Prompt = subjectData.md5Prompt;
+                prompt = subjectData.prompt;
+                pull_id = subjectData.pull_id;
+            }
         }
 
         
@@ -169,6 +180,14 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.numQuestionsRequested = numQuestionsRequested || 0;
         data.numQuestionsReceived = numQuestionsReceived || 0;
         data.estimatedCost = estimatedCost || 0;
+        if (perPull) {
+            data.promptId = question.promptId;
+            data.shuffled = question.shuffled;
+            data.originalChoices = question.originalChoices;
+            data.originalAnswer = question.originalAnswer;
+            data.permutation = question.permutation;
+            data.malformed = question.malformed;
+        }
         if (report) {
             data.studentReport = true;
             data.studentAnswer = selectedChoiceIndex; //if reported, we can use the state to keep what the user selected or -1 if nothing selected
