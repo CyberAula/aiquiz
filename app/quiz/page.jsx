@@ -271,7 +271,7 @@ function QuizPageFun() {
                 <motion.div className='progress-bar' style={{ scaleX }} />
 
                 {isLoading ?
-                    <div className="bg-blue-200"><LoadingScreen responseStream={responseStream} /></div> :
+                    <div className="bg-blue-200"><LoadingScreen responseStream={responseStream} subject={subject} /></div> :
                     <div className='container-layout'>
                         <div className='bg-white rounded-md pb-4'>
                             <Header />

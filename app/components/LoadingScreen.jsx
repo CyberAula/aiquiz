@@ -5,7 +5,7 @@ import { ThreeDots } from 'react-loader-spinner'
 import { useTranslation } from "react-i18next";
 
 
-const LoadingScreen = ({ responseStream }) => {
+const LoadingScreen = ({ responseStream, subject }) => {
     const { t, i18n } = useTranslation();
 
     return (
@@ -36,7 +36,7 @@ const LoadingScreen = ({ responseStream }) => {
                         <ThreeDots width='60' height='60'color='#6366f1' />
                     </div>
                     <div className='mt-8'>
-                        <Facts />
+                        <Facts subject={subject} />
                     </div>
                 </div>
             </div>
