@@ -152,7 +152,7 @@ const generatePerPull = async ({ abcTestingConfig, has_abctesting, topic, diffic
         const { blockIndex, positionInBlock, condition } = pickNextSlot(activePulls, abcTestingConfig.conditions);
         const promptTemplate = getPromptById(abcTestingConfig, condition.promptId).content;
 
-        const finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject, { promptTemplate });
+        const finalPrompt = await fillPrompt(abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject, { promptTemplate, studyCondition: { condition, blockIndex, positionInBlock } });
 
         try {
             pull = await Pull.create({
@@ -245,6 +245,7 @@ const generatePerPull = async ({ abcTestingConfig, has_abctesting, topic, diffic
             'X-Shuffled': String(pull.shuffled),
             'X-Block-Index': String(pull.blockIndex),
             'X-Position-In-Block': String(pull.positionInBlock),
+            'X-Condition-Id': String(pull.conditionId),
         }
     });
 };

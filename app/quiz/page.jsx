@@ -124,6 +124,10 @@ function QuizPageFun() {
                 positionInBlock: Number(response.headers.get('X-Position-In-Block')),
                 llmModel: assignedModel,
             } : null;
+            if (pullMeta) {
+                const conditionId = response.headers.get('X-Condition-Id') || '';
+                console.log(`Condición asignada: ${conditionId} (prompt: ${pullMeta.promptId}, barajado: ${pullMeta.pullShuffled ? 'sí' : 'no'}, bloque ${pullMeta.blockIndex}, posición ${pullMeta.positionInBlock}, pull ${pullMeta.pull_id})`);
+            }
 
             console.log("--------------------------------------------------");
             console.log('SERVER ANSWER', response);

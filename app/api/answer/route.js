@@ -33,7 +33,15 @@ export async function POST(request) {
                 : undefined;
             const newQuestion = new Question({ id, subject, topic, difficulty, subTopic, query, choices, answer, explanation, studentEmail, studentAnswer, correct, studentReport, llmModel, ABC_Testing, md5Prompt, prompt, pull_id, usageData, responseTime, studentResponseTime, modelId, modelConfig, numQuestionsRequested, numQuestionsReceived, estimatedCost, promptId, shuffled, originalChoices, originalAnswer, permutation, studentAnswerOriginal, malformed });
             const savedQuestion = await newQuestion.save();
-            console.log("Question created: ", savedQuestion);
+            console.log("Question created: ", {
+                id: savedQuestion.id,
+                studentEmail: savedQuestion.studentEmail,
+                pull_id: savedQuestion.pull_id,
+                condicion: savedQuestion.promptId
+                    ? `${savedQuestion.promptId}, barajado: ${savedQuestion.shuffled ? 'sí' : 'no'}`
+                    : `modo antiguo (${savedQuestion.llmModel})`,
+                correct: savedQuestion.correct,
+            });
         }
         return NextResponse.json({"msg":"question created"});
 

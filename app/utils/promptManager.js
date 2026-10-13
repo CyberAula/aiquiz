@@ -34,7 +34,10 @@ export async function fillPrompt(abcTestingConfig, has_abctesting, topic, diffic
         existingStudent.subjects[subjectIndex].ABC_Testing = has_abctesting;
         await existingStudent.save();
 
+        // options.studyCondition: { condition, blockIndex, positionInBlock } asignados a este pull (solo para el log)
+        const { condition, blockIndex, positionInBlock } = options.studyCondition || {};
         console.log("--------------------------------------------------");
+        console.log(chalk.bgMagenta.black(`[Condición per_pull] ${studentEmail} - ${subject} -> ${condition?.id} (prompt: ${condition?.promptId}, barajado: ${condition?.shuffled ? 'sí' : 'no'}) - bloque ${blockIndex}, posición ${positionInBlock} - dificultad: ${difficulty}`));
         console.log("[Prompt final per_pull] -> ", studyPrompt);
         console.log("--------------------------------------------------");
 
