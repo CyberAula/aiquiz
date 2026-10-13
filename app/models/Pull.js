@@ -43,7 +43,14 @@ const pullSchema = new mongoose.Schema({
     responseTime: { type: Number, required: false },
     rawResponse: { type: String, required: false },         // solo si el JSON del modelo no se pudo parsear
     completedAt: { type: Date, required: false },
-}, { timestamps: true }); // createdAt / updatedAt
+}, {
+    timestamps: true, // createdAt / updatedAt
+    // El modelo se compila antes de conectar y dbconnect usa bufferCommands: false, así que la
+    // creación automática fallaría: los índices se crean explícitamente con Pull.createIndexes()
+    // en /api/questions una vez conectados.
+    autoIndex: false,
+    autoCreate: false,
+});
 
 // Un hueco (bloque, posición) solo puede estar ocupado por un pull activo por estudiante y asignatura.
 // Evita que dos peticiones simultáneas (dos pestañas) reciban el mismo hueco.

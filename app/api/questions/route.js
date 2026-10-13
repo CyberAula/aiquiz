@@ -17,7 +17,11 @@ import Pull from '../../models/Pull.js';
 // console.log('[questions/route.js] Connecting to database...');
 await dbConnect();
 // Aseguramos los índices de Pull (el índice único de huecos de bloque evita asignaciones duplicadas)
-await Pull.init();
+try {
+    await Pull.createIndexes();
+} catch (error) {
+    console.error('[questions/route.js] No se pudieron crear los índices de Pull:', error.message);
+}
 // console.log('[questions/route.js] Database connected successfully');
 // console.log("--------------------------------------------------");
 
