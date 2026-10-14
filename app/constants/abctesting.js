@@ -10,10 +10,8 @@ export const PROMPT_BASE = `Eres un profesor experto en '{topic}'. Tu objetivo e
             {classMaterial}
             
             Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
-            Varía el formato de las preguntas: aproximadamente la mitad deben tener opciones cortas (de 1 a 6 palabras: un término, un comando, un valor o una expresión breve) y el resto opciones de una sola frase de como máximo 15 palabras.
             Las preguntas deben ser sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
             Las preguntas deben tener un nivel de dificultad {difficulty}. 
-            La dificultad debe venir del razonamiento que exige la pregunta (comprender, aplicar, distinguir conceptos próximos), no de la longitud ni de la complejidad de la redacción del enunciado o de las opciones.
             Cada opción debe ser autónoma y comprensible por sí sola: no incluyas opciones que hagan referencia a otras opciones (como "todas las anteriores", "ninguna de las anteriores", "ambas son correctas" o "la segunda y la tercera"), porque las opciones se mostrarán en orden aleatorio.
             `;
 
@@ -22,7 +20,7 @@ export const BLOQUE_LONGITUD = `
             Requisitos obligatorios para las 4 opciones de cada pregunta:
             - Las 4 opciones deben tener una longitud similar: el número de palabras de cada opción no debe diferir en más de 3 palabras del de las demás.
             - La respuesta correcta no debe ser la opción más larga, ni la más detallada, ni la única con matices o salvedades.
-            - Para igualar longitudes, reformula de forma más concisa las opciones más largas, incluida la correcta si es necesario, sin que pierda precisión. Si alargas una opción, no superes la longitud máxima indicada.
+            - Para igualar longitudes, reformula de forma más concisa las opciones más largas, incluida la correcta si es necesario, sin que pierda precisión.
             - Las 4 opciones deben tener la misma estructura gramatical, el mismo nivel de precisión técnica y usar la terminología propia del tema.
             Antes de devolver el resultado, revisa cada pregunta: si la respuesta correcta es la opción más larga, reescribe las opciones hasta que no lo sea.
             `;
