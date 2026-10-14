@@ -112,6 +112,12 @@ const questionSchema = new mongoose.Schema({
         required: false,
         default: 0,
     },
+    // posición (desde 0) en que se mostró la pregunta dentro de su test (pull). Las preguntas no se
+    // barajan, así que coincide con su índice en el array que devolvió el modelo
+    order: {
+        type: Number,
+        required: false,
+    },
     // Campos del modo de estudio per_pull (ver app/constants/abctesting.js). Opcionales:
     // las preguntas del modo antiguo no los tienen.
     // En este modo `prompt` guarda el promptId; el prompt final está en la colección pulls (por pull_id).

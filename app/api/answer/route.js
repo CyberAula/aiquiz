@@ -9,7 +9,7 @@ await dbConnect();
 //api path to create a new answer or report "/api/answer" passing neccesary data (see POST in page.js)
 export async function POST(request) {
     try {
-        const { id, subject, topic, difficulty, subTopic, query, choices, answer, correct, explanation, studentEmail, studentAnswer, studentReport, llmModel, ABC_Testing, md5Prompt, prompt, pull_id, usageData, responseTime, studentResponseTime, modelId, modelConfig, numQuestionsRequested, numQuestionsReceived, estimatedCost, promptId, shuffled, originalChoices, originalAnswer, permutation, malformed } = await request.json();
+        const { id, subject, topic, difficulty, subTopic, query, choices, answer, correct, explanation, studentEmail, studentAnswer, studentReport, llmModel, ABC_Testing, md5Prompt, prompt, pull_id, usageData, responseTime, studentResponseTime, modelId, modelConfig, numQuestionsRequested, numQuestionsReceived, estimatedCost, promptId, shuffled, originalChoices, originalAnswer, permutation, malformed, order } = await request.json();
         //console.log("received params: ",id, subject, topic, difficulty, subTopic, query, choices, answer, explanation, studentEmail, studentAnswer, studentReport, llmModel, ABC_Testing, prompt);
 
         //check if question exists in database by id
@@ -31,7 +31,7 @@ export async function POST(request) {
             const studentAnswerOriginal = Array.isArray(permutation) && permutation.length > 0
                 ? computeStudentAnswerOriginal(permutation, studentAnswer)
                 : undefined;
-            const newQuestion = new Question({ id, subject, topic, difficulty, subTopic, query, choices, answer, explanation, studentEmail, studentAnswer, correct, studentReport, llmModel, ABC_Testing, md5Prompt, prompt, pull_id, usageData, responseTime, studentResponseTime, modelId, modelConfig, numQuestionsRequested, numQuestionsReceived, estimatedCost, promptId, shuffled, originalChoices, originalAnswer, permutation, studentAnswerOriginal, malformed });
+            const newQuestion = new Question({ id, subject, topic, difficulty, subTopic, query, choices, answer, explanation, studentEmail, studentAnswer, correct, studentReport, llmModel, ABC_Testing, md5Prompt, prompt, pull_id, usageData, responseTime, studentResponseTime, modelId, modelConfig, numQuestionsRequested, numQuestionsReceived, estimatedCost, promptId, shuffled, originalChoices, originalAnswer, permutation, studentAnswerOriginal, malformed, order });
             const savedQuestion = await newQuestion.save();
             console.log("Question created: ", {
                 id: savedQuestion.id,

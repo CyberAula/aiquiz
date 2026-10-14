@@ -180,6 +180,7 @@ const Question = ({ numQuestions, question, order, addSubmission, addReport, set
         data.numQuestionsRequested = numQuestionsRequested || 0;
         data.numQuestionsReceived = numQuestionsReceived || 0;
         data.estimatedCost = estimatedCost || 0;
+        data.order = order; // posición (desde 0) de la pregunta dentro del test
         if (perPull) {
             data.promptId = question.promptId;
             data.shuffled = question.shuffled;
