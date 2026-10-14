@@ -32,6 +32,9 @@ const pullSchema = new mongoose.Schema({
     errorMessage: { type: String, required: false },
     finishReason: { type: String, required: false },
     truncated: { type: Boolean, required: false },
+    // límite de tokens de salida enviado de verdad al proveedor (calculateMaxTokens en tokenLimits.js);
+    // modelConfig.max_tokens de las preguntas es solo el mínimo configurado en models.json
+    maxOutputTokensUsed: { type: Number, required: false },
     numQuestionsReceived: { type: Number, required: false },
     numMalformed: { type: Number, required: false },
     usageData: {

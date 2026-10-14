@@ -200,6 +200,7 @@ const generatePerPull = async ({ abcTestingConfig, has_abctesting, topic, diffic
         modelId: responseLlmManager.modelId || '',
         finishReason: responseLlmManager.finishReason ?? null,
         truncated: responseLlmManager.truncated ?? false,
+        maxOutputTokensUsed: responseLlmManager.maxOutputTokensUsed,
         usageData: responseLlmManager.usage || {},
         responseTime: responseLlmManager.responseTime || 0,
     };

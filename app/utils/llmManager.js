@@ -3,34 +3,9 @@ import OpenAI from "openai";
 import Anthropic from '@anthropic-ai/sdk';
 import Groq from "groq-sdk";
 import { GoogleGenAI, Type } from "@google/genai";
+import { calculateMaxTokens } from "./tokenLimits.js";
 
 const models = JSON.parse(fs.readFileSync('models.json'));
-
-// Tokens estimados necesarios por cada pregunta generada (query + choices + answer + explanation).
-// Holgura amplia sobre lo medido (~200-400 tokens visibles por pregunta), porque algunos prompts
-// piden opciones más largas.
-const TOKENS_PER_QUESTION = 700;
-// Margen adicional para el JSON envolvente y variabilidad del modelo
-const BASE_TOKENS_BUFFER = 500;
-// Reserva para los tokens de razonamiento de los modelos que razonan (thinking_level / reasoning_effort).
-// Cuentan contra el límite de salida y NO dependen del número de preguntas: con Gemini 3.5 Flash en
-// thinking_level "medium" se han medido entre ~1.300 y ~3.100 por llamada, también con 2-3 preguntas.
-// Sin esta reserva, con pocas preguntas el límite se quedaba en 4096 y el JSON salía truncado
-// (sobre todo con el prompt longitud_equilibrada, que pide revisar y alargar los distractores).
-// Es un tope, no un gasto: solo se pagan los tokens que realmente se generan.
-const REASONING_TOKENS_RESERVE = 8192;
-
-const isReasoningModel = (config) =>
-    config.config.thinking_level != null || config.config.reasoning_effort != null;
-
-// Calcula el límite de tokens de salida en función del número de preguntas solicitadas, sumando la
-// reserva de razonamiento en los modelos que razonan. Usa el valor configurado en models.json como
-// mínimo (nunca lo reduce)
-function calculateMaxTokens(config, numQuestions) {
-    const reasoningReserve = isReasoningModel(config) ? REASONING_TOKENS_RESERVE : 0;
-    const estimated = (numQuestions || 1) * TOKENS_PER_QUESTION + BASE_TOKENS_BUFFER + reasoningReserve;
-    return Math.max(config.config.max_tokens, estimated);
-}
 
 export async function getModelResponse(modelName, prompt, numQuestions) {
     const config = models.models.find(m => m.name === modelName);
@@ -162,7 +137,7 @@ async function OpenAI_API_Request(config, prompt, responseFormat, maxTokens) {
 
         const finishReason = response.choices[0].finish_reason || null;
 
-        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, finishReason, truncated: finishReason === 'length' };
+        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, maxOutputTokensUsed: maxTokens, finishReason, truncated: finishReason === 'length' };
 
     } catch (error) {
         console.error("Error during OpenAI request: ", error);
@@ -212,7 +187,7 @@ async function Anthropic_API_Request(config, prompt, maxTokens) {
 
         const finishReason = response.stop_reason || null;
 
-        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, finishReason, truncated: finishReason === 'max_tokens' };
+        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, maxOutputTokensUsed: maxTokens, finishReason, truncated: finishReason === 'max_tokens' };
 
     } catch (error) {
         console.error("Error during Anthropic request: ", error);
@@ -329,7 +304,7 @@ async function Google_API_Request(config, prompt, maxTokens) {
 
         const finishReason = result.candidates?.[0]?.finishReason || null;
 
-        return { text: result.text, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, finishReason, truncated: finishReason === 'MAX_TOKENS' };
+        return { text: result.text, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, maxOutputTokensUsed: maxTokens, finishReason, truncated: finishReason === 'MAX_TOKENS' };
 
     } catch (error) {
         console.error("Error during Google request: ", error);
@@ -380,7 +355,7 @@ async function Groq_API_Request(config, prompt, maxTokens) {
 
         const finishReason = response.choices[0]?.finish_reason || null;
 
-        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, finishReason, truncated: finishReason === 'length' };
+        return { text: textResponse, usage, responseTime, modelId: config.model, modelConfig: config.config, tokenPrice: config.tokenPrice, maxOutputTokensUsed: maxTokens, finishReason, truncated: finishReason === 'length' };
 
     } catch (error) {
         console.error(`Error during ${config.name} request: `, error);
