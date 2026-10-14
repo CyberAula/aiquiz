@@ -4,13 +4,16 @@
 //   node scripts/checkIntegrity.mjs [--subject BBDD] [--sample 5000] [--pending-minutes 15]
 //
 // MONGODB_URI se toma de la variable de entorno o, si no existe, de next.config.js (no se imprime).
+// Lee models.json para recalcular el límite de tokens de cada pull (solo la configuración, no se imprime).
 // Devuelve código de salida 1 si encuentra alguna violación.
 
+import fs from 'fs';
 import { createRequire } from 'module';
 import mongoose from 'mongoose';
 
 import { ABC_Testing_List } from '../app/constants/abctesting.js';
 import { computeStudentAnswerOriginal } from '../app/utils/studyDesign.js';
+import { checkPullQuestionOrders, checkPullMaxOutputTokens } from './lib/integrityChecks.mjs';
 
 const require = createRequire(import.meta.url);
 
@@ -38,6 +41,14 @@ if (!uri) {
 if (!uri) {
     console.error('Define MONGODB_URI (variable de entorno o next.config.js)');
     process.exit(1);
+}
+
+// Modelos de models.json (solo se usa su configuración para recalcular el límite de tokens; nada se imprime)
+let modelEntries = [];
+try {
+    modelEntries = JSON.parse(fs.readFileSync('models.json', 'utf8')).models || [];
+} catch {
+    console.error('No se pudo leer models.json: no se podrá comprobar maxOutputTokensUsed');
 }
 
 // Registro de violaciones (se muestran como mucho 10 ejemplos por tipo)
@@ -78,6 +89,9 @@ for (const p of pulls) {
     }
     if (/\{\w+\}/.test(p.prompt || '')) violation('prompt de pull con variables sin sustituir', `${p._id} ${(p.prompt.match(/\{\w+\}/) || [])[0]}`);
     if ((p.prompt || '').includes('previousQuestions')) violation('prompt de pull con previousQuestions', `${p._id}`);
+    for (const problem of checkPullMaxOutputTokens(p, modelEntries.find(m => m.name === p.llmModel))) {
+        violation(problem.type, `${p._id} (pull ${p.pull_id}) ${problem.detail}`.trim());
+    }
 }
 
 // Pulls duplicados por (estudiante, pull_id): romperían el join con questions
@@ -157,6 +171,21 @@ for (const q of studyQuestions) {
     if (q.shuffled && !pull.shuffled) violation('pregunta barajada en un Pull sin barajado', id);
     if (pull.shuffled && !q.shuffled && !q.malformed) violation('pregunta sin barajar en un Pull con barajado', id);
     if (pull.topic !== q.topic || pull.subTopic !== q.subTopic || pull.difficulty !== q.difficulty) violation('topic/subTopic/difficulty distinto del Pull', id);
+}
+
+// Posición de las preguntas dentro de cada pull: order único y en [0, numQuestionsReceived - 1]
+const ordersByPull = new Map();
+for (const q of studyQuestions) {
+    const key = `${q.studentEmail}|${q.pull_id}`;
+    if (!ordersByPull.has(key)) ordersByPull.set(key, []);
+    ordersByPull.get(key).push(q.order);
+}
+for (const [key, orders] of ordersByPull) {
+    const pull = pullsByKey.get(key);
+    if (!pull) continue; // ya registrado como pregunta sin Pull asociado
+    for (const problem of checkPullQuestionOrders(orders, pull.numQuestionsReceived)) {
+        violation(problem.type, `pull ${pull.pull_id} (${pull.studentEmail}) ${problem.detail}`.trim());
+    }
 }
 
 // ---------------------------------------------------------------- informe

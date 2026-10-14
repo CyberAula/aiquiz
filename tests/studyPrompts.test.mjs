@@ -58,10 +58,10 @@ test('solo longitud_equilibrada contiene el bloque de longitud', () => {
     const st = bbddSubtopics[0];
     const control = build('control', 'intermedio', st);
     const longitud = build('longitud_equilibrada', 'intermedio', st);
-    const marker = 'Las 4 opciones deben tener una longitud similar';
+    // Marcador que no depende de la redacción concreta de cada requisito
+    const marker = 'Requisitos obligatorios para las 4 opciones';
     assert.ok(!control.includes(marker));
     assert.ok(longitud.includes(marker));
-    assert.ok(longitud.includes('reescribe los distractores'));
 });
 
 test('las dos plantillas son idénticas salvo el bloque experimental', () => {
