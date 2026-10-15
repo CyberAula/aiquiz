@@ -32,22 +32,6 @@ const HomePage = () => {
               <p className="subject-acronym ">CORE</p>
             </Link>
             <Link
-              className="subject-button "
-              href={{ pathname: "/IBDN" }}
-              id="ibdn"
-            >
-              <p> Ingeniería de Big Data en la Nube</p>
-              <p className="subject-acronym ">IBDN</p>
-            </Link>
-            <Link
-              className="subject-button "
-              href={{ pathname: "/TECW" }}
-              id="tecw"
-            >
-              <p> Tecnologías Web </p>
-              <p className="subject-acronym ">TECW</p>
-            </Link>
-            <Link
               className="subject-button"
               href={{ pathname: "/BBDD" }}
               id="bbdd"
@@ -70,7 +54,23 @@ const HomePage = () => {
             >
           <p>Ofimática</p>
           <p className="subject-acronym ">OFI</p>
-          </Link>     
+          </Link>
+            <Link
+              className="subject-button"
+              href={{ pathname: "/BDNR" }}
+              id="bdnr"
+            >
+              <p>Bases de Datos No Relacionales y distribuidas</p>
+              <p className="subject-acronym ">BDNR</p>
+            </Link>
+            <Link
+              className="subject-button"
+              href={{ pathname: "/BDFI" }}
+              id="bdfi"
+            >
+              <p>Big Data Fundamentos e Infraestructura</p>
+              <p className="subject-acronym ">BDFI</p>
+            </Link>
             
           </div>
         </div>

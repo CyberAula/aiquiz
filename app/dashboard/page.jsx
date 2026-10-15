@@ -29,7 +29,11 @@ const DashboardPage = () => {
             <Link  className="subject-button" id="iweb" href={{pathname: '/dashboard/IWEB'}}>  <p>Ingeniería Web</p>
             <p className="subject-acronym ">IWEB</p></Link> 
 	                <Link  className="subject-button" id="ofi" href={{pathname: '/dashboard/OFI'}}>  <p>Ofimática</p>
-            <p className="subject-acronym ">OFI</p></Link>            
+            <p className="subject-acronym ">OFI</p></Link>
+            <Link  className="subject-button" id="bdnr" href={{pathname: '/dashboard/BDNR'}}>  <p>Bases de Datos No Relacionales y distribuidas</p>
+            <p className="subject-acronym ">BDNR</p></Link>
+            <Link  className="subject-button" id="bdfi" href={{pathname: '/dashboard/BDFI'}}>  <p>Big Data Fundamentos e Infraestructura</p>
+            <p className="subject-acronym ">BDFI</p></Link>
           </div>
         </div>
         <Footer/>

@@ -69,6 +69,24 @@ const ReportPruebaPage = () => {
                       <p>Ingeniería Web</p>
                       <p className="subject-acronym ">IWEB</p>
                     </Link>
+                    <Link
+                      className="subject-button"
+                      href={{ pathname: "/reports/BDNR" }}
+                      id="bdnr"
+                      prefetch={false}
+                    >
+                      <p>Bases de Datos No Relacionales y distribuidas</p>
+                      <p className="subject-acronym ">BDNR</p>
+                    </Link>
+                    <Link
+                      className="subject-button"
+                      href={{ pathname: "/reports/BDFI" }}
+                      id="bdfi"
+                      prefetch={false}
+                    >
+                      <p>Big Data Fundamentos e Infraestructura</p>
+                      <p className="subject-acronym ">BDFI</p>
+                    </Link>
                   </div>
                 </div>
            

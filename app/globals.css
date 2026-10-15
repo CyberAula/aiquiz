@@ -151,7 +151,7 @@ body {
 
 #ofi {
     @apply bg-blue-100/40 hover:bg-blue-200 ;
-    
+
     .subject-acronym {
        @apply text-blue-500/60
     };
@@ -160,7 +160,31 @@ body {
         .subject-acronym {
             @apply text-blue-700 transition
         }
-    } 
+    }
+}
+
+#bdnr {
+    @apply bg-amber-100/50 hover:bg-amber-200/70 ;
+    .subject-acronym {
+       @apply text-amber-500/60
+    };
+    &:hover {
+        .subject-acronym {
+            @apply text-amber-700 transition
+        }
+    }
+}
+
+#bdfi {
+    @apply bg-teal-100/50 hover:bg-teal-200/70 ;
+    .subject-acronym {
+       @apply text-teal-500/60
+    };
+    &:hover {
+        .subject-acronym {
+            @apply text-teal-700 transition
+        }
+    }
 }
 
 .bg-grid {
