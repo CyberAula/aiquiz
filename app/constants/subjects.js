@@ -1665,105 +1665,138 @@ export const subjects = {
     },
     IWEB: {
         name: 'Ingeniería Web',
-        topics: [            
+        topics: [
             {
                 value: 'react', label: 'React',
                 subtopics: [
-                    { title: 'Introducción a React', 
-                        comment: `React es una biblioteca de JavaScript para construir interfaces de usuario, creada por Facebook y mantenida como software libre en GitHub. Es la "V" de MVC, es decir, se centra en la parte de la vista. Se utiliza tanto en el desarrollo web como en aplicaciones nativas (React Native).
-
-                        Entre sus principales ventajas están su popularidad, su alto rendimiento y su gran adopción por parte de la industria. React trabaja con un enfoque declarativo y basado en componentes, lo que facilita la creación de aplicaciones complejas y reutilizables. 
-
-                        Su gran diferencia frente al desarrollo tradicional con JavaScript o jQuery es el uso del Virtual DOM, la estructuración modular y el flujo unidireccional de datos ("data down, events up"), lo que la hace más eficiente y predecible en aplicaciones grandes.`, files: [] },                    
-                    { title: 'Basado en componentes', 
-                        comment: `React se basa en el concepto de componentes, que representan unidades independientes y reutilizables de la interfaz de usuario. Un componente puede verse como una “etiqueta HTML” personalizada con su propia funcionalidad y estilo.
-
-                        Cada componente recibe datos (props) y devuelve un elemento visual (normalmente JSX). Los componentes deben ser altamente cohesivos (todo lo que pertenece al mismo propósito está junto) y tener bajo acoplamiento (si cambia uno, no afecta al resto). 
-
-                        Los componentes pueden definirse como funciones o como clases, aunque actualmente predominan los componentes funcionales con Hooks. React promueve dividir la interfaz en pequeñas partes (por ejemplo: App, Header, Lista, Elemento, etc.), lo que mejora la estructura, la legibilidad y las pruebas unitarias.`, files: [] },
-                    { title: 'JSX', 
-                        comment: `JSX (JavaScript XML) es una extensión de JavaScript que permite escribir estructuras de árbol con una sintaxis similar a HTML, pero que se transforma internamente en llamadas a React.createElement(). No cambia la semántica del lenguaje, simplemente facilita la lectura y el diseño de componentes.
-
-                        Las etiquetas en JSX pueden ser nativas de HTML (en minúsculas) o personalizadas de React (en mayúsculas). Los atributos y propiedades se escriben en camelCase (por ejemplo: onClick, tabIndex, className). Los valores pueden ser cadenas o expresiones de JavaScript encerradas entre llaves {}.
-
-                        JSX permite integrar expresiones dentro de la interfaz, definir estilos en línea como objetos JS y combinar HTML y componentes. 
-                        
-                        Además, se pueden aplicar condiciones: dentro del JSX solo se pueden usar expresiones, como el operador && o el operador ternario; la sentencia if-else se usa fuera del JSX (por ejemplo, antes del return, para decidir qué JSX devolver).
-
-                        También se pueden devolver múltiples elementos mediante Fragmentos o englobándolos en un contenedor padre como un div.`, files: [] },
-                    { title: 'Vite', 
-                        comment: `Vite es la herramienta moderna recomendada para crear y ejecutar proyectos React, sustituyendo a Create React App (que está deprecada). Es un entorno de desarrollo ultrarrápido basado en ES Modules, que incluye servidor, build optimizado y compatibilidad con JSX y TypeScript.
-
-                        Para iniciar un proyecto se usa el comando:
-                        npm create vite@latest
-                        Durante el desarrollo se lanza con “npm run dev”, que arranca un servidor con Hot Module Replacement (HMR), recargando en tiempo real solo los módulos modificados.
-                        Este servidor realiza la **transpilación** del código (JSX/ES6+) a JavaScript que el navegador pueda entender (Vite usa para ello **esbuild**; el plugin de React puede usar también **Babel** o **SWC**).
-                        He insistido en que el navegador no entiende JSX de forma nativa, por lo que es necesario este paso de transpilación.
-
-                        La estructura de un proyecto con Vite incluye una carpeta "src" para el código y "public" para los ficheros estáticos. 
-                        
-                        Es importante conocer que al ejecutar “npm run build”, se genera un conjunto de archivos optimizados para producción listos para desplegar en cualquier servidor web como **nginx** o **Apache**.`, files: [] },
-                    { title: 'Props y State', 
+                    { title: 'Introducción a React',
+                        comment: `React es "una biblioteca de JavaScript para construir interfaces de usuario web y nativas", creada por Facebook y disponible como software libre en GitHub. En el curso se usa React 19. Se dice que es la "V" de MVC, porque se centra en la vista, aunque con React el propio concepto de MVC cambia. Se utiliza tanto en el desarrollo web como en aplicaciones nativas (React Native). Entre sus ventajas están su popularidad (tendencias de búsqueda, descargas en npm, ofertas de empleo, encuestas de desarrolladores) y su adopción en grandes empresas.
+ 
+                        Sus tres características principales son el Virtual DOM, estar basado en componentes y el flujo unidireccional de datos. El Virtual DOM es una representación del DOM HTML en memoria, en un objeto JavaScript. React aplica los cambios primero en esa copia en memoria y después la compara con el DOM real para aplicar solo los cambios necesarios; esta sincronización la hace la biblioteca ReactDOM y se llama reconciliación. Es mucho más eficiente que volver a renderizar el DOM completo con cada cambio.
+ 
+                        Frente al two-way data binding de Angular, Backbone o Ember (cuando cambia el modelo cambia la interfaz y cuando cambia la interfaz los cambios pasan al modelo saltándose los controladores, lo que en Facebook provocaba bugs recurrentes en los paneles de notificaciones y chat), React usa one-way data binding: "events flow up, data flows down", los eventos suben y los datos bajan, igual que ocurre en el DOM de HTML.`, files: [] },
+                    { title: 'Basado en componentes',
+                        comment: `Un componente es cada parte o porción de la interfaz de usuario (UI) y hace solo una cosa: recibe datos de entrada arbitrarios (llamados props) y devuelve elementos de React que describen lo que debe aparecer en pantalla. Es como una etiqueta HTML especial que definimos nosotros, con su propia funcionalidad. Dividir la interfaz en componentes independientes y reutilizables evita el código "spaghetti" en JavaScript y es la dirección que ha tomado el desarrollo web (Web Components, Angular, React, Vue.js). Por ejemplo, una lista de la compra se divide en los componentes App, TextInput, ShoppingList e Item.
+ 
+                        La forma más simple de definir un componente es una función de JavaScript que devuelve (return) lo que se debe pintar. La forma antigua es una clase ES6 que extiende React.Component y tiene al menos un método render() que devuelve lo que se pinta. Ambos se usan igual, por su nombre como si fueran etiquetas, por ejemplo en src/main.jsx o en el return de un componente padre. Lo que se devuelve puede ser una o varias etiquetas HTML u otros componentes de React. No son solo plantillas: tienen una API y pueden tener varios métodos y funcionalidades.
+ 
+                        Características de los componentes: alta cohesión (los elementos que forman un componente están relacionados), bajo acoplamiento (si modificamos un componente no hay que modificar el resto, porque se comunica a través de su API), fáciles de probar con pruebas unitarias y declarativos (les decimos con qué datos trabajar, no cómo). Se definen con JSX, aunque se podría usar solo JavaScript.
+ 
+                        En React no se recomienda la herencia; se usa la composición: los componentes usan otros componentes, lo que permite la misma abstracción a cualquier nivel de detalle. Dividir un componente en otros más pequeños equivale a refactorizar el código, los hace más reutilizables y aísla la complejidad (por ejemplo, un componente UserInfo que se usa en los comentarios y también en la cabecera).
+ 
+                        Se distingue entre componentes "gordos" (listos), que tienen el estado de la aplicación o de una parte de ella y las funciones para modificarlo, cargarlo o guardarlo, y componentes "flacos" (tontos), que solo tienen props y saben pintar lo que les pasan; si les ocurre algo (por ejemplo un clic) llaman al padre para que recalcule el estado y les vuelva a pasar nuevas props.`, files: [] },
+                    { title: 'JSX',
+                        comment: `JSX es una extensión de JavaScript similar a XML que no altera la semántica del lenguaje. Su objetivo es definir fácilmente estructuras de árbol con atributos y es simple y familiar para desarrolladores y diseñadores. Se podría usar React sin JSX, con JavaScript simple, pero JSX lo hace mucho más simple y elegante. Como en XML, las etiquetas JSX tienen un nombre, atributos (props) e hijos (children).
+ 
+                        El nombre de la etiqueta determina el tipo de elemento: las etiquetas que empiezan por mayúscula son componentes de React y las que empiezan por minúscula son etiquetas HTML. En el return de un componente se combinan elementos HTML con otros componentes propios o importados de una librería.
+ 
+                        Si el valor de un atributo va entre comillas es un string; si va entre llaves es una expresión JavaScript. Se pueden incrustar expresiones en cualquier parte del JSX envolviéndolas en llaves. Si se escribe una prop sin valor, su valor por defecto es true. Como JSX es JavaScript, no se pueden usar como atributos palabras reservadas como class o for: se usan className y htmlFor. React DOM usa camelCase en los nombres de las propiedades (tabindex pasa a ser tabIndex y onclick pasa a ser onClick); la excepción son los atributos aria-* y data-*, que se escriben en minúsculas. El atributo style es un objeto JavaScript cuyas claves son las propiedades CSS en camelCase (background-color pasa a ser backgroundColor) y cuyos valores son strings.
+ 
+                        El return debe devolver un único elemento raíz: para devolver varios elementos se envuelven en un contenedor padre como un div o en un Fragment, si no queremos añadir un div.
+ 
+                        Renderizado condicional: se pinta un componente u otro según una condición. Dentro del JSX solo se pueden usar expresiones, como el operador && (funciona porque true && expresión evalúa a expresión y false && expresión evalúa a false) o el operador ternario condición ? expr1 : expr2. La sentencia if-else se usa fuera del JSX: con un return dentro del if y otro dentro del else en componentes muy simples, o asignando el JSX a una variable dentro del if y del else en componentes algo más complejos.`, files: [] },
+                    { title: 'Vite',
+                        comment: `Los navegadores solo entienden JavaScript estándar: no entienden JSX ni TypeScript, ni todas las versiones modernas de JavaScript. Por eso hay que transformar el código a JavaScript estándar, lo que se llama transpilar. Esto lo hacen herramientas como esbuild u Oxc (escrito en Rust), que es lo que usan las versiones actuales de Vite, o Babel, el transpilador clásico con múltiples plugins. Create React App, que se usaba antes, está descontinuado, aunque conviene saber que existe porque hay muchos proyectos creados con él.
+ 
+                        Vite es la herramienta de creación y compilación recomendada para proyectos web modernos. Tiene dos partes: un servidor de desarrollo con Hot Module Replacement (HMR) muy rápido, y un comando de compilación (build) que genera el código optimizado para producción (usa Rolldown). Es configurable y tiene plugins. Un proyecto se crea con "npm create vite@latest". El package.json incluye los scripts dev, build, lint y preview, y la estructura del proyecto tiene la carpeta public para los ficheros estáticos, la carpeta src con el código, index.html, package.json y vite.config.js.
+ 
+                        Con "npm run dev" se lanza el servidor de desarrollo y la aplicación se ve en http://localhost:5173. Con HMR, el servidor se queda observando los ficheros fuente y, si detecta un cambio, reconstruye solo los módulos modificados y los intercambia sin recargar la página. Si el JSX está mal escrito, Vite muestra el error en la terminal (ruta del fichero, línea:columna y el fragmento de código con un ^ señalando el punto exacto) y en el navegador, con un overlay rojo encima de la app. Vite viene con ESLint integrado para mostrar advertencias de estilo de código (npm run lint).
+ 
+                        Al terminar el desarrollo se ejecuta "npm run build", que deja en la carpeta dist un index.html y unos ficheros .js, .css e imágenes, y nada más: no hay servidor ni proceso de Node ejecutándose. Por eso se puede publicar en cualquier sitio que sepa servir ficheros estáticos: Vercel o Netlify (conectas el repositorio de GitHub y en cada git push reconstruyen y publican), GitHub Pages o un servidor como nginx o Apache. Si la aplicación no cuelga de la raíz del dominio, como en GitHub Pages (https://usuario.github.io/mi-repo/), hay que indicarlo con la opción base en vite.config.js.
+ 
+                        Para hacer tests se usa Vitest, que funciona como Jest (suites con describe, casos con it o test y aserciones con expect), junto con Testing Library y jsdom. Jest era el que se usaba con Create React App.`, files: [] },
+                    { title: 'Props y State',
                         comment: `En React, las props y el state son los dos mecanismos principales para manejar datos en los componentes.
-
-                        Las props (propiedades) son parámetros que recibe un componente desde su padre. Es muy importante entender que son inmutables: el componente no debe modificarlas. 
-                        Permiten personalizar el comportamiento y la visualización. Existe una prop especial llamada children que permite incluir contenido dentro del componente.
-
-                        El state representa el estado interno de un componente, gestionado por el propio componente. Es mutable, pero no se modifica directamente: se usa el Hook useState. He insistido mucho en que cada vez que cambia el estado, el componente se vuelve a renderizar.
-
-                        La gestión adecuada de props y state permite crear interfaces reactivas, donde los cambios en los datos se reflejan automáticamente en la vista.
-                        Además, es importante recordar que el estado debe ser lo más local posible y que, en caso de necesitar compartirlo entre componentes, se debe considerar el levantamiento de estado, que el estado se gestione en el componente superior común más cercano.`, files: [] },                    
-                    { title: 'Hooks (useState, useEffect, useRef, etc.)', 
-                        comment: `Los Hooks son funciones especiales que permiten a los componentes funcionales de React usar estado y otras características del ciclo de vida sin necesidad de clases.
-
-                        Los más comunes son:
-                        - useState: permite añadir y actualizar estado local en un componente.
-                        - useEffect: ejecuta efectos secundarios (como peticiones, timers o interacción con el DOM) después del renderizado.
-                        - useRef: almacena referencias mutables a elementos o valores sin provocar re-renderizados.
-                            
-                            El hook **\`useState\`** gestiona el estado local y devuelve un par \`[valor, funciónActualizadora]\`. 
-                            El hook **\`useEffect\`** permite ejecutar **efectos secundarios** (llamadas API, manejo de DOM) después del renderizado; su función de retorno se usa para la **limpieza**. 
-                            El hook **\`useRef\`** devuelve un objeto mutable con la propiedad \`current\`, útil para acceder a elementos del DOM o valores que persisten entre renders pero que **no provocan re-renderizado** al cambiar. 
-                            
-                        React también ofrece otros Hooks como useContext, useMemo o useCallback para optimizar rendimiento o compartir estado global.`, files: [] },
-                    { title: 'Patrones comunes (map, fetch, API keys)', 
-                        comment: `En React se utilizan patrones de programación muy comunes basados en JavaScript moderno.
-
-                        El **Renderizado Condicional** se realiza en JSX con operadores como el **ternario** (\`condicion ? expr1 : expr2\`) o el **operador \`&&\`** (AND lógico). 
-
-                        El método map() se usa frecuentemente para renderizar listas de elementos, generando componentes dinámicamente a partir de arrays. Cada elemento debe incluir una prop key única para optimizar el renderizado.
-
-                        Para obtener datos externos se usa fetch(). 
-                        Si queremos cargar datos al cargar la aplicación la petición fetch se realiza dentro de useEffect para ejecutarse al montar el componente. Los datos obtenidos se guardan en el state y se muestran mediante renderizado condicional.
-                        Pero si queremos cargar datos al hacer clic en un botón, la petición fetch se realiza en el manejador del evento onClick.
-
-                        Importante: Cuando se utilizan APIs externas, las claves (API keys) deben almacenarse de forma segura. No pueden estar en el cliente porque todo el código que se envía al navegador (y las peticiones que hace) lo puede ver cualquier usuario. Se guardan en variables de entorno (.env) de un servidor propio, que es quien llama a la API externa, para no exponerlas en el código cliente. Ojo: en Vite, las variables de entorno con prefijo VITE_ se incluyen en el código del cliente, así que no sirven para guardar claves secretas.`, files: [] },
-                    { title: 'Formularios y componentes controlados', 
-                        comment: `En React, los formularios se gestionan mediante componentes controlados. Esto significa que el valor de cada campo del formulario está ligado al state del componente, de modo que React tiene siempre el control sobre el valor mostrado.
-
-                        Cada campo de entrada (input, textarea, select) debe tener una propiedad value y un evento onChange que actualiza el estado con setState o setValue. Así, cualquier cambio del usuario actualiza el estado y el renderizado.
-
-                        Este enfoque permite validar datos, limpiar campos o gestionar el envío de forma coherente. En formularios más grandes se pueden usar librerías como Formik o React Hook Form para simplificar la gestión.`, files: [] },
-                    { title: 'React Router', 
-                        comment: `React Router es la librería más usada para manejar la navegación en aplicaciones React de una sola página (SPA). Permite definir rutas que renderizan diferentes componentes según la URL actual, sin recargar la página.
-
-                        Para usarlo se importan componentes como BrowserRouter, Routes, Route y Link. Dentro del árbol de componentes se definen las rutas y los componentes asociados.
-
-                        Por ejemplo:
+ 
+                        Las props (propiedades) son los parámetros con los que se personaliza cada instancia de un componente cuando se crea: datos de cualquier tipo (string, number, boolean, object...) que se pasan como atributos al renderizar el componente. Es muy importante entender que son de solo lectura, inmutables: un componente nunca debe modificar sus propias props. Existe una prop especial llamada children que contiene los elementos que envuelve el componente (por ejemplo, el <p> que se escribe entre <Tarjeta> y </Tarjeta>), muy útil para crear componentes reutilizables que cambian según su contenido.
+ 
+                        PropTypes (validar el nombre y el tipo de las props) y defaultProps (valores por defecto de las props) se han eliminado en React 19 para los componentes función, aunque aparecen en muchos proyectos antiguos. Para validar tipos se recomienda TypeScript y para los valores por defecto se usan los parámetros por defecto de ES6: function Greeting({ name = "Enrique" }).
+ 
+                        El state (estado) es información del componente que no le pasa quien lo renderiza, sino que crea y actualiza el propio componente, y que tiene que "recordar" entre renderizados. Es mutable, pero no se modifica directamente, sino con la función que devuelve el Hook useState. He insistido mucho en que cada vez que cambia el estado el componente se vuelve a renderizar: esa es la principal diferencia con una variable creada con let o const. Elegiremos state cuando algo es mutable y props cuando es inmutable.
+ 
+                        Levantamiento de estado (lifting state up): si dos componentes hermanos necesitan el mismo dato (por ejemplo, AñadirProducto quiere añadir y ListaCompra quiere pintar), no pueden comunicarse si cada uno guarda su propio estado, porque las props solo bajan y entre hermanos no hay camino. La solución es subir el estado al ancestro común más cercano: desde ahí los datos bajan como props y los eventos suben como funciones. Pero no más arriba de lo necesario: el estado que solo usa un componente (por ejemplo, el texto que se está escribiendo en un input) se queda en ese componente, y no todo el estado debe ir en App.`, files: [] },
+                    { title: 'TypeScript en React',
+                        comment: `TypeScript es JavaScript con tipos. Es un superconjunto: todo JavaScript válido es TypeScript válido. Los tipos se comprueban mientras escribes y al compilar, y después desaparecen: lo que llega al navegador es JavaScript normal y en tiempo de ejecución TypeScript no existe (en la carpeta dist no queda rastro de los tipos). Resuelve el problema que resolvían las PropTypes, eliminadas en React 19: saber qué recibe un componente y que alguien te avise cuando te equivocas. Por ejemplo, si un componente espera un booleano enStock y le pasan enStock="no", en JavaScript ese string no vacío es verdadero y el componente diría que hay stock justo cuando no lo hay; TypeScript detecta ese error.
+ 
+                        En React con TypeScript el proyecto se crea igual, con npm create vite@latest, y los ficheros pasan de .jsx a .tsx. Tipar las props es la mayor parte de lo que se escribe. El estado casi nunca hay que tiparlo, porque TypeScript lo deduce del valor inicial. Regla práctica: la mayoría de las veces los tipos se deducen solos y solo se declaran en las fronteras: las props, los datos que llegan del API y el estado que empieza vacío o a null. Por ejemplo, useState<Usuario | null>(null), porque si el estado empieza en null TypeScript deduciría que siempre es null y protestaría al asignarle un usuario.`, files: [] },
+                    { title: 'Hooks (useState, useEffect, useRef, etc.)',
+                        comment: `Los Hooks son funciones que permiten "enganchar" el estado de React y el ciclo de vida desde componentes de función. El ciclo de vida de un componente es montado, actualización y desmontado (cuando se pinta, cuando cambia algo y cuando se quita de la pantalla). React trae Hooks incorporados, como useState, useEffect, useRef, useContext, useReducer, useMemo, useCallback, useLayoutEffect o useImperativeHandle, y también podemos escribir los nuestros (custom hooks). Otras librerías aportan sus propios Hooks, como useParams o useNavigate en React Router. Hay que importarlos de React.
+ 
+                        Reglas de los Hooks: 1) llamarlos siempre en el nivel superior del componente, nunca dentro de un if, de un bucle, de una función anidada ni después de un return; 2) llamarlos solo desde componentes de React o desde custom hooks, no desde funciones JavaScript normales ni desde manejadores de eventos.
+ 
+                        useState devuelve un par, el valor actual del estado y una función para actualizarlo, que se recoge con array destructuring: const [contador, setContador] = useState(0). El argumento es el estado inicial, usado en el primer render. Se pueden tener varias variables de estado o un único objeto; en ese caso, para modificar solo un atributo hay que copiar el resto con el spread operator. Si el nuevo valor depende del estado anterior es mejor actualizarlo con un callback: setContador(c => c + 1).
+ 
+                        useEffect sirve para realizar efectos secundarios o sincronizar el componente con sistemas externos (peticiones, temporizadores, suscripciones). Los efectos se declaran dentro del componente para tener acceso a sus props y estado, y React los ejecuta después de cada renderizado. Con un array de dependencias como segundo parámetro solo se ejecuta cuando cambia alguna de ellas, y con un array vacío solo al montar el componente. La función que devuelve el efecto es la limpieza: se ejecuta al desmontar el componente (y antes de volver a ejecutar el efecto), por ejemplo para hacer clearInterval o desuscribirse. No se necesitan efectos para transformar datos para el renderizado ni para manejar eventos del usuario.
+ 
+                        En React en general no se usa getElementById: se tiene un estado, se hacen los cálculos, se actualiza el estado y eso repinta el DOM. useRef sirve para que un componente "recuerde" información sin provocar un repintado: devuelve un objeto con la propiedad current, que persiste entre renders y cuyo cambio no re-renderiza. Es muy útil para referenciar un elemento del DOM (<input ref={inputRef} />), pero no hay que abusar: solo cuando es necesario, por ejemplo para enfocar un nodo, desplazarse hasta él o medir su tamaño y posición. En React 19 ref es una prop normal que un componente propio puede recibir y pasar hacia abajo; hasta React 18 había que envolver el componente en forwardRef. También se puede pasar una función al atributo ref (ref de callback), que React llama con el nodo del DOM cuando el elemento se monta; como novedad de React 19, esa función puede devolver una función de limpieza que React ejecuta cuando el elemento se quita del DOM, el mismo patrón que el return de useEffect.
+ 
+                        <StrictMode> solo actúa en desarrollo (en producción no hace nada) y ayuda a encontrar errores comunes: renderiza dos veces los componentes para comprobar que son funciones puras, ejecuta un ciclo extra de configuración y limpieza de cada useEffect para comprobar que la limpieza funciona, y hace lo mismo con las refs de callback.`, files: [] },
+                    { title: 'Memoización y React Compiler',
+                        comment: `useMemo, useCallback y React.memo son optimizaciones, no funcionalidad: ninguno cambia lo que se pinta, solo evitan repetir trabajo entre renders. useMemo(fn, [deps]) guarda en caché el resultado de un cálculo; useCallback(fn, [deps]) guarda en caché la propia función, para que tenga la misma referencia entre renders; React.memo(Componente) evita repintar un hijo si sus props no han cambiado.
+ 
+                        Escribirlos a mano es tedioso y es fácil equivocarse. Desde la versión 1.0 de React Compiler (estable desde octubre de 2025) lo hace el compilador: es un compilador, no una librería, trabaja en tiempo de compilación y no en el navegador, y el código nunca lo importa ni lo llama. Analiza los componentes y hooks, entiende qué datos dependen de cuáles e inserta la memoización en el JavaScript que genera. Es compatible desde React 17 y con React 19 funciona sin configuración extra. Puede hacer cosas que a mano no se pueden hacer, como memoizar dentro de una condición o después de un return temprano, cosa que useMemo no puede hacer porque es un hook. Solo optimiza el código que cumple las Reglas de React: si un componente las rompe, lo salta y no lo optimiza (el linter avisa antes).
+ 
+                        useMemo, useCallback y React.memo no están deprecados: siguen en la documentación oficial y funcionando. Se siguen escribiendo a mano en proyectos sin compilador y cuando se necesita control fino sobre la identidad de una referencia, por ejemplo una función que es dependencia de un useEffect.`, files: [] },
+                    { title: 'Patrones comunes (map, fetch, API keys)',
+                        comment: `En React es común generar un grupo de componentes a partir de un array de datos usando la función map: se itera sobre el array y se crea, para cada elemento, una instancia del componente (por ejemplo Producto) pasándole las props correspondientes.
+ 
+                        Cada elemento de una lista pintada con map necesita la prop especial key, que React usa para saber, entre un repintado y el siguiente, qué elemento del DOM corresponde a cada dato. Una key tiene que ser única entre hermanos (no en toda la aplicación) y estable: el mismo dato lleva siempre la misma key aunque cambie de posición. Se debe usar el id que viene de la base de datos o del API, o un identificador generado al crear el elemento con crypto.randomUUID(). No se debe usar el índice del map (React no avisa, y ahí está el peligro) ni Math.random(), que cambia en cada render y hace que React destruya y recree todo el DOM de la lista cada vez. Si no se pone key, React avisa en consola. La key no llega al hijo como prop (props.key es undefined): si el hijo necesita el id hay que pasarlo aparte, <Producto key={p.id} id={p.id} />.
+ 
+                        Para obtener datos de un servidor se usa fetch(). Si los datos se cargan al cargar la aplicación, la petición se hace en useEffect y, cuando llegan, se guardan en el estado; si se cargan al pulsar un botón, la petición se hace en la función manejadora del evento onClick. Este enfoque básico con useEffect tiene problemas: no hay estado de carga (el primer render pinta el dato vacío), no hay estado de error visible para el usuario, no cancela la petición (sin AbortController, si el componente se desmonta o cambia la URL, una respuesta vieja puede llegar tarde y pisar a la nueva) y con StrictMode se ejecuta dos veces en desarrollo. Además no escala: cada componente repite el mismo andamiaje de tres estados, se producen cascadas (un hijo no empieza a pedir datos hasta que el padre ha terminado de renderizar y montar) y no hay caché (dos componentes que necesitan el mismo dato hacen dos peticiones).
+ 
+                        Las API keys son secretas y personales y no pueden usarse en aplicaciones de cliente, porque todo el código que se envía al navegador y las peticiones que hace los puede ver cualquier usuario. Lo correcto es llamar a un servidor propio, que guarda la API key, llama al API externo (por ejemplo, un proveedor de IA) y devuelve el resultado a la SPA. En las prácticas de la asignatura se llama al API directamente desde el cliente solo porque no se desarrolla el servidor, pero así no es como se hace en realidad.`, files: [] },
+                    { title: 'Formularios y componentes controlados',
+                        comment: `En HTML, los elementos de formulario como <input>, <textarea> y <select> mantienen su propio estado con lo que introduce el usuario. React ofrece dos formas de trabajar con ellos, que no compiten y se pueden mezclar: formularios con acción y componentes controlados. Regla práctica: empezar siempre por la acción y pasar a controlado solo cuando se necesite hacer algo en cada pulsación.
+ 
+                        Formulario con acción (React 19): se pasa una función al atributo action del <form> en lugar de una URL, <form action={fn}>. El navegador guarda el valor de cada campo y React llama a la función con un objeto FormData (una API estándar del navegador que ya existía, no algo de React) con todos los campos que tienen atributo name. Los valores se leen con formData.get("nombre"), que busca por el atributo name del input: un campo sin name no viaja. No hace falta e.preventDefault() porque React lo gestiona, y si la función termina sin error React resetea el formulario automáticamente. El valor inicial de un campo se pone con defaultValue y solo se re-renderiza al enviar.
+ 
+                        El hook useActionState envuelve la acción para mostrar el resultado, un error de validación o un "enviando..." mientras espera. Devuelve un array de tres elementos, [estado, formAction, isPending]; la acción recibe dos argumentos, (estadoAnterior, formData), y lo que devuelve pasa a ser el nuevo estado. Al <form> se le pasa formAction, no la función original. El hook useFormStatus permite hacer un botón "Enviar" reutilizable que sabe por sí mismo si el formulario se está enviando, sin pasarle props. Se importa de react-dom, no de react, y devuelve { pending, data, method, action }. Solo funciona en un componente que esté dentro del <form>: si se llama en el mismo componente que renderiza el <form>, pending será siempre false.
+ 
+                        Un componente controlado es un input al que se le da value y onChange: el estado de React es la única fuente de verdad (single source of truth) y el input solo muestra lo que dice el estado. Cada cambio llama a una función manejadora que actualiza el estado, y el componente se vuelve a renderizar con el nuevo valor. Esto facilita modificar o validar la entrada del usuario, y es necesario cuando hay que hacer algo en cada pulsación: un contador de caracteres restantes, habilitar o deshabilitar un botón según lo escrito, campos dependientes (eliges provincia y se recargan los municipios), formatear mientras se teclea (IBAN, teléfono, importe) o filtrar una lista a medida que se escribe. El precio es un estado por campo y un re-render por cada tecla, y además hay que hacer el preventDefault y el reset a mano.`, files: [] },
+                    { title: 'Carga de datos con use() y caché',
+                        comment: `use es una API de React introducida en React 19 que lee un recurso durante el renderizado y devuelve su valor: const valor = use(recurso). No es un hook, aunque el nombre lo parezca, porque no cumple las reglas de los hooks: se puede llamar dentro de un if, dentro de un bucle o después de un return temprano. use(contexto) devuelve el valor del contexto, igual que useContext. use(promesa) devuelve el valor ya resuelto de la promesa y, si todavía no se ha resuelto, el componente suspende y se muestra el fallback del <Suspense> más cercano.
+ 
+                        La promesa tiene que estar cacheada, es decir, ser la misma instancia en cada render, por tres motivos que se combinan: el render tiene que ser puro, así que use() no lanza la petición, solo lee una promesa ya creada; cuando un componente suspende antes de montar, React descarta el render y lo repite desde cero, ejecutando de nuevo todo el cuerpo de la función; y React reconoce que es el mismo trabajo asíncrono por la identidad de la promesa (igualdad de referencia). Sin caché, cada render ejecutaría fetch de nuevo, crearía una promesa distinta y volvería a suspender, en un bucle infinito.
+ 
+                        La caché más simple es un Map indexado por URL que guarda la promesa del fetch. Es solo didáctica porque tiene problemas: los datos no caducan nunca, el Map no se libera nunca (fuga de memoria), un error se cachea igual que un acierto (una promesa rechazada se queda en el Map y no hay forma de reintentar sin borrarla a mano), no hay forma de refrescar los datos, y la clave es la URL exacta como string, de modo que ?a=1&b=2 y ?b=2&a=1 son dos entradas distintas. Esta caché no es la caché HTTP del navegador (que gobiernan las cabeceras Cache-Control y ETag, vive en disco y sobrevive a la recarga), ni tampoco memoización de cálculo como useMemo.
+ 
+                        En proyectos reales se usa una librería de datos como TanStack Query (npm install @tanstack/react-query), que resuelve esos problemas: staleTime indica cuánto tiempo se considera fresco un dato, gcTime borra las entradas sin usar (5 minutos por defecto), hace reintentos automáticos con espera creciente, permite refrescar con invalidateQueries() y al volver a la pestaña, y usa como clave un array (queryKey). Tiene devtools para inspeccionar la caché (@tanstack/react-query-devtools).`, files: [] },
+                    { title: 'Error Boundaries y Suspense',
+                        comment: `Un error boundary es un componente que envuelve una parte del árbol: si algo falla al renderizar por debajo de él, muestra una interfaz de recambio en lugar de dejar la pantalla en blanco. Es el try/catch del renderizado. React no tiene un hook para esto, sino que se implementa con un componente de clase; en la práctica se usa la librería react-error-boundary (npm install react-error-boundary). El error boundary decide qué se pinta cuando algo falla (recuperación de la interfaz). Además, en React 19 createRoot acepta los manejadores onCaughtError (un error boundary ha atrapado el error) y onUncaughtError (nadie lo ha atrapado y React desmonta el root entero), que sirven para el registro centralizado de errores (observabilidad), por ejemplo enviándolos a un servidor. El fallback no debe mostrar el error.stack en producción, porque filtra información.
+ 
+                        <Suspense> no es un componente de carga, aunque el nombre engañe: es un límite que declara "mientras algo por debajo de mí no esté listo, en lugar de ese trozo del árbol pinta esto otro" (el fallback). Es la misma idea que los error boundaries: se saca una preocupación transversal fuera del componente y se sube a un punto del árbol donde tiene sentido decidirla. El componente hijo escribe solo el caso bueno y el padre decide qué se pinta mientras tanto; el error boundary captura errores al renderizar y Suspense captura componentes que aún no están listos.
+ 
+                        Lo que más confusión genera es qué activa Suspense. Solo se activa con lazy() (carga diferida del código de un componente; al hacer el build aparecen ficheros .js separados que se cargan cuando hacen falta), al leer una promesa con use(), con hojas de estilo <link rel="stylesheet" precedence="..."> y al esperar HTML en renderizado en servidor con streaming. Un fetch dentro de un useEffect NO activa Suspense.`, files: [] },
+                    { title: 'Seguridad en aplicaciones React',
+                        comment: `XSS (Cross-Site Scripting): un atacante consigue que tu página ejecute su JavaScript colándolo dentro de un dato que tú pintas (un comentario, un nombre, una descripción); como se ejecuta dentro de tu web, tiene acceso a todo lo que el usuario tenga ahí: su sesión, sus datos, lo que escriba. React escapa por defecto: todo lo que se mete entre llaves se inserta como texto, nunca como HTML, y por eso las aplicaciones React sufren mucho menos XSS que las plantillas clásicas. Las excepciones son dangerouslySetInnerHTML={{ __html: comentario }}, donde el contenido sí se interpreta como HTML y se ejecuta, y los enlaces con una URL que escribe el usuario (<a href={urlDelUsuario}>), que puede ser javascript:..., por lo que hay que validar que empiece por http:// o https://.
+ 
+                        Dónde guardar el token de sesión (normalmente un JWT): localStorage lo puede leer cualquier JavaScript de la página, así que un XSS o una dependencia comprometida permiten robar el token. Lo correcto es una cookie que pone el servidor con Set-Cookie: session=...; HttpOnly; Secure; SameSite=Lax. HttpOnly impide que el JavaScript la lea, Secure hace que solo viaje por HTTPS y SameSite hace que no se envíe en peticiones que vienen de otros sitios (mitiga CSRF); el navegador la envía solo en cada petición. HttpOnly reduce el impacto de un XSS, pero no lo elimina: la defensa contra el XSS es no tener XSS.
+ 
+                        Ocultar un botón no es autorizar: {usuario.esAdmin && <BotonBorrarTodo />} es interfaz, no seguridad. El usuario puede cambiar su estado en memoria con React DevTools, o ignorar el frontend y llamar al endpoint directamente con curl. En el cliente se decide qué se enseña; la autorización se comprueba siempre en el servidor.
+ 
+                        Variables de entorno: Vite lee los ficheros .env, pero solo expone al cliente las variables que empiezan por VITE_, a través de import.meta.env (una variable sin ese prefijo vale undefined en el cliente); también trae algunas ya hechas como MODE, PROD, DEV y BASE_URL. El .env no es un sitio seguro en una SPA: las variables VITE_ se sustituyen por su valor al hacer el build y acaban en texto plano dentro de los .js de dist, donde cualquiera puede leerlas. En una SPA no existe el concepto de secreto: si algo tiene que ser secreto, vive en un servidor. Una clave en el cliente es pública por definición y solo puede ser una clave pensada para serlo, protegida por restricciones de dominio y permisos en el proveedor. Una clave filtrada no se arregla borrando el commit, porque queda en el historial: se arregla revocándola.
+ 
+                        Otras consideraciones: la cadena de suministro (un proyecto con Vite arrastra fácilmente más de mil paquetes; usar npm audit, mantener package-lock.json en git y vigilar el typosquatting; incluso React ha publicado avisos de seguridad críticos, y la defensa es actualizar), y que CORS no protege tu API: es una protección del navegador para el usuario, no un cortafuegos del servidor, y curl se lo salta.`, files: [] },
+                    { title: 'React Router',
+                        comment: `React Router es la librería que permite la navegación en una SPA. La navegación ocurre cuando el usuario introduce una URL, hace clic en un enlace o usa los botones de atrás y adelante del navegador. El router permite manejar esa interacción, cambiar la vista que se muestra, acceder a los parámetros de la ruta (/posts/15 o /posts/15?search=hola), definir y anidar rutas (/posts/15/comments/11) y manejar el histórico. Se instala con npm install react-router y en clase se usa el modo declarativo.
+ 
+                        <BrowserRouter> es un router que usa la API history de HTML5 (pushState, replaceState y el evento popstate) para sincronizar la vista con la URL; el primer paso es envolver la app con él. <HashRouter> usa la parte de hash (#) de la URL y está desaconsejado. Todas las rutas (<Route>) van dentro de un componente <Routes>; cada Route muestra una interfaz cuando la URL coincide con su prop path y el componente a mostrar se indica en la prop element. Por ejemplo:
                         <BrowserRouter>
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/about" element={<About />} />
                         </Routes>
                         </BrowserRouter>
-
-                        React Router permite navegación programática, parámetros en la URL (useParams) y redirecciones (Navigate), haciendo posible construir aplicaciones completas con múltiples vistas.`, files: [] },
-                    { title: 'Context API', 
-                        comment: `La Context API permite compartir datos globales entre componentes sin necesidad de pasar props manualmente a través de múltiples niveles.
-
-                        Se crea un contexto con createContext() y se provee desde un componente superior mediante un Provider. Los componentes hijos pueden acceder al valor del contexto con useContext().
-
-                        Este patrón se utiliza habitualmente para temas globales como la autenticación, el idioma, la configuración de la interfaz o el tema de colores. Simplifica el código y evita el llamado "prop drilling" (pasar props innecesarias en cadena).`, files: [] },
+ 
+                        Para navegar, en lugar de la etiqueta <a> se usa el componente <Link> con el atributo to. <NavLink> es una versión de Link que añade un estilo al enlace cuando coincide con la URL actual (link activo). Las rutas pueden tener parámetros variables, como path="/users/:userId", que se leen con el hook useParams. Para navegar desde código (por ejemplo, al terminar de guardar algo) se usa el hook useNavigate, que devuelve la función navigate; si el usuario hace clic en un Link no hace falta. Otros aspectos importantes son las rutas anidadas con el componente <Outlet>, la ruta "no match" de estilo 404 con path="*" y los search params.
+ 
+                        En una SPA el <title> y los <meta> viven en el <head> del index.html, fuera del árbol de React. Hasta React 18 se modificaban con document.title dentro de un useEffect o con librerías como react-helmet. En React 19 se escriben como una etiqueta más dentro del componente y React los sube automáticamente al <head>; solo un componente por ruta debe poner el título.`, files: [] },
+                    { title: 'Context API',
+                        comment: `Hay props que necesitan muchos componentes de la aplicación o incluso todos, lo que obliga a pasarlas manualmente nivel a nivel: es el problema llamado "props drilling". Context permite pasar datos a través del árbol de componentes sin pasar props en cada nivel, de forma equivalente a variables globales. Se usa por ejemplo para el usuario autenticado, el tema, el idioma o la moneda.
+ 
+                        Primero se crea el contexto con createContext() y se exporta para poder usarlo en los hijos: export const MyContext = createContext(valorPorDefecto). El valor por defecto solo se usa cuando un componente consume el contexto y no hay ningún proveedor por encima; no es el valor inicial. Después se envuelve con el contexto la parte del árbol que debe verlo y se le pasa el valor: en React 19 se escribe <MyContext value={...}>...</MyContext>. Hasta React 18 se escribía <MyContext.Provider value={...}>, que sigue funcionando pero está previsto que desaparezca.
+ 
+                        Para consumir el contexto se usa el hook useContext, importando el hook y el contexto, desde cualquier componente hijo, a cualquier profundidad del árbol. También se puede hacer con la API use(MyContext), que tiene la ventaja de que se puede llamar dentro de un if, dentro de un bucle o después de un return temprano, cosa que useContext no permite. En clase se ha visto como ejemplo un LanguageProvider que internacionaliza un buscador de usuarios: se coloca en main.jsx envolviendo a toda la aplicación y cualquier componente obtiene con useContext el idioma y las traducciones, y se puede añadir un selector para cambiar el idioma.`, files: [] },
                     { 
                         title: 'Redux', 
                         comment: `**Redux** es un "Contenedor de estado predecible para aplicaciones JavaScript". Es una librería pequeña y **agnóstica** al *framework* (puede usarse con React, Angular, etc.). Su función es **desacoplar el estado global** de la aplicación de la parte visual (componentes).
@@ -1772,15 +1805,25 @@ export const subjects = {
                             1.  **Fuente Única de Verdad**: Todo el estado se almacena en un objeto dentro de un **único Store**.
                             2.  **El Estado es de Solo Lectura**: La única manera de cambiarlo es emitiendo una **Acción** (un objeto que describe lo que ha pasado).
                             3.  **Cambios con Funciones Puras**: Los **Reducers** son funciones puras que toman el estado anterior y una acción, y devuelven el nuevo estado, sin mutar el estado anterior.
-
+ 
                             **Ciclo de vida y componentes clave**:
                             * **Actions (Acciones)**: Objetos JS que describen un cambio, con un campo obligatorio **\`type\`** y un *payload* opcional. Se lanzan mediante el método **\`dispatch(action)\`** del Store.
                             * **Reducers**: Funciones puras que aplican la lógica para calcular el nuevo estado. Es buena práctica dividir la lógica en varios *reducers*, uno por cada trozo del estado, y unirlos con **\`combineReducers()\`**. No deben tener efectos secundarios.
                             * **Store**: Contiene el estado completo de la aplicación. Solo existe un Store en toda la aplicación.`, 
                         files: [] 
-                    }
+                    },
+                    { title: 'CSR, SSR y SSG',
+                        comment: `CSR, SSR y SSG responden a la misma pregunta: ¿quién genera el HTML y en qué momento? Todo lo hecho en la asignatura es CSR.
+ 
+                        CSR (Client-Side Rendering, renderizado en el cliente): el navegador pide la página, el servidor devuelve un index.html casi vacío con un <div id="root"> y un <script>, el navegador descarga y ejecuta el JavaScript y React construye el DOM. Se aloja como ficheros estáticos, el primer pintado es tardío, el SEO es limitado y los datos están en vivo. Sirve para paneles de administración y aplicaciones detrás de un login, que nadie necesita que Google indexe.
+ 
+                        SSR (Server-Side Rendering, renderizado en el servidor): en cada petición el servidor ejecuta React y genera el HTML completo, el navegador lo pinta de inmediato y después llega el JavaScript e hidrata la página. Necesita un servidor Node en marcha, el primer pintado es rápido, el SEO es bueno y los datos están en vivo. Sirve para comercio electrónico, medios y todo lo que dependa del buscador o muestre datos por usuario.
+ 
+                        SSG (Static Site Generation, generación estática): al hacer el build se ejecuta React y se genera un fichero HTML por página, que se sube a un servidor estático o a una CDN; el navegador recibe el HTML ya hecho y después llega el JavaScript e hidrata. Tiene el primer pintado más rápido y buen SEO, pero los datos son los del momento del build. Sirve para documentación, blogs, landings y portfolios.
+ 
+                        Hidratar es que React recorra el HTML que ya está en pantalla y le conecte el estado y los manejadores de eventos, convirtiendo una página estática en una aplicación que responde. No se elige uno solo para toda la aplicación: los frameworks actuales permiten decidirlo ruta por ruta (la landing en SSG, la ficha de producto en SSR, el panel privado en CSR). El framework que domina esto es Next.js; también React Router en modo framework y Astro. Como siguientes pasos más demandados en ofertas de empleo están TypeScript, Tailwind CSS o una librería de componentes, Next.js y Zustand para el estado global cuando Context se queda corto.`, files: [] }
                 ]
-            },            
+            },
             {
                 value: 'React Native', label: 'React Native',
                 subtopics: [
@@ -1791,7 +1834,7 @@ export const subjects = {
                             RN permite usar el modelo de **componentes** de React y el **flujo unidireccional de datos**. En lugar de etiquetas HTML, utiliza **Componentes de React Native** que se mapean a componentes nativos del sistema operativo (ej. View, Text).`, 
                         files: [] 
                     },
-
+ 
                     { 
                         title: 'Estilos y Layout con Flexbox', 
                         comment: `El estilo en RN es similar a CSS, pero se define con **objetos JavaScript** y se usan unidades de medida **independientes de la densidad (dp)**. 
@@ -1799,7 +1842,7 @@ export const subjects = {
                             A diferencia del desarrollo web, los estilos **no se heredan** de un contenedor View a los Text que contiene, por lo que cada componente Text debe definir su propio estilo. La única herencia es entre Text anidados: un Text dentro de otro Text hereda el estilo de su Text padre.`, 
                         files: [] 
                     },
-
+ 
                     { 
                         title: 'Componentes Básicos (View, Text, Image, Input)', 
                         comment: `Los componentes fundamentales de la interfaz de usuario son: 
@@ -1809,7 +1852,7 @@ export const subjects = {
                             * **TextInput**: Para entradas de texto del usuario, con propiedades como onChangeText (para manejar cambios en el texto) y value (para crear componentes controlados).`, 
                         files: [] 
                     },
-
+ 
                     { 
                         title: 'Renderizado de Listas (FlatList y ScrollView)', 
                         comment: `Para mostrar contenido que excede el tamaño de la pantalla, se usa **ScrollView**, que permite el desplazamiento vertical u horizontal, pero **renderiza todos los elementos** a la vez. 
@@ -1817,14 +1860,14 @@ export const subjects = {
                             **FlatList** requiere las propiedades **data** (la fuente de información) y **renderItem** (la función que devuelve el componente a renderizar para cada elemento).`, 
                         files: [] 
                     },
-
+ 
                     { 
                         title: 'Screens y Navegación', 
                         comment: `Las **Screens** son componentes de React Native que se renderizan a pantalla completa y representan las diferentes páginas o vistas de la aplicación. 
                             Los **Navegadores** (como React Navigation) son los componentes encargados de gestionar la renderización y la transición entre estas Screens, permitiendo que el usuario se mueva por la aplicación.`, 
                         files: [] 
                     },
-
+ 
                     { 
                         title: 'APIs Nativas (Geolocation) y Persistencia (AsyncStorage)', 
                         comment: `RN ofrece acceso a funcionalidades nativas del dispositivo a través de diferentes APIs. 
@@ -1833,7 +1876,7 @@ export const subjects = {
                             * También existen APIs para mostrar contenido web embebido (WebView).`, 
                         files: [] 
                     },
-
+ 
                     { 
                         title: 'Depuración (Hot Reloading, Inspector)', 
                         comment: `La depuración se realiza a través del **Menú de Desarrollo** (accesible al agitar el dispositivo o con atajos de teclado). 
