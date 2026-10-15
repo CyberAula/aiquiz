@@ -54,6 +54,35 @@ for (const promptId of ['control', 'longitud_equilibrada']) {
     }
 }
 
+test('todas las asignaturas del estudio: prompt final correcto en cada subtema', () => {
+    for (const subject of ['BBDD', 'BDNR', 'BDFI', 'CORE', 'IWEB', 'OFI']) {
+        const config = ABC_Testing_List[subject];
+        const subtopics = subjects[subject].topics.flatMap(t =>
+            (t.subtopics || []).map(s => ({ topic: t.label, subTopic: s.title, comment: s.comment || '', focus: s.focus || '' })));
+        assert.ok(subtopics.length > 0, `${subject} sin subtemas`);
+        for (const promptId of ['control', 'longitud_equilibrada']) {
+            for (const st of subtopics) {
+                const where = `${subject} / ${promptId} / ${st.subTopic}`;
+                const prompt = buildStudyPrompt(getPromptById(config, promptId).content, {
+                    subjectName: subjects[subject].name, topic: st.topic, difficulty: 'avanzado', subTopic: st.subTopic,
+                    numQuestions: 10, studentEmail: 'alumno@alumnos.upm.es', comment: st.comment, focus: st.focus,
+                });
+                // El material de clase puede contener llaves de código (JSX, objetos JS...): se excluye de la comprobación
+                const withoutMaterial = prompt
+                    .replace(/<material_de_clase>[\s\S]*?<\/material_de_clase>/, '')
+                    .replace(st.focus.trim() || '\u0000', '');
+                assert.ok(!/\{\w+\}/.test(withoutMaterial), `variable sin sustituir en ${where}: ${withoutMaterial.match(/\{\w+\}/)}`);
+                assert.ok(prompt.includes(`'${subjects[subject].name}'`), where);
+                assert.ok(prompt.includes('nivel de dificultad avanzado.'), where);
+                assert.ok(!prompt.includes('previousQuestions') && !prompt.includes('respuestas anteriores'), where);
+                assert.ok(prompt.endsWith(JSON_FORMAT_BLOCK), where);
+                if (st.comment.trim()) assert.ok(prompt.includes(`<material_de_clase>\n${st.comment.trim()}\n</material_de_clase>`), where);
+                if (st.focus.trim()) assert.ok(prompt.includes(st.focus.trim()), where);
+            }
+        }
+    }
+});
+
 test('solo longitud_equilibrada contiene el bloque de longitud', () => {
     const st = bbddSubtopics[0];
     const control = build('control', 'intermedio', st);

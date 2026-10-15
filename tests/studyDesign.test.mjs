@@ -187,8 +187,17 @@ test('configuración BBDD: modo per_pull con un único modelo y 4 condiciones 2x
     for (const c of CONDITIONS) {
         assert.ok(getPromptById(BBDD, c.promptId), `prompt ${c.promptId} no definido`);
     }
-    for (const other of ['OFI', 'CORE', 'IWEB']) {
-        assert.equal(isPerPullMode(ABC_Testing_List[other]), false);
+});
+
+test('configuración: BDNR, BDFI, CORE, IWEB y OFI usan exactamente el mismo estudio que BBDD', () => {
+    for (const subject of ['BDNR', 'BDFI', 'CORE', 'IWEB', 'OFI']) {
+        const config = ABC_Testing_List[subject];
+        assert.equal(isPerPullMode(config), true, subject);
+        assert.deepEqual(config.models, BBDD.models, subject);
+        assert.deepEqual(config.conditions, BBDD.conditions, subject);
+        assert.equal(config.prompt1.content, BBDD.prompt1.content, subject);
+        assert.equal(config.prompt2.content, BBDD.prompt2.content, subject);
+        assert.deepEqual(Object.keys(config).filter(k => k.startsWith('prompt')), ['prompt1', 'prompt2'], subject);
     }
 });
 

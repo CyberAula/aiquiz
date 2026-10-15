@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------------------------
-// Estudio 2 (BBDD): pistas superficiales en preguntas generadas por LLM.
+// Estudio 2 (BBDD, BDNR, BDFI, CORE, IWEB, OFI): pistas superficiales en preguntas generadas por LLM.
 // Ambas condiciones de prompt son idénticas salvo BLOQUE_LONGITUD.
 // --------------------------------------------------------------------------------------------
 
@@ -29,83 +29,58 @@ export const BLOQUE_LONGITUD = `
 export const PROMPT_TAIL = `{classMaterialInstructions}
             `;
 
+// Configuración común del Estudio 2: un único modelo, aleatorización por pull y diseño 2x2
+// (prompt control / longitud_equilibrada x opciones en orden del modelo / barajadas).
+// Todas las asignaturas del estudio usan exactamente esta configuración; cada una solo fija sus fechas.
+const ESTUDIO_2 = {
+    models: ["Google_Generative_Flash"],
+    randomization: "per_pull",
+    prompt1: {
+        id: "control",
+        content: PROMPT_BASE + PROMPT_TAIL
+    },
+    prompt2: {
+        id: "longitud_equilibrada",
+        content: PROMPT_BASE + BLOQUE_LONGITUD + PROMPT_TAIL
+    },
+    conditions: [
+        { id: "control_orden_modelo", promptId: "control", shuffled: false },
+        { id: "control_barajadas", promptId: "control", shuffled: true },
+        { id: "longitud_equilibrada_orden_modelo", promptId: "longitud_equilibrada", shuffled: false },
+        { id: "longitud_equilibrada_barajadas", promptId: "longitud_equilibrada", shuffled: true }
+    ]
+};
+
 export const ABC_Testing_List = {
     OFI: {
         from_date: "2024-01-01",
         to_date: "2027-12-31",
-        models: ["OpenAI_GPT_5_Mini"],
-        prompt1: {
-            content: `Eres un Sistema de Evaluación Adaptativa experto en '{topic}'. Tu objetivo es generar preguntas personalizadas que aborden específicamente las dificultades de aprendizaje del estudiante, basándote en un análisis detallado de sus respuestas previas. 
-            Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. 
-            
-            Anteriormente ya he respondido {num_prev_questions} preguntas sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
-            Usa esta información para generar preguntas adaptativas que me ayuden a reforzar mis puntos débiles y profundizar en los temas que ya domino. 
-            Ajusta dinámicamente el nivel de dificultad en función de mis respuestas anteriores, haciéndolo más difícil si estoy acertando y más fácil si estoy fallando. 
-            Estas son algunas de mis respuestas anteriores: {previousQuestions}. 
-            
-            Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
-            Las preguntas deben ser sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
-            {comment} 
-            `        
-        }
+        ...ESTUDIO_2
     },
     BBDD: {
         from_date: "2024-01-01",
         to_date: "2026-12-31",
-        models: ["Google_Generative_Flash"],
-        randomization: "per_pull",
-        prompt1: {
-            id: "control",
-            content: PROMPT_BASE + PROMPT_TAIL
-        },
-        prompt2: {
-            id: "longitud_equilibrada",
-            content: PROMPT_BASE + BLOQUE_LONGITUD + PROMPT_TAIL
-        },
-        conditions: [
-            { id: "control_orden_modelo", promptId: "control", shuffled: false },
-            { id: "control_barajadas", promptId: "control", shuffled: true },
-            { id: "longitud_equilibrada_orden_modelo", promptId: "longitud_equilibrada", shuffled: false },
-            { id: "longitud_equilibrada_barajadas", promptId: "longitud_equilibrada", shuffled: true }
-        ]
+        ...ESTUDIO_2
+    },
+    BDNR: {
+        from_date: "2024-01-01",
+        to_date: "2026-12-31",
+        ...ESTUDIO_2
+    },
+    BDFI: {
+        from_date: "2024-01-01",
+        to_date: "2026-12-31",
+        ...ESTUDIO_2
     },
     CORE: {
         from_date: "2024-01-01",
         to_date: "2026-12-31",
-        models: ["OpenAI_GPT_5_Mini", "Google_Generative_Flash"],
-        prompt1: {
-            content: `Eres un Sistema de Evaluación Adaptativa experto en '{topic}'. Tu objetivo es generar preguntas personalizadas que aborden específicamente las dificultades de aprendizaje del estudiante, basándote en un análisis detallado de sus respuestas previas. 
-            Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. 
-            
-            Anteriormente ya he respondido {num_prev_questions} preguntas sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
-            Usa esta información para generar preguntas adaptativas que me ayuden a reforzar mis puntos débiles y profundizar en los temas que ya domino. 
-            Ajusta dinámicamente el nivel de dificultad en función de mis respuestas anteriores, haciéndolo más difícil si estoy acertando y más fácil si estoy fallando. 
-            Estas son algunas de mis respuestas anteriores: {previousQuestions}. 
-            
-            Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
-            Las preguntas deben ser sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
-            {comment} 
-            `        
-        }
+        ...ESTUDIO_2
     },
     IWEB: {
         from_date: "2024-01-01",
         to_date: "2026-12-31",
-        models: ["OpenAI_GPT_5_Mini", "Google_Generative_Flash"],
-        prompt1: {
-            content: `Eres un Sistema de Evaluación Adaptativa experto en '{topic}'. Tu objetivo es generar preguntas personalizadas que aborden específicamente las dificultades de aprendizaje del estudiante, basándote en un análisis detallado de sus respuestas previas. 
-            Soy un estudiante de una asignatura de universidad llamada '{subjectName}'. Estoy repasando para el examen de la asignatura. 
-            
-            Anteriormente ya he respondido {num_prev_questions} preguntas sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
-            Usa esta información para generar preguntas adaptativas que me ayuden a reforzar mis puntos débiles y profundizar en los temas que ya domino. 
-            Ajusta dinámicamente el nivel de dificultad en función de mis respuestas anteriores, haciéndolo más difícil si estoy acertando y más fácil si estoy fallando. 
-            Estas son algunas de mis respuestas anteriores: {previousQuestions}. 
-            
-            Dame {numQuestions} preguntas que tengan 4 opciones, siendo solo una de ellas la respuesta correcta. 
-            Las preguntas deben ser sobre '{subTopic}' enmarcadas en el tema '{topic}'. 
-            {comment} 
-            `        
-        }
+        ...ESTUDIO_2
     },
 
     /*
@@ -148,6 +123,9 @@ export const ABC_Testing_List = {
      *          rellenado se guarda en el documento Pull.
      *    Para desactivar el modo de estudio basta con quitar `randomization` (o la asignatura,
      *    o dejarla fuera de fechas).
+     *    Las asignaturas del Estudio 2 no repiten la configuración: usan `...ESTUDIO_2` (modelo,
+     *    randomization, prompts y condiciones) y solo fijan sus fechas. Para sacar una asignatura del
+     *    estudio, sustituye `...ESTUDIO_2` por su configuración propia.
      *
      * 6. conditions (obligatorio con randomization "per_pull"): lista de condiciones del diseño.
      *    - id: identificador único de la condición.
