@@ -1,7 +1,8 @@
+import { withAuth } from "../../../utils/authMiddleware.js";
 import dbConnect from "../../../utils/dbconnect.js";
 import Question from "../../../models/Question.js";
 
-export async function GET(req) {
+async function handler(req) {
     try {
         await dbConnect();
         const searchParams = req.nextUrl.searchParams;
@@ -69,3 +70,5 @@ export async function GET(req) {
         return Response.json({ error: "Error al obtener evolución" }, { status: 500 });
     }
 }
+
+export const GET = withAuth(handler, { requireProfessor: true });

@@ -1,7 +1,21 @@
+import { withAuth } from "../../../utils/authMiddleware.js";
 import dbConnect from "../../../utils/dbconnect.js";
 import Question from "../../../models/Question.js";
 
-export async function GET(req) {
+// La dificultad se guarda en dos formatos ("facil" / "Fácil", "intermedio" / "Medio"...).
+// Se unifican para que no salgan como niveles distintos.
+const DIFFICULTY_ORDER = ["Fácil", "Medio", "Avanzado"];
+const DIFFICULTY_ALIASES = {
+    facil: "Fácil",
+    "fácil": "Fácil",
+    intermedio: "Medio",
+    medio: "Medio",
+    avanzado: "Avanzado",
+    dificil: "Avanzado",
+    "difícil": "Avanzado",
+};
+
+async function handler(req) {
     try {
         await dbConnect();
         const searchParams = req.nextUrl.searchParams;
@@ -36,14 +50,35 @@ export async function GET(req) {
         ];
 
         const results = await Question.aggregate(pipeline);
-        const dificultadResumen = results.map(r => ({
-            label: r._id || "Desconocida",
-            total: r.total,
-            porcentaje: r.total > 0 ? Number(((r.correctas / r.total) * 100).toFixed(2)) : 0
-        }));
+
+        const merged = new Map();
+        results.forEach((r) => {
+            const raw = String(r._id ?? "").trim();
+            const label = DIFFICULTY_ALIASES[raw.toLowerCase()] || raw || "Desconocida";
+            const current = merged.get(label) || { total: 0, correctas: 0 };
+            current.total += r.total;
+            current.correctas += r.correctas;
+            merged.set(label, current);
+        });
+
+        const rank = (label) => {
+            const index = DIFFICULTY_ORDER.indexOf(label);
+            return index === -1 ? DIFFICULTY_ORDER.length : index;
+        };
+
+        const dificultadResumen = Array.from(merged.entries())
+            .sort((a, b) => rank(a[0]) - rank(b[0]))
+            .map(([label, r]) => ({
+                label,
+                total: r.total,
+                correctas: r.correctas,
+                porcentaje: r.total > 0 ? Number(((r.correctas / r.total) * 100).toFixed(2)) : 0
+            }));
 
         return Response.json({ dificultadResumen });
     } catch (error) {
         return Response.json({ error: "Error al obtener dificultad" }, { status: 500 });
     }
 }
+
+export const GET = withAuth(handler, { requireProfessor: true });

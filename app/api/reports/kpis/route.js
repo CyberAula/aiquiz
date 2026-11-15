@@ -1,7 +1,8 @@
+import { withAuth } from "../../../utils/authMiddleware.js";
 import dbConnect from "../../../utils/dbconnect.js";
 import Question from "../../../models/Question.js";
 
-export async function GET(req) {
+async function handler(req) {
     try {
         await dbConnect();
         const searchParams = req.nextUrl.searchParams;
@@ -32,7 +33,8 @@ export async function GET(req) {
             Question.countDocuments(baseFilters),
             Question.countDocuments(periodFilters),
             Question.countDocuments({ ...periodFilters, studentReport: true }),
-            Question.countDocuments({ ...periodFilters, teacherReport: { $ne: null } })
+            // Evaluadas: reportadas por el alumno y revisadas por un profesor (pestaña Correcciones o evaluación antigua)
+            Question.countDocuments({ $and: [{ ...periodFilters, studentReport: true }, { $or: [{ professorCorrection: true }, { teacherReport: { $ne: null } }] }] })
         ]);
 
         return Response.json({
@@ -45,3 +47,5 @@ export async function GET(req) {
         return Response.json({ error: "Error al obtener KPIs" }, { status: 500 });
     }
 }
+
+export const GET = withAuth(handler, { requireProfessor: true });

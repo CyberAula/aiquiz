@@ -1,8 +1,9 @@
+import { withAuth } from "../../utils/authMiddleware.js";
 import dbConnect from '../../utils/dbconnect.js';
 import Student from '../../models/Student.js';
 import Question from '../../models/Question.js';
 
-export async function POST(req) {
+async function handler(req) {
     try {
         const body = await req.json();
         const { studentID, subject } = body;
@@ -18,7 +19,7 @@ export async function POST(req) {
 
         const query = { studentEmail: studentID };
         if (subject) {
-            query.subject = { $regex: new RegExp(`^${subject}$`, 'i') };
+            query.subject = { $regex: new RegExp(`^${String(subject).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") };
         }
 
         let student = await Student.findOne({ studentEmail: studentID }).lean();
@@ -49,7 +50,7 @@ export async function POST(req) {
             }
 
             const diff = String(q.difficulty || '').toLowerCase();
-            const difficultyMap = { facil: 0, intermedio: 1, avanzado: 2, dificil: 2 };
+            const difficultyMap = { facil: 0, "fácil": 0, intermedio: 1, medio: 1, avanzado: 2, dificil: 2, "difícil": 2 };
             if (difficultyMap[diff] !== undefined) {
                 subjectStatsMap[subj].difficultySum += difficultyMap[diff];
                 subjectStatsMap[subj].difficultyCount += 1;
@@ -75,7 +76,7 @@ export async function POST(req) {
 
         let totalDiffSum = 0;
         let totalDiffCount = 0;
-        const difficultyMap = { facil: 0, intermedio: 1, avanzado: 2, dificil: 2 };
+        const difficultyMap = { facil: 0, "fácil": 0, intermedio: 1, medio: 1, avanzado: 2, dificil: 2, "difícil": 2 };
 
         questions.forEach(q => {
             const diff = String(q.difficulty || '').toLowerCase();
@@ -109,3 +110,5 @@ export async function POST(req) {
         });
     }
 }
+
+export const POST = withAuth(handler, { requireProfessor: true });

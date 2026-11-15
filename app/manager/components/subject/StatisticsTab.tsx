@@ -23,6 +23,8 @@ import {
     YAxis,
 } from "recharts";
 import { useManagerTranslation } from "../../hooks/useManagerTranslation";
+import CollapsibleSection from "./CollapsibleSection";
+import StatisticsInsights from "./StatisticsInsights";
 
 interface StatisticsTabProps {
     subjectAcronym: string;
@@ -106,57 +108,6 @@ const stackedRoundedShape =
             return <Rectangle {...props} radius={radius} />;
         };
 
-type CollapsibleSectionProps = {
-    id: string;
-    title: string;
-    description?: string;
-    right?: ReactNode;
-    defaultOpen?: boolean;
-    children: ReactNode;
-};
-
-const CollapsibleSection = ({
-    id,
-    title,
-    description,
-    right,
-    defaultOpen = true,
-    children,
-}: CollapsibleSectionProps) => {
-    const [open, setOpen] = useState(defaultOpen);
-
-    return (
-        <div className="bg-white shadow rounded-lg">
-            <button
-                type="button"
-                className="w-full p-6 flex items-start justify-between gap-4"
-                onClick={() => setOpen((v) => !v)}
-                aria-expanded={open}
-                aria-controls={id}
-            >
-                <div className="text-left">
-                    <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-                    {description ? (
-                        <p className="text-sm text-gray-500 mt-1">{description}</p>
-                    ) : null}
-                </div>
-
-                <div className="flex items-center gap-4">
-                    {right ? <div className="text-sm text-gray-500">{right}</div> : null}
-                    <span className="text-gray-400 text-xl leading-none select-none">
-                        {open ? "−" : "+"}
-                    </span>
-                </div>
-            </button>
-
-            {open ? (
-                <div id={id} className="px-6 pb-6">
-                    {children}
-                </div>
-            ) : null}
-        </div>
-    );
-};
 // =========================================================
 
 type PdfSectionKey =
@@ -220,6 +171,9 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
 
     const [chartMode, setChartMode] = useState<"topics" | "subtopics">("subtopics");
     const [selectedItem, setSelectedItem] = useState<string>("all");
+
+    // Rango aplicado (al pulsar Actualizar) para las secciones de actividad
+    const [insightsRange, setInsightsRange] = useState({ startDate: "", endDate: "", refreshKey: 0 });
 
     // ======================= Compare mode + Column B =======================
     const [compareMode, setCompareMode] = useState(false);
@@ -561,8 +515,9 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
         }
     };
 
-    const fetchStatisticsA = () =>
-        fetchStatisticsCore({
+    const fetchStatisticsA = () => {
+        setInsightsRange((prev) => ({ startDate, endDate, refreshKey: prev.refreshKey + 1 }));
+        return fetchStatisticsCore({
             startDate,
             endDate,
             setLoading,
@@ -572,6 +527,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
             setTopicStats,
             setSubtopicStats,
         });
+    };
 
     const fetchStatisticsB = () =>
         fetchStatisticsCore({
@@ -1962,6 +1918,15 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
                 {renderSubtopicTableSection(vm, vm.side)}
                 {renderTopicHistogramSection(vm, vm.side)}
                 {renderSubtopicHistogramSection(vm, vm.side)}
+
+                {vm.side === "A" && insightsRange.refreshKey > 0 ? (
+                    <StatisticsInsights
+                        subjectAcronym={subjectAcronym}
+                        startDate={insightsRange.startDate}
+                        endDate={insightsRange.endDate}
+                        refreshKey={insightsRange.refreshKey}
+                    />
+                ) : null}
             </div>
         );
     };
