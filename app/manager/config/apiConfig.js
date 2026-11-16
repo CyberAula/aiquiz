@@ -2,10 +2,10 @@ import { withBasePath } from "../../utils/basePath";
 // config/apiConfig.js - Configuración de la API
 export const API_CONFIG = {
 	// Determinar si usar API real o simulada
-	USE_REAL_API: process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_USE_REAL_API === 'true',
+	USE_REAL_API: true,
 	
 	// URLs de la API
-	BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+	BASE_URL: '',
 	API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX || withBasePath("/api"),
 	
 	// Configuración de autenticación

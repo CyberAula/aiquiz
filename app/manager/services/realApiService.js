@@ -8,7 +8,8 @@ import { withBasePath } from "../../utils/basePath";
  */
 class RealApiService {
 	constructor() {
-		this.baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+		// La API está en el mismo servidor que la página: rutas relativas (no depende de ninguna variable)
+		this.baseUrl = '';
 		this.token = null;
 		this.user = null;
 		this.enableLogging = true;
