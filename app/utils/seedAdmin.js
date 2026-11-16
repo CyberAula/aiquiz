@@ -2,6 +2,19 @@ const mongoose = require('mongoose');
 const readline = require('readline');
 require('dotenv').config();
 
+// Misma base de datos que la aplicación: la de next.config.js. La variable MONGODB_URI solo se
+// usa si no hay next.config.js (o no la define).
+function resolveMongoUri() {
+    try {
+        const config = require('../../next.config.js');
+        if (config?.env?.MONGODB_URI) return config.env.MONGODB_URI;
+    } catch (error) {
+        // sin next.config.js: se usa la variable de entorno
+    }
+    return process.env.MONGODB_URI;
+}
+const MONGODB_URI = resolveMongoUri();
+
 const User = require('../manager/models/User.js');
 
 /**
@@ -139,7 +152,6 @@ async function promptForAdditionalProfessors() {
 
 // Verificar variables requeridas
 const requiredVars = [
-    'MONGODB_URI',
     'SUPER_ADMIN_EMAIL',
     'SUPER_ADMIN_PASSWORD',
     'SUPER_ADMIN_NAME',
@@ -158,6 +170,7 @@ if (process.env.DEFAULT_PROFESSOR_EMAIL) {
 }
 
 const missing = requiredVars.filter(v => !process.env[v]);
+if (!MONGODB_URI) missing.unshift('MONGODB_URI (en next.config.js)');
 if (missing.length > 0) {
     console.error('Missing environment variables:', missing.join(', '));
     process.exit(1);
@@ -166,7 +179,8 @@ if (missing.length > 0) {
 async function runSeed() {
     try {
         console.log('Connecting to MongoDB...');
-        await mongoose.connect(process.env.MONGODB_URI);
+        console.log('Database:', MONGODB_URI.replace(/\/\/([^@/]+)@/, '//***@'));
+        await mongoose.connect(MONGODB_URI);
         console.log('Connected to MongoDB successfully');
 
         console.log('Creating super admin user...');

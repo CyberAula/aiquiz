@@ -15,11 +15,11 @@ services:
     networks:
       - martell
     restart: unless-stopped
+    # La base de datos y el prefijo se fijan en next.config.js / BASE_PATH (al compilar), no aquí.
+    # Los valores salen del .env junto a este fichero (ver .env.template).
     environment:
-      - NODE_ENV=production
-      - MONGODB_URI=mongodb://aiquiz-mongo:27017/aiquiz
-      - QDRANT_HOST=aiquiz-qdrant
-      - QDRANT_PORT=6333
+      - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el .env}
+      - ASSEMBLYAI_API_KEY=${ASSEMBLYAI_API_KEY:-}
 
   aiquiz-mongo:
     image: mongo:5.0.30

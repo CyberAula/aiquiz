@@ -24,8 +24,6 @@ const nextConfig = {
     env: {
       BASE_PATH: basePath,
       MONGODB_URI: "mongodb://aiquiz-mongo:27017/aiquiz3",
-      HOST_SERVER: "127.0.0.1",
-      PORT_SERVER: "3000",
     }
 }
 
