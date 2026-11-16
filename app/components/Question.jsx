@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { HiCheck, HiOutlineXMark } from 'react-icons/hi2'
-import nextConfig from '../../next.config';
 import urljoin from 'url-join';
 import { useTranslation } from "react-i18next";
 import CheckOutlined from "@mui/icons-material/CheckOutlined";
+import { BASE_PATH } from "../utils/basePath";
 
 
-const basePath = nextConfig.basePath || '';
+const basePath = BASE_PATH;
 
 const Question = ({ numQuestions, question, order, addSubmission, addReport, setNumCorrect, topic, subject, subTopic, difficulty }) => {
     const { t, i18n } = useTranslation();

@@ -1,3 +1,4 @@
+import { BASE_PATH } from "./basePath";
 // app/utils/emailService.js
 /**
  * Servicio de email para desarrollo y producción
@@ -43,8 +44,8 @@ export async function sendProfessorInvitation({
     invitationToken,
     inviterName
 }) {
-    const loginUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/manager/login`;
-    const acceptUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/manager/accept-invitation?token=${invitationToken}`;
+    const loginUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}${BASE_PATH}/manager/login`;
+    const acceptUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}${BASE_PATH}/manager/accept-invitation?token=${invitationToken}`;
 
     const emailData = {
         to: email,
@@ -154,7 +155,7 @@ export async function sendPasswordRecovery({
     userName,
     resetToken
 }) {
-    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/manager/reset-password?token=${resetToken}`;
+    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}${BASE_PATH}/manager/reset-password?token=${resetToken}`;
 
     const emailData = {
         to: email,

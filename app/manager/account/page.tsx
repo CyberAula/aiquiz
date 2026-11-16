@@ -49,19 +49,19 @@ const AccountPage = () => {
 		data: userData,
 		loading: loadingUserData,
 		error: userDataError,
-	} = useApiRequest("/aiquiz/api/manager/auth/me", "GET");
+	} = useApiRequest("/api/manager/auth/me", "GET");
 
 	const {
 		makeRequest: updateProfile,
 		loading: updatingProfile,
 		error: updateProfileError,
-	} = useApiRequest("/aiquiz/api/manager/auth/me", "PUT", null, false);
+	} = useApiRequest("/api/manager/auth/me", "PUT", null, false);
 
 	const {
 		makeRequest: changePassword,
 		loading: changingPassword,
 		error: changePasswordError,
-	} = useApiRequest("/aiquiz/api/account/password", "PUT", null, false);
+	} = useApiRequest("/api/account/password", "PUT", null, false);
 
 	//	Comprobación del token (opcional porque el layout ya la hace)
 	useEffect(() => {

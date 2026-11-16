@@ -31,7 +31,7 @@ export default function SubjectsPage() {
 	const { t } = useManagerTranslation();
 
 	const { data, loading: isLoading, error } = useApiRequest(
-		"/aiquiz/api/manager/subjects",
+		"/api/manager/subjects",
 		"GET",
 		[],
 		true

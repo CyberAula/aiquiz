@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import SwaggerUI from 'swagger-ui-react';
 import 'swagger-ui-react/swagger-ui.css';
+import { withBasePath } from "../utils/basePath";
 
 export default function DocsPage() {
   const [spec, setSpec] = useState(null);
@@ -16,7 +17,7 @@ export default function DocsPage() {
     }
 
     // Fetch the OpenAPI spec
-    fetch('/aiquiz/api/openapi')
+    fetch(withBasePath('/api/openapi'))
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to load OpenAPI specification');

@@ -1,3 +1,4 @@
+import { withBasePath } from "../../utils/basePath";
 // config/apiConfig.js - Configuración de la API
 export const API_CONFIG = {
 	// Determinar si usar API real o simulada
@@ -5,7 +6,7 @@ export const API_CONFIG = {
 	
 	// URLs de la API
 	BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
-	API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX || '/aiquiz/api',
+	API_PREFIX: process.env.NEXT_PUBLIC_API_PREFIX || withBasePath("/api"),
 	
 	// Configuración de autenticación
 	JWT_STORAGE_KEY: 'auth_token',

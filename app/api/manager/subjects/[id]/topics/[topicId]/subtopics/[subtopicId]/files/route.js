@@ -5,6 +5,7 @@ import Subtopic from "@models/Subtopic";
 import File from "@models/File";
 import User from "@models/User";
 import { withAuth, handleError } from "@utils/authMiddleware";
+import { withBasePath } from "../../../../../../../../../utils/basePath";
 
 // Importaciones estáticas de RAG Managers
 let RAGManagerV2, RAGManager, MockRAGManager;
@@ -405,7 +406,7 @@ async function uploadFile(request, context) {
 					fileType: "document",
 					size: file.size,
 					mimeType: file.type,
-					url: `/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${fileDocument._id}`,
+					url: withBasePath(`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${fileDocument._id}`),
 					description: description,
 					
 					// Estado RAG
@@ -495,7 +496,7 @@ async function getFiles(request, context) {
 			fileType: file.fileType,
 			size: file.size,
 			mimeType: file.mimeType,
-			url: `/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${file._id}`,
+			url: withBasePath(`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${file._id}`),
 			description: file.description,
 			ragProcessed: file.ragProcessed,
 			ragDocumentId: file.ragDocumentId,

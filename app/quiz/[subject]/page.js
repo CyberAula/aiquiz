@@ -7,10 +7,10 @@ import Footer from "../../components/ui/Footer";
 import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
 import Header from "../../components/ui/Header";
 
-import nextConfig from "../../../next.config";
 import urljoin from "url-join";
 import { useTranslation } from "react-i18next";
-const basePath = nextConfig.basePath || "/";
+import { BASE_PATH, withBasePath } from "../../utils/basePath";
+const basePath = BASE_PATH || "/";
 
 const HomePage = ({ params: { subject } }) => {
 	const { t, i18n } = useTranslation();
@@ -57,7 +57,7 @@ const HomePage = ({ params: { subject } }) => {
 	const fetchSubjectData = async () => {
 		try {
 			setDataLoading(true);
-			const response = await fetch(`/aiquiz/api/subjects/${subject}`);
+			const response = await fetch(withBasePath(`/api/subjects/${subject}`));
 			const data = await response.json();
 			
 			if (data.success) {

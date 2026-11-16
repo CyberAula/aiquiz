@@ -55,7 +55,7 @@ const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
 		error,
 		makeRequest: fetchQuestionnaires,
 	} = useApiRequest(
-		`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires`,
+		`/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires`,
 		"GET",
 		null,
 		true
@@ -158,7 +158,7 @@ const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
 			const response = await deleteQuestionnaire(
 				null,
 				false,
-				`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires/${questionnaireToDelete}`
+				`/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires/${questionnaireToDelete}`
 			);
 
 			if (response.success) {
@@ -219,7 +219,7 @@ const QuestionnaireTab: React.FC<QuestionnaireTabProps> = ({
 
 				console.log(`[QuestionnarieTab] Iniciando descarga cuestionario ${id} formato ${format}`);
 
-				const endpoint = `/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires/${id}/download?format=${format}`;
+				const endpoint = `/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires/${id}/download?format=${format}`;
 				
 				// Llamar al endpoint con manejo de descarga de archivos
 				await downloadQuestionnaire(

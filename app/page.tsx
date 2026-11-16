@@ -4,6 +4,7 @@ import Link from "next/link";
 import Footer from "./components/ui/Footer";
 import Header from "./components/ui/Header";
 import { useTranslation } from "react-i18next";
+import { withBasePath } from "./utils/basePath";
 
 const HomePage = () => {
   const { t, i18n } = useTranslation();
@@ -92,7 +93,7 @@ const HomePage = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await fetch('/aiquiz/api/subjects');
+      const response = await fetch(withBasePath('/api/subjects'));
       const data = await response.json();
 
       if (data.success) {

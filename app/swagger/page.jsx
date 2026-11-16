@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Header from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
 import "./swagger-ui.css";
+import { withBasePath } from "../utils/basePath";
 
 const SwaggerUI = dynamic(() => import("swagger-ui-react"), { 
 	ssr: false,
@@ -19,7 +20,7 @@ export default function SwaggerPage() {
 	useEffect(() => {
 		async function fetchSpec() {
 			try {
-				const response = await fetch("/aiquiz/api/manager/swagger");
+				const response = await fetch(withBasePath("/api/manager/swagger"));
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}
@@ -93,7 +94,7 @@ export default function SwaggerPage() {
 						</span>
 						<span className="text-sm text-gray-500">v1.0.0</span>
 						<a
-							href="/manager"
+							href={withBasePath("/manager")}
 							className="text-blue-600 hover:text-blue-800 text-sm transition-colors"
 						>
 							← Volver al Manager

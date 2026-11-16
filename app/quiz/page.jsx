@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import Header from "../components/ui/Header"
 import { HiArrowLeft } from 'react-icons/hi2'
 import Footer from "../components/ui/Footer"
+import { withBasePath } from "../utils/basePath";
 
 
 function QuizPageFun() {
@@ -81,7 +82,7 @@ function QuizPageFun() {
         try {
             console.log("[Quiz] Enviando petición para generar", numQuestions, "preguntas");
 
-            const response = await fetch('api/questions', {
+            const response = await fetch(withBasePath('/api/questions'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -175,7 +176,7 @@ function QuizPageFun() {
                 error: err.message,
                 // cleanedResponse: cleanedResponse
             }
-            const response = await fetch('/aiquiz/api/error-log', {
+            const response = await fetch(withBasePath('/api/error-log'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

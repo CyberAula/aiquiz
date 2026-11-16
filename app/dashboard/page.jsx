@@ -5,6 +5,7 @@ import 'highlight.js/styles/atom-one-dark.css';
 import Footer from "../components/ui/Footer";
 import Logo from "../components/ui/Logo";
 import { useTranslation } from "react-i18next";
+import { withBasePath } from "../utils/basePath";
 
 
 const DashboardPage = () => {
@@ -19,7 +20,7 @@ const DashboardPage = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await fetch('/aiquiz/api/subjects');
+      const response = await fetch(withBasePath('/api/subjects'));
       const data = await response.json();
       
       if (data.success) {

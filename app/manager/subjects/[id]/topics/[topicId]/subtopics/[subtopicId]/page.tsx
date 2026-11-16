@@ -38,7 +38,7 @@ const SubtopicDetailContent = () => {
 	// API para modificaciones del subtema
 	const { makeRequest: updateSubtopic, loading: updatingSubtopic } =
 		useApiRequest(
-			`/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}`,
+			`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}`,
 			"PUT",
 			null,
 			false
@@ -47,7 +47,7 @@ const SubtopicDetailContent = () => {
 	// API para eliminar subtema
 	const { makeRequest: deleteSubtopic, loading: deletingSubtopic } =
 		useApiRequest(
-			`/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}`,
+			`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}`,
 			"DELETE",
 			null,
 			false
@@ -56,21 +56,21 @@ const SubtopicDetailContent = () => {
 	// API para gestión de archivos
 	const { makeRequest: uploadDocument, loading: uploadingDocument } =
 		useApiRequest(
-			`/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files`,
+			`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files`,
 			"POST",
 			null,
 			false
 		);
 
 	const { makeRequest: addVideoUrl, loading: addingVideoUrl } = useApiRequest(
-		`/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/videos`,
+		`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/videos`,
 		"POST",
 		null,
 		false
 	);
 
 	const { makeRequest: getFiles, loading: loadingFiles } = useApiRequest(
-		`/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files`,
+		`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files`,
 		"GET",
 		null,
 		false // No cargar automáticamente al montar

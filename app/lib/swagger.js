@@ -1,4 +1,5 @@
 import swaggerJsdoc from "swagger-jsdoc";
+import { withBasePath } from "../utils/basePath";
 
 const options = {
 	definition: {
@@ -10,7 +11,7 @@ const options = {
 		},
 		servers: [
 			{
-				url: "/aiquiz/api",
+				url: withBasePath("/api"),
 				description: "Development server",
 			},
 		],

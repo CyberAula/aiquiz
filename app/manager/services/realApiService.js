@@ -1,5 +1,6 @@
 // realApiService.js - Servicio real para la API del manager
 "use client";
+import { withBasePath } from "../../utils/basePath";
 
 /**
  * Clase RealApiService para gestionar llamadas reales a la API del manager
@@ -78,7 +79,8 @@ class RealApiService {
 	 * @returns {Promise<Object>} Respuesta de la API
 	 */
 	async makeRequest(endpoint, options = {}) {
-		const url = `${this.baseUrl}${endpoint}`;
+		// Los métodos pasan rutas sin basePath ("/api/..."); aquí se añade
+		const url = `${this.baseUrl}${withBasePath(endpoint)}`;
 		
 		// Determinar si estamos enviando FormData
 		const isFormData = options.body instanceof FormData;
@@ -145,7 +147,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Respuesta del login
 	 */
 	async login(email, password) {
-		const response = await this.makeRequest('/aiquiz/api/manager/auth/login', {
+		const response = await this.makeRequest('/api/manager/auth/login', {
 			method: 'POST',
 			body: { email, password },
 		});
@@ -163,7 +165,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Respuesta de recuperación
 	 */
 	async recoverPassword(email) {
-		return await this.makeRequest('/aiquiz/api/manager/auth/recovery', {
+		return await this.makeRequest('/api/manager/auth/recovery', {
 			method: 'POST',
 			body: { email },
 		});
@@ -176,7 +178,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Respuesta de restablecimiento
 	 */
 	async resetPassword(token, newPassword) {
-		return await this.makeRequest('/aiquiz/api/manager/auth/reset-password', {
+		return await this.makeRequest('/api/manager/auth/reset-password', {
 			method: 'POST',
 			body: { token, newPassword },
 		});
@@ -187,7 +189,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Datos del perfil del usuario
 	 */
 	async getUserProfile() {
-		return await this.makeRequest('/aiquiz/api/manager/auth/me', {
+		return await this.makeRequest('/api/manager/auth/me', {
 			method: 'GET',
 		});
 	}
@@ -198,7 +200,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Usuario actualizado
 	 */
 	async updateUserProfile(data) {
-		return await this.makeRequest('/aiquiz/api/manager/auth/me', {
+		return await this.makeRequest('/api/manager/auth/me', {
 			method: 'PUT',
 			body: data,
 		});
@@ -210,7 +212,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Respuesta del cambio de contraseña
 	 */
 	async changePassword(data) {
-		return await this.makeRequest('/aiquiz/api/account/password', {
+		return await this.makeRequest('/api/account/password', {
 			method: 'PUT',
 			body: data,
 		});
@@ -225,7 +227,7 @@ class RealApiService {
 	 * @returns {Promise<Array>} Lista de asignaturas
 	 */
 	async getSubjects() {
-		return await this.makeRequest('/aiquiz/api/manager/subjects');
+		return await this.makeRequest('/api/manager/subjects');
 	}
 
 	/**
@@ -234,7 +236,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Datos de la asignatura
 	 */
 	async getSubject(id) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${id}`);
+		return await this.makeRequest(`/api/manager/subjects/${id}`);
 	}
 
 	/**
@@ -243,7 +245,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Asignatura creada
 	 */
 	async createSubject(data) {
-		return await this.makeRequest('/aiquiz/api/manager/subjects', {
+		return await this.makeRequest('/api/manager/subjects', {
 			method: 'POST',
 			body: data,
 		});
@@ -256,7 +258,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Asignatura actualizada
 	 */
 	async updateSubject(id, data) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${id}`, {
+		return await this.makeRequest(`/api/manager/subjects/${id}`, {
 			method: 'PUT',
 			body: data,
 		});
@@ -268,7 +270,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Respuesta de eliminación
 	 */
 	async deleteSubject(id) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${id}`, {
+		return await this.makeRequest(`/api/manager/subjects/${id}`, {
 			method: 'DELETE',
 		});
 	}
@@ -280,7 +282,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Respuesta de adición
 	 */
 	async addProfessorToSubject(subjectId, professorData) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/professors`, {
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/professors`, {
 			method: 'POST',
 			body: professorData,
 		});
@@ -293,7 +295,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Respuesta de eliminación
 	 */
 	async removeProfessorFromSubject(subjectId, professorId) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/professors/${professorId}`, {
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/professors/${professorId}`, {
 			method: 'DELETE',
 		});
 	}
@@ -308,7 +310,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Lista de temas
 	 */
 	async getTopics(subjectId) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/topics`);
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/topics`);
 	}
 
 	/**
@@ -318,7 +320,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Datos del tema
 	 */
 	async getTopic(subjectId, topicId) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}`);
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/topics/${topicId}`);
 	}
 
 	/**
@@ -328,7 +330,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Tema creado
 	 */
 	async createTopic(subjectId, data) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/topics`, {
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/topics`, {
 			method: 'POST',
 			body: data,
 		});
@@ -342,7 +344,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Tema actualizado
 	 */
 	async updateTopic(subjectId, topicId, data) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}`, {
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/topics/${topicId}`, {
 			method: 'PUT',
 			body: data,
 		});
@@ -355,7 +357,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Respuesta de eliminación
 	 */
 	async deleteTopic(subjectId, topicId) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}`, {
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/topics/${topicId}`, {
 			method: 'DELETE',
 		});
 	}
@@ -371,7 +373,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Lista de subtemas
 	 */
 	async getSubtopics(subjectId, topicId) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics`);
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics`);
 	}
 
 	/**
@@ -382,7 +384,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Datos del subtema
 	 */
 	async getSubtopic(subjectId, topicId, subtopicId) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}`);
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}`);
 	}
 
 	/**
@@ -393,7 +395,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Subtema creado
 	 */
 	async createSubtopic(subjectId, topicId, data) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics`, {
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics`, {
 			method: 'POST',
 			body: data,
 		});
@@ -408,7 +410,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Subtema actualizado
 	 */
 	async updateSubtopic(subjectId, topicId, subtopicId, data) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}`, {
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}`, {
 			method: 'PUT',
 			body: data,
 		});
@@ -422,7 +424,7 @@ class RealApiService {
 	 * @returns {Promise<Object>} Respuesta de eliminación
 	 */
 	async deleteSubtopic(subjectId, topicId, subtopicId) {
-		return await this.makeRequest(`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}`, {
+		return await this.makeRequest(`/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}`, {
 			method: 'DELETE',
 		});
 	}
@@ -441,7 +443,7 @@ class RealApiService {
 	 */
 	async uploadFile(subjectId, topicId, subtopicId, fileData) {
 		return await this.makeRequest(
-			`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}/files`,
+			`/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}/files`,
 			{
 				method: 'POST',
 				body: fileData,
@@ -458,7 +460,7 @@ class RealApiService {
 	 */
 	async getSubtopicFiles(subjectId, topicId, subtopicId) {
 		return await this.makeRequest(
-			`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}/files`,
+			`/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}/files`,
 			{
 				method: 'GET',
 			}
@@ -475,7 +477,7 @@ class RealApiService {
 	 */
 	async deleteSubtopicFile(subjectId, topicId, subtopicId, fileId) {
 		return await this.makeRequest(
-			`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}/files/${fileId}`,
+			`/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}/files/${fileId}`,
 			{
 				method: 'DELETE',
 			}
@@ -492,7 +494,7 @@ class RealApiService {
 	 */
 	async addVideoUrl(subjectId, topicId, subtopicId, videoData) {
 		return await this.makeRequest(
-			`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}/videos`,
+			`/api/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopicId}/videos`,
 			{
 				method: 'POST',
 				body: videoData,

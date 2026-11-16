@@ -87,7 +87,7 @@ export default function SubjectDetailPage() {
 
 	// API para añadir profesor
 	const { makeRequest: addProfessor, loading: addingProfessor } =
-		useApiRequest(`/aiquiz/api/manager/subjects/${id}/professors`, "POST", null, false);
+		useApiRequest(`/api/manager/subjects/${id}/professors`, "POST", null, false);
 
 	// API para eliminar profesor
 	const { makeRequest: removeProfessor, loading: removingProfessor } =
@@ -95,7 +95,7 @@ export default function SubjectDetailPage() {
 
 	// API para añadir tema
 	const { makeRequest: addTopic, loading: addingTopic } = useApiRequest(
-		`/aiquiz/api/manager/subjects/${id}/topics`,
+		`/api/manager/subjects/${id}/topics`,
 		"POST",
 		null,
 		false
@@ -107,7 +107,7 @@ export default function SubjectDetailPage() {
 
 	// API para eliminar tema
 	const { makeRequest: deleteTopic, loading: deletingTopic } = useApiRequest(
-		`/aiquiz/api/manager/subjects/${id}/topics`,
+		`/api/manager/subjects/${id}/topics`,
 		"DELETE",
 		null,
 		false
@@ -115,7 +115,7 @@ export default function SubjectDetailPage() {
 
 	// API para guardar cambios de la asignatura
 	const { makeRequest: saveSubject, loading: savingSubject } = useApiRequest(
-		`/aiquiz/api/manager/subjects/${id}`,
+		`/api/manager/subjects/${id}`,
 		"PUT",
 		null,
 		false
@@ -123,7 +123,7 @@ export default function SubjectDetailPage() {
 
 	// API para eliminar la asignatura
 	const { makeRequest: deleteSubjectRequest, loading: deletingSubject } =
-		useApiRequest(`/aiquiz/api/manager/subjects/${id}`, "DELETE", null, false);
+		useApiRequest(`/api/manager/subjects/${id}`, "DELETE", null, false);
 
 	const handleTabChange = (tab: string) => {
 		setActiveTab(tab);
@@ -217,7 +217,7 @@ export default function SubjectDetailPage() {
 			const response = await removeProfessor(
 				null,
 				false,
-				`/aiquiz/api/manager/subjects/${id}/professors/${itemToDelete}`
+				`/api/manager/subjects/${id}/professors/${itemToDelete}`
 			);
 			if (response.success) {
 				refetchSubject(); // Usar refetchSubject del contexto
@@ -262,7 +262,7 @@ export default function SubjectDetailPage() {
 			const response = await editTopic(
 				{ title: newTitle },
 				false,
-				`/aiquiz/api/manager/subjects/${id}/topics/${topicId}`
+				`/api/manager/subjects/${id}/topics/${topicId}`
 			);
 
 			if (response.success) {
@@ -288,7 +288,7 @@ export default function SubjectDetailPage() {
 			const response = await deleteTopic(
 				null,
 				false,
-				`/aiquiz/api/manager/subjects/${id}/topics/${itemToDelete}`
+				`/api/manager/subjects/${id}/topics/${itemToDelete}`
 			);
 
 			if (response.success) {

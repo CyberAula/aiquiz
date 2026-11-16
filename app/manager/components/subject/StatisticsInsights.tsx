@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { useManagerTranslation } from "../../hooks/useManagerTranslation";
 import CollapsibleSection from "./CollapsibleSection";
+import { withBasePath } from "../../../utils/basePath";
 
 interface StatisticsInsightsProps {
     subjectAcronym: string;
@@ -35,7 +36,7 @@ type DayRow = { dia: string; count: number };
 type StudentRow = { studentEmail: string; totalTests: number; totalCorrect: number };
 type StudentDetail = { totalTests: number; totalCorrect: number; difficulty: number };
 
-const API_BASE = "/aiquiz/api";
+const API_BASE = withBasePath("/api");
 const STUDENTS_PREVIEW = 10;
 
 const COLORS = {

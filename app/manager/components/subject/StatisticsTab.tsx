@@ -25,6 +25,7 @@ import {
 import { useManagerTranslation } from "../../hooks/useManagerTranslation";
 import CollapsibleSection from "./CollapsibleSection";
 import StatisticsInsights from "./StatisticsInsights";
+import { withBasePath } from "../../../utils/basePath";
 
 interface StatisticsTabProps {
     subjectAcronym: string;
@@ -474,7 +475,7 @@ const StatisticsTab = ({ subjectAcronym }: StatisticsTabProps) => {
             const headers: Record<string, string> = {};
             if (token) headers["Authorization"] = `Bearer ${token}`;
 
-            const response = await fetch(`/aiquiz/api/reports?${params.toString()}`, {
+            const response = await fetch(withBasePath(`/api/reports?${params.toString()}`), {
                 credentials: "include",
                 headers,
             });

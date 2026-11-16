@@ -66,28 +66,28 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId, topics = [] 
     const [selectedTopicId, setSelectedTopicId] = useState<string>("");
 
     const { makeRequest: fetchCorrections } = useApiRequest(
-        `/aiquiz/api/manager/subjects/${subjectId}/corrections?status=reported`,
+        `/api/manager/subjects/${subjectId}/corrections?status=reported`,
         "GET",
         null,
         false
     );
 
     const { makeRequest: updateCorrection } = useApiRequest(
-        `/aiquiz/api/manager/subjects/${subjectId}/corrections`,
+        `/api/manager/subjects/${subjectId}/corrections`,
         "PATCH",
         null,
         false
     );
 
     const { makeRequest: deleteCorrections } = useApiRequest(
-        `/aiquiz/api/manager/subjects/${subjectId}/corrections`,
+        `/api/manager/subjects/${subjectId}/corrections`,
         "DELETE",
         null,
         false
     );
 
     const { makeRequest: downloadCorrections } = useApiRequest(
-        `/aiquiz/api/manager/subjects/${subjectId}/corrections/download`,
+        `/api/manager/subjects/${subjectId}/corrections/download`,
         "POST",
         null,
         false
@@ -123,7 +123,7 @@ const CorrectionsTab: React.FC<CorrectionsTabProps> = ({ subjectId, topics = [] 
             const response = await fetchCorrections(
                 null,
                 true,
-                `/aiquiz/api/manager/subjects/${subjectId}/corrections?${params.toString()}`
+                `/api/manager/subjects/${subjectId}/corrections?${params.toString()}`
             );
 
             if (response?.questions) {

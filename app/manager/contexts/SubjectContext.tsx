@@ -78,7 +78,7 @@ export const SubjectProvider = ({ children }: SubjectProviderProps) => {
 
 	// Única llamada a la API que será compartida
 	const { data, loading, error, makeRequest } = useApiRequest(
-		`/aiquiz/api/manager/subjects/${id}`,
+		`/api/manager/subjects/${id}`,
 		"GET",
 		null,
 		true

@@ -12,6 +12,7 @@ import { gifs } from '../constants/gifs'
 import { Suspense } from 'react'
 import { useTranslation } from "react-i18next";
 import Header from "../components/ui/Header"
+import { withBasePath } from "../utils/basePath";
 
 
 function EndScreenFun() {
@@ -41,7 +42,7 @@ function EndScreenFun() {
 
     const getSurveyStatus = async (studentEmail) => {
         try {
-            const response = await fetch('api/survey', {
+            const response = await fetch(withBasePath('/api/survey'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

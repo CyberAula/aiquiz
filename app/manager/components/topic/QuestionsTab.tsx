@@ -95,7 +95,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 		error,
 		makeRequest: fetchQuestions,
 	} = useApiRequest(
-		`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questions`,
+		`/api/manager/subjects/${subjectId}/topics/${topicId}/questions`,
 		"GET",
 		null,
 		true
@@ -106,7 +106,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 		loading,
 		error,
 		questionsData,
-		url: `/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questions`
+		url: `/api/manager/subjects/${subjectId}/topics/${topicId}/questions`
 	});
 
 	// API para generar cuestionario desde preguntas seleccionadas
@@ -114,7 +114,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 		makeRequest: generateQuestionnaire,
 		loading: generatingQuestionnaire,
 	} = useApiRequest(
-		`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires`,
+		`/api/manager/subjects/${subjectId}/topics/${topicId}/questionnaires`,
 		"POST",
 		null,
 		false
@@ -123,7 +123,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 	// API para descargar preguntas seleccionadas
 	const { makeRequest: downloadQuestions, loading: downloadingQuestions } =
 		useApiRequest(
-			`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questions/download`,
+			`/api/manager/subjects/${subjectId}/topics/${topicId}/questions/download`,
 			"POST",
 			null,
 			false
@@ -134,7 +134,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 		makeRequest: generateNewQuestions,
 		loading: generatingNewQuestions,
 	} = useApiRequest(
-		`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/generate-questions`,
+		`/api/manager/subjects/${subjectId}/topics/${topicId}/generate-questions`,
 		"POST",
 		null,
 		false
@@ -143,7 +143,7 @@ const QuestionsTab: React.FC<QuestionsTabProps> = ({ topicId, subjectId }) => {
 	// API para verificar o rechazar preguntas
 	const { makeRequest: updateQuestionStatus, loading: updatingQuestion } =
 		useApiRequest(
-			`/aiquiz/api/manager/subjects/${subjectId}/topics/${topicId}/questions`,
+			`/api/manager/subjects/${subjectId}/topics/${topicId}/questions`,
 			"PATCH",
 			null,
 			false

@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import swaggerJSDoc from "swagger-jsdoc";
 import { Glob } from "glob";
+import { BASE_PATH } from "../../../utils/basePath";
 
 const swaggerOptions = {
 	definition: {
@@ -41,8 +42,8 @@ Para testing, usa estas credenciales:
 
 ⚠️ **Nota**: Algunos endpoints están marcados como "PENDIENTE DE IMPLEMENTACIÓN":
 
-- **Subida de archivos**: \`POST /aiquiz/api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files\`
-- **Gestión de videos**: \`POST /aiquiz/api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/videos\`
+- **Subida de archivos**: \`POST ${BASE_PATH}/api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/files\`
+- **Gestión de videos**: \`POST ${BASE_PATH}/api/manager/subjects/{id}/topics/{topicId}/subtopics/{subtopicId}/videos\`
 
 Estos endpoints están documentados pero requieren implementación adicional para el manejo de archivos y videos.
 

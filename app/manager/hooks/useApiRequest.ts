@@ -1,6 +1,7 @@
 // /app/manager/hooks/useApiRequest.ts
 import { useState, useEffect, useRef } from "react";
 import apiService from "../services/index";
+import { withBasePath, stripBasePath } from "../../utils/basePath";
 
 /**
  * Mapea endpoints a métodos del servicio real de API
@@ -10,171 +11,174 @@ import apiService from "../services/index";
  * @returns {Promise<any>} Respuesta de la API
  */
 async function mapEndpointToRealApi(endpoint: string, method: string, data: any) {
+	// Los endpoints se comparan sin basePath ("/api/..."); se quita por si alguien lo incluye
+	endpoint = stripBasePath(endpoint);
+
 	// Parsear el endpoint para extraer IDs y determinar el método correcto
 	const parts = endpoint.split('/').filter(Boolean);
 
 	// Endpoints de autenticación
-	if (endpoint === '/aiquiz/api/auth/login' && method === 'POST') {
+	if (endpoint === '/api/auth/login' && method === 'POST') {
 		return await apiService.login(data.email, data.password);
 	}
 
-	if (endpoint === '/aiquiz/api/manager/auth/login' && method === 'POST') {
+	if (endpoint === '/api/manager/auth/login' && method === 'POST') {
 		return await apiService.login(data.email, data.password);
 	}
 
-	if (endpoint === '/aiquiz/api/auth/recovery' && method === 'POST') {
+	if (endpoint === '/api/auth/recovery' && method === 'POST') {
 		return await apiService.recoverPassword(data.email);
 	}
 
-	if (endpoint === '/aiquiz/api/manager/auth/recovery' && method === 'POST') {
+	if (endpoint === '/api/manager/auth/recovery' && method === 'POST') {
 		return await apiService.recoverPassword(data.email);
 	}
 
-	if (endpoint === '/aiquiz/api/auth/reset-password' && method === 'POST') {
+	if (endpoint === '/api/auth/reset-password' && method === 'POST') {
 		return await apiService.resetPassword(data.token, data.newPassword);
 	}
 
-	if (endpoint === '/aiquiz/api/manager/auth/reset-password' && method === 'POST') {
+	if (endpoint === '/api/manager/auth/reset-password' && method === 'POST') {
 		return await apiService.resetPassword(data.token, data.newPassword);
 	}
 
-	if (endpoint === '/aiquiz/api/manager/auth/me' && method === 'GET') {
+	if (endpoint === '/api/manager/auth/me' && method === 'GET') {
 		return await apiService.getUserProfile();
 	}
 
-	if (endpoint === '/aiquiz/api/manager/auth/me' && method === 'PUT') {
+	if (endpoint === '/api/manager/auth/me' && method === 'PUT') {
 		return await apiService.updateUserProfile(data);
 	}
 
 	// Endpoint de cambio de contraseña
-	if (endpoint === '/aiquiz/api/account/password' && method === 'PUT') {
+	if (endpoint === '/api/account/password' && method === 'PUT') {
 		return await apiService.changePassword(data);
 	}
 
 	// Endpoints de asignaturas
-	if (endpoint === '/aiquiz/api/subjects' && method === 'GET') {
+	if (endpoint === '/api/subjects' && method === 'GET') {
 		return await apiService.getSubjects();
 	}
 
-	if (endpoint === '/aiquiz/api/manager/subjects' && method === 'GET') {
+	if (endpoint === '/api/manager/subjects' && method === 'GET') {
 		return await apiService.getSubjects();
 	}
 
-	if (endpoint === '/aiquiz/api/subjects' && method === 'POST') {
+	if (endpoint === '/api/subjects' && method === 'POST') {
 		return await apiService.createSubject(data);
 	}
 
-	if (endpoint === '/aiquiz/api/manager/subjects' && method === 'POST') {
+	if (endpoint === '/api/manager/subjects' && method === 'POST') {
 		return await apiService.createSubject(data);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+$/) && method === 'GET') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+$/) && method === 'GET') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
 		console.log('Fetching subject with ID:', subjectId);
 		return await apiService.getSubject(subjectId);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+$/) && method === 'PUT') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+$/) && method === 'PUT') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
 		return await apiService.updateSubject(subjectId, data);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+$/) && method === 'DELETE') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+$/) && method === 'DELETE') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
 		return await apiService.deleteSubject(subjectId);
 	}
 
 	// Endpoints de profesores
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/professors$/) && method === 'POST') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/professors$/) && method === 'POST') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
 		return await apiService.addProfessorToSubject(subjectId, data);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/professors\/[\w-]+$/) && method === 'DELETE') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const professorId = endpoint.includes('/manager/') ? parts[6] : parts[5];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/professors\/[\w-]+$/) && method === 'DELETE') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const professorId = endpoint.includes('/manager/') ? parts[5] : parts[4];
 		return await apiService.removeProfessorFromSubject(subjectId, professorId);
 	}
 
 	// Endpoints de temas
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics$/) && method === 'GET') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics$/) && method === 'GET') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
 		return await apiService.getTopics(subjectId);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics$/) && method === 'POST') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics$/) && method === 'POST') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
 		return await apiService.createTopic(subjectId, data);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+$/) && method === 'GET') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+$/) && method === 'GET') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
 		return await apiService.getTopic(subjectId, topicId);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+$/) && method === 'PUT') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+$/) && method === 'PUT') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
 		return await apiService.updateTopic(subjectId, topicId, data);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+$/) && method === 'DELETE') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+$/) && method === 'DELETE') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
 		return await apiService.deleteTopic(subjectId, topicId);
 	}
 
 	// Endpoints de subtemas
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics$/) && method === 'GET') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics$/) && method === 'GET') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
 		return await apiService.getSubtopics(subjectId, topicId);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics$/) && method === 'POST') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics$/) && method === 'POST') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
 		return await apiService.createSubtopic(subjectId, topicId, data);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+$/) && method === 'GET') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
-		const subtopicId = endpoint.includes('/manager/') ? parts[8] : parts[7];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+$/) && method === 'GET') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
+		const subtopicId = endpoint.includes('/manager/') ? parts[7] : parts[6];
 		return await apiService.getSubtopic(subjectId, topicId, subtopicId);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+$/) && method === 'PUT') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
-		const subtopicId = endpoint.includes('/manager/') ? parts[8] : parts[7];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+$/) && method === 'PUT') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
+		const subtopicId = endpoint.includes('/manager/') ? parts[7] : parts[6];
 		return await apiService.updateSubtopic(subjectId, topicId, subtopicId, data);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+$/) && method === 'DELETE') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
-		const subtopicId = endpoint.includes('/manager/') ? parts[8] : parts[7];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+$/) && method === 'DELETE') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
+		const subtopicId = endpoint.includes('/manager/') ? parts[7] : parts[6];
 		return await apiService.deleteSubtopic(subjectId, topicId, subtopicId);
 	}
 
 	// Endpoints de archivos y videos
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+\/files$/) && method === 'POST') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
-		const subtopicId = endpoint.includes('/manager/') ? parts[8] : parts[7];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+\/files$/) && method === 'POST') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
+		const subtopicId = endpoint.includes('/manager/') ? parts[7] : parts[6];
 		return await apiService.uploadFile(subjectId, topicId, subtopicId, data);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+\/files$/) && method === 'GET') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
-		const subtopicId = endpoint.includes('/manager/') ? parts[8] : parts[7];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+\/files$/) && method === 'GET') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
+		const subtopicId = endpoint.includes('/manager/') ? parts[7] : parts[6];
 		return await apiService.getSubtopicFiles(subjectId, topicId, subtopicId);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+\/files\/[\w-]+$/) && method === 'DELETE') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+\/files\/[\w-]+$/) && method === 'DELETE') {
 		const pathParts = endpoint.split('/').filter(p => p);
 		const managerIndex = pathParts.indexOf('manager');
 		const baseIndex = managerIndex >= 0 ? managerIndex + 2 : 2; // Skip 'api' and optionally 'manager'
@@ -187,15 +191,15 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 		return await apiService.deleteSubtopicFile(subjectId, topicId, subtopicId, fileId);
 	}
 
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+\/videos$/) && method === 'POST') {
-		const subjectId = endpoint.includes('/manager/') ? parts[4] : parts[3];
-		const topicId = endpoint.includes('/manager/') ? parts[6] : parts[5];
-		const subtopicId = endpoint.includes('/manager/') ? parts[8] : parts[7];
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/subtopics\/[\w-]+\/videos$/) && method === 'POST') {
+		const subjectId = endpoint.includes('/manager/') ? parts[3] : parts[2];
+		const topicId = endpoint.includes('/manager/') ? parts[5] : parts[4];
+		const subtopicId = endpoint.includes('/manager/') ? parts[7] : parts[6];
 		return await apiService.addVideoUrl(subjectId, topicId, subtopicId, data);
 	}
 
 	// Endpoints de correcciones - GET listado
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/corrections(\?.*)?$/) && method === 'GET') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/corrections(\?.*)?$/) && method === 'GET') {
 		const token = localStorage.getItem('jwt_token') || localStorage.getItem('auth_token');
 
 		const headers: any = {
@@ -206,7 +210,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'GET',
 			headers
 		});
@@ -219,7 +223,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de correcciones - PATCH actualización
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/corrections(\?.*)?$/) && method === 'PATCH') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/corrections(\?.*)?$/) && method === 'PATCH') {
 		const token = localStorage.getItem('jwt_token') || localStorage.getItem('auth_token');
 
 		const headers: any = {
@@ -230,7 +234,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'PATCH',
 			headers,
 			body: JSON.stringify(data)
@@ -244,7 +248,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de correcciones - DELETE eliminación
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/corrections(\?.*)?$/) && method === 'DELETE') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/corrections(\?.*)?$/) && method === 'DELETE') {
 		const token = localStorage.getItem('jwt_token') || localStorage.getItem('auth_token');
 
 		const headers: any = {
@@ -255,7 +259,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'DELETE',
 			headers,
 			body: JSON.stringify(data)
@@ -269,7 +273,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de correcciones - descarga
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/corrections\/download(\?.*)?$/) && method === 'POST') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/corrections\/download(\?.*)?$/) && method === 'POST') {
 		const token = localStorage.getItem('jwt_token') || localStorage.getItem('auth_token');
 
 		const headers: any = {
@@ -280,7 +284,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'POST',
 			headers,
 			body: JSON.stringify(data)
@@ -307,7 +311,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de cuestionarios - GET
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questionnaires$/) && method === 'GET') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questionnaires$/) && method === 'GET') {
 		console.log('[useApiRequest] Obteniendo cuestionarios:', endpoint);
 
 		// Obtener token como lo hace realApiService
@@ -321,7 +325,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'GET',
 			headers
 		});
@@ -337,7 +341,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de cuestionarios - POST para crear
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questionnaires$/) && method === 'POST') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questionnaires$/) && method === 'POST') {
 		console.log('[useApiRequest] Creando cuestionario:', endpoint);
 
 		// Obtener token como lo hace realApiService
@@ -351,7 +355,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'POST',
 			headers,
 			body: JSON.stringify(data)
@@ -368,7 +372,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de cuestionarios - DELETE para eliminar
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questionnaires\/[\w-]+$/) && method === 'DELETE') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questionnaires\/[\w-]+$/) && method === 'DELETE') {
 		console.log('[useApiRequest] Eliminando cuestionario:', endpoint);
 
 		// Obtener token como lo hace realApiService
@@ -382,7 +386,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'DELETE',
 			headers
 		});
@@ -398,7 +402,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de descarga de cuestionarios
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questionnaires\/[\w-]+\/download(\?.*)?$/) && method === 'GET') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questionnaires\/[\w-]+\/download(\?.*)?$/) && method === 'GET') {
 		console.log('[useApiRequest] Descargando cuestionario:', endpoint);
 
 		// Obtener token como lo hace realApiService
@@ -410,7 +414,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'GET',
 			headers
 		});
@@ -440,7 +444,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de descarga de preguntas - POST
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questions\/download(\?.*)?$/) && method === 'POST') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questions\/download(\?.*)?$/) && method === 'POST') {
 		console.log('[useApiRequest] Descargando preguntas:', endpoint);
 
 		// Obtener token como lo hace realApiService
@@ -454,7 +458,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'POST',
 			headers,
 			body: JSON.stringify(data)
@@ -485,7 +489,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de preguntas - hacer petición real al API
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questions$/) && method === 'GET') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questions$/) && method === 'GET') {
 		console.log('[useApiRequest] Haciendo petición real a:', endpoint);
 
 		// Obtener token como lo hace realApiService
@@ -502,7 +506,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 
 		console.log('[useApiRequest] Headers enviados:', headers);
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'GET',
 			headers
 		});
@@ -518,7 +522,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de preguntas - PATCH para verificar/rechazar
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questions$/) && method === 'PATCH') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/questions$/) && method === 'PATCH') {
 		console.log('[useApiRequest] Actualizando estado de pregunta:', endpoint);
 
 		// Obtener token como lo hace realApiService
@@ -532,7 +536,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'PATCH',
 			headers,
 			body: JSON.stringify(data)
@@ -549,7 +553,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 	}
 
 	// Endpoints de generar preguntas - POST
-	if (endpoint.match(/^\/aiquiz\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/generate-questions$/) && method === 'POST') {
+	if (endpoint.match(/^\/api\/(manager\/)?subjects\/[\w-]+\/topics\/[\w-]+\/generate-questions$/) && method === 'POST') {
 		console.log('[useApiRequest] Generando nuevas preguntas:', endpoint);
 
 		// Obtener token como lo hace realApiService
@@ -563,7 +567,7 @@ async function mapEndpointToRealApi(endpoint: string, method: string, data: any)
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 
-		const response = await fetch(endpoint, {
+		const response = await fetch(withBasePath(endpoint), {
 			method: 'POST',
 			headers,
 			body: JSON.stringify(data)

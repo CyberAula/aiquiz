@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import dbConnect from "@utils/dbconnect";
 import File from "@models/File";
 import { withAuth, handleError } from "@utils/authMiddleware";
+import { withBasePath } from "../../../../../../../../../../utils/basePath";
 
 // Función para cargar RAG Manager dinámicamente (coherente con files/route.js)
 async function loadRAGManager() {
@@ -244,7 +245,7 @@ async function generateDownloadToken(request, context) {
 		);
 
 		// 4. Construir URL de descarga
-		const downloadUrl = `/aiquiz/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${fileId}/download?token=${downloadToken}`;
+		const downloadUrl = withBasePath(`/api/manager/subjects/${id}/topics/${topicId}/subtopics/${subtopicId}/files/${fileId}/download?token=${downloadToken}`);
 
 		console.log(`[Download Token API] Token generado para: ${downloadFileName}`);
 

@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useManagerTranslation } from "../../hooks/useManagerTranslation";
 import { Subtopic } from "../../contexts/TopicContext";
 import SearchBar from "../subject/SearchBar";
+import { withBasePath } from "../../../utils/basePath";
 
 interface SubtopicsTabProps {
 	topicId: string;
@@ -131,7 +132,7 @@ const SubtopicsTab: React.FC<SubtopicsTabProps> = ({
 						</div>
 						<div className="mt-3">
 							<a
-								href={`/aiquiz/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopic.id}`}
+								href={withBasePath(`/manager/subjects/${subjectId}/topics/${topicId}/subtopics/${subtopic.id}`)}
 								className="text-blue-600 hover:text-blue-800 flex items-center w-fit"
 								aria-label={`Ver detalles de ${subtopic.title}`}
 							>

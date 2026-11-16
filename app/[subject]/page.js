@@ -9,15 +9,15 @@ import Footer from "../components/ui/Footer";
 import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
 import Header from "../components/ui/Header";
 
-import nextConfig from "../../next.config";
 import urljoin from "url-join";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from 'next/navigation'
 
 import useApiRequest from "../manager/hooks/useApiRequest";
 import { set } from "mongoose";
+import { BASE_PATH, withBasePath } from "../utils/basePath";
 
-const basePath = nextConfig.basePath || "/";
+const basePath = BASE_PATH || "/";
 
 const HomePage = ({ params: { subject } }) => {
 
@@ -116,7 +116,7 @@ const HomePage = ({ params: { subject } }) => {
 
     // Hacemos la solicitud a la API de los TOPICS and SUBTOPICS
     try {
-      const response = await fetch('/aiquiz/api/getTopicsAndSubtopics', {
+      const response = await fetch(withBasePath('/api/getTopicsAndSubtopics'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

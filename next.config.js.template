@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 
+// Ruta bajo la que se sirve la aplicación detrás del proxy inverso. Se puede cambiar con la
+// variable de entorno BASE_PATH al compilar (vacía = sin prefijo). El código la lee con
+// app/utils/basePath.js; no escribas "/aiquiz" a mano.
+const basePath = process.env.BASE_PATH ?? "/aiquiz";
+
 const nextConfig = {
    eslint: {
      // Warning: This allows production builds to successfully complete even if
@@ -10,13 +15,14 @@ const nextConfig = {
      // El proyecto arrastra cientos de errores de tipos antiguos; no deben impedir el build.
      ignoreBuildErrors: true,
    },
-    basePath: '/aiquiz', //aiquiz is the context for using it with a reverse proxy.
+    basePath,
     reactStrictMode: false,
     experimental: {
       // Paquetes con binarios nativos: no se empaquetan con webpack, se cargan desde node_modules
       serverComponentsExternalPackages: ["@xenova/transformers", "sharp", "onnxruntime-node", "better-sqlite3", "chromadb"],
     },
     env: {
+      BASE_PATH: basePath,
       MONGODB_URI: "mongodb://aiquiz-mongo:27017/aiquiz3",
       HOST_SERVER: "127.0.0.1",
       PORT_SERVER: "3000",

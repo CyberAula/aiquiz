@@ -7,6 +7,7 @@ import { subjects } from "../../constants/subjects";
 import { useTranslation } from "react-i18next";
 import parse from "html-react-parser";
 import Footer from "../../components/ui/Footer"
+import { withBasePath } from "../../utils/basePath";
 
 const SubjectPage = ({ params: { subject } }) => {
   const { t, i18n } = useTranslation();
@@ -15,7 +16,7 @@ const SubjectPage = ({ params: { subject } }) => {
   const [dashboardData, setDashboardData] = useState(null);
 
   const getDashboardData = async () => {
-    const response = await fetch("/aiquiz/api/dashboard", {
+    const response = await fetch(withBasePath("/api/dashboard"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
