@@ -5,7 +5,7 @@ require('dotenv').config();
 const User = require('../manager/models/User.js');
 
 /**
- * Script para crear el super administrador y un profesor por defecto
+ * Script para crear el super administrador y, opcionalmente, un profesor inicial (variables de .env)
  * Ejecutar con: npm run seed:admin
  */
 
@@ -49,20 +49,27 @@ async function ensureSuperAdmin() {
     });
 }
 
+// Profesor inicial opcional, con los datos de las variables DEFAULT_PROFESSOR_*.
+// Si no se define DEFAULT_PROFESSOR_EMAIL no se crea ninguno.
 async function ensureDefaultProfessor() {
+    if (!process.env.DEFAULT_PROFESSOR_EMAIL) {
+        console.log('DEFAULT_PROFESSOR_EMAIL no definido: no se crea profesor inicial.');
+        return null;
+    }
+
     return ensureUser({
-        uniqueKey: { email: 'alvaro@gmail.com' },
+        uniqueKey: { email: process.env.DEFAULT_PROFESSOR_EMAIL },
         data: {
-            name: 'Profesor Álvaro',
-            email: 'alvaro@gmail.com',
-            password: 'alvaro1234',
+            name: process.env.DEFAULT_PROFESSOR_NAME,
+            email: process.env.DEFAULT_PROFESSOR_EMAIL,
+            password: process.env.DEFAULT_PROFESSOR_PASSWORD,
             role: 'professor',
-            faculty: 'Default Faculty',
-            department: 'Default Department',
+            faculty: process.env.DEFAULT_PROFESSOR_FACULTY,
+            department: process.env.DEFAULT_PROFESSOR_DEPARTMENT,
             isActive: true
         },
         label: 'Default professor',
-        password: 'alvaro1234'
+        password: process.env.DEFAULT_PROFESSOR_PASSWORD
     });
 }
 
@@ -139,6 +146,16 @@ const requiredVars = [
     'SUPER_ADMIN_FACULTY',
     'SUPER_ADMIN_DEPARTMENT'
 ];
+
+// Si se pide profesor inicial (DEFAULT_PROFESSOR_EMAIL), sus datos también son obligatorios
+if (process.env.DEFAULT_PROFESSOR_EMAIL) {
+    requiredVars.push(
+        'DEFAULT_PROFESSOR_PASSWORD',
+        'DEFAULT_PROFESSOR_NAME',
+        'DEFAULT_PROFESSOR_FACULTY',
+        'DEFAULT_PROFESSOR_DEPARTMENT'
+    );
+}
 
 const missing = requiredVars.filter(v => !process.env[v]);
 if (missing.length > 0) {

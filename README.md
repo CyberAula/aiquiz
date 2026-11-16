@@ -9,8 +9,32 @@ https://github.com/user-attachments/assets/eb8e601e-a7f7-4b3e-b1ef-d50103a9d144
 
 Copy `next.config.js.template` to `next.config.js` and configure it.
 Copy `models.json.example` to `models.json` and configure it.
+Copy `.env.template` to `.env` and configure it (only needed to create the admin user, see below).
 
-Node 18
+Node 24 (minimum Node 20).
+
+The app is served under `/aiquiz` by default. To change it, set the `BASE_PATH` environment variable when building (see `next.config.js`). In the code, never write `/aiquiz` by hand: use `withBasePath()` / `BASE_PATH` from `app/utils/basePath.js` for `fetch`, `<a href>` and URLs sent to the browser. `<Link>` and `router.push` already add it.
+
+### Create the admin user
+
+The manager (`/aiquiz/manager`) needs at least one user to log in. Run this once, with the database already running:
+
+1. Copy `.env.template` to `.env` and fill in the values. `MONGODB_URI` must be the same database as `MONGODB_URI` in `next.config.js`.
+2. Run the script:
+
+   ```bash
+   npm run seed:admin
+   ```
+
+   With Docker, copy the `.env` into the running container, run it there and delete it afterwards, so the credentials don't stay in the container:
+
+   ```bash
+   docker compose cp .env aiquiz-web:/app/.env
+   docker compose exec -it aiquiz-web npm run seed:admin
+   docker compose exec aiquiz-web rm /app/.env
+   ```
+
+The script creates the super admin (role `admin`) from the `SUPER_ADMIN_*` variables and, if `DEFAULT_PROFESSOR_EMAIL` is set, a professor from the `DEFAULT_PROFESSOR_*` variables. Then it asks whether you want to add more professors. Users that already exist are not modified.
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
