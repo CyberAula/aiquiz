@@ -1,7 +1,8 @@
 // Prefijo bajo el que se sirve la aplicación detrás del proxy inverso (basePath de next.config.js,
-// por defecto "/aiquiz"). next.config.js lo publica como process.env.BASE_PATH y Next lo sustituye
-// al compilar, tanto en el servidor como en el navegador.
-export const BASE_PATH = process.env.BASE_PATH || "";
+// por defecto "/aiquiz"). Se toma del propio Next (process.env.__NEXT_ROUTER_BASEPATH, que Next
+// sustituye al compilar con el basePath real, en servidor y navegador), así que siempre coincide con
+// el prefijo con el que se sirven las páginas. BASE_PATH (del env de next.config.js) queda de respaldo.
+export const BASE_PATH = process.env.__NEXT_ROUTER_BASEPATH || process.env.BASE_PATH || "";
 
 // Antepone el basePath a una ruta de la aplicación: "/api/answer" -> "/aiquiz/api/answer".
 // Para fetch, <a href>, window.location y URLs que se devuelven al navegador.
