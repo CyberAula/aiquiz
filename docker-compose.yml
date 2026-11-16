@@ -62,3 +62,4 @@ volumes:
 networks:
   martell:
     driver: bridge
+    external: true
