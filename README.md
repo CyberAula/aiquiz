@@ -13,7 +13,7 @@ Copy `.env.template` to `.env` and configure it (only needed to create the admin
 
 Node 24 (minimum Node 20).
 
-The app is served under `/aiquiz` by default. To change it, set the `BASE_PATH` environment variable when building (see `next.config.js`). In the code, never write `/aiquiz` by hand: use `withBasePath()` / `BASE_PATH` from `app/utils/basePath.js` for `fetch`, `<a href>` and URLs sent to the browser. `<Link>` and `router.push` already add it.
+The app is served under `/aiquiz` by default. To change it, set the `BASE_PATH` environment variable when building (see `next.config.js`); it is fixed at build time, so with Docker pass it as a build argument (`BASE_PATH=/aiquiz-2 docker compose build`, or `docker build --build-arg BASE_PATH=/aiquiz-2 .`), not only as a runtime `environment` variable. It must match the nginx `location`. In the code, never write `/aiquiz` by hand: use `withBasePath()` / `BASE_PATH` from `app/utils/basePath.js` for `fetch`, `<a href>` and URLs sent to the browser. `<Link>` and `router.push` already add it.
 
 ### Create the admin user
 

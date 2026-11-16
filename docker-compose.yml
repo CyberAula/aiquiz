@@ -4,7 +4,10 @@ services:
     container_name: aiquiz-web
     build:
         context: .
-    ports: 
+        args:
+          # Prefijo bajo el que se sirve (debe coincidir con el location de nginx)
+          BASE_PATH: ${BASE_PATH:-/aiquiz}
+    ports:
       - 3000:3000
     depends_on:
       - aiquiz-mongo
