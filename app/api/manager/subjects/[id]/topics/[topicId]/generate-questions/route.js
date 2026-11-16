@@ -393,7 +393,7 @@ async function generateQuestions(request, context) {
         questionsLogger.info(`Generando ${count} preguntas con modelo ${assignedModel} para tema ${topic.title}`);
 
         console.log('[Generate Questions API] Llamando a getModelResponse...');
-        const llmResponse = await getModelResponse(assignedModel, prompt);
+        const llmResponse = await getModelResponse(assignedModel, prompt, count);
         console.log('[Generate Questions API] Respuesta recibida del LLM, longitud:', llmResponse?.length || 0);
         
         if (!llmResponse) {

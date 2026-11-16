@@ -14,13 +14,13 @@ import chalk from 'chalk';
 
 // console.log("--------------------------------------------------");
 // console.log('[modelManager.js] Connecting to database...');
-await dbConnect();
 // console.log('[modelManager.js] Database connected successfully');
 // console.log("--------------------------------------------------");
 
 
 // Asignar modelo LLM al Alumno
 export async function assignAIModel(abcTestingConfig, has_abctesting, existingStudent, studentSubjectData, subjectIndex) {
+    await dbConnect();
     try {
         // Leemos los modelos disponibles desde el archivo models.json
         const allModels = await getAvailableModels();

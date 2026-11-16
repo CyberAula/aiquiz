@@ -4,12 +4,14 @@ import LangSwitcher from "../../components/LangSwitcher";
 import HomeIcon from "@mui/icons-material/Home";
 import Link from 'next/link';
 import PersonIcon from '@mui/icons-material/Person';
+import packageJson from "../../../package.json";
 
 const Header = () => {
   return (
     <div className="flex justify-between border-b border-gray-300 margin-items-container">
       <Logo />
       <div className="flex flex-row items-center gap-4">
+        <span className="text-xs text-gray-500" title="Versión">{packageJson.name}-{packageJson.version}</span>
         <LangSwitcher />
         <Link href={{pathname: "/"}}>
           <HomeIcon xs={{ fontSize: 18 }} className="text-gray-600" />

@@ -9,7 +9,6 @@ import chalk from 'chalk';
 
 // console.log("--------------------------------------------------");
 // console.log('[promptManager.js] Connecting to database...');
-await dbConnect();
 // console.log('[promptManager.js] Database connected successfully');
 // console.log("--------------------------------------------------");
 
@@ -157,6 +156,7 @@ export function getPromptManager() {
 }
 
 export async function fillPrompt( studentEmail, subject, subjectId, topic, topicId, subTopic, subtopicId, difficulty, numQuestions, existingStudent, studentSubjectData, subjectIndexInStudent, abcTestingConfig, has_abctesting ) {
+    await dbConnect();
 
     //console.log("FILLPROMPT with variables received: ", abcTestingConfig, has_abctesting, topic, difficulty, subTopic, numQuestions, studentEmail, existingStudent, studentSubjectData, subjectIndex, subject);
 

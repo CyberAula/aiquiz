@@ -4,6 +4,9 @@ import Subject from "../../manager/models/Subject";
 import Topic from "../../manager/models/Topic";
 import Subtopic from "../../manager/models/Subtopic";
 
+// Sin esto Next genera la respuesta una sola vez durante el build y la sirve siempre igual
+export const dynamic = "force-dynamic";
+
 export async function GET() {
     try {
         await dbConnect();

@@ -4,15 +4,10 @@ import {subjects} from '../../constants/subjects';
 import Question from '../../models/Question.js';
 
 //to get student track record
-await dbConnect();
-
-// Verificar si existe la clave API OpenAi
-if (!process.env.OPENAI_API_KEY) {
-	throw new Error("Falta la OpenAI API Key");
-}
 
 // Manejar las solicitudes HTTP POST
 export async function POST(request) {
+    await dbConnect();
     console.log("POST request to /aiquiz/api/dashboard");
     try {
         const { subject } = await request.json();

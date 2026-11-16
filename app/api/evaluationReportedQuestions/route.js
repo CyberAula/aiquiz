@@ -3,11 +3,11 @@ import Question from '../../models/Question.js';
 import { NextResponse } from 'next/server';
 import { withAuth } from "../../utils/authMiddleware.js";
 
-await dbConnect();
 
 //POST /API/ANSWER
 //api path to create a new answer or report "/api/answer" passing neccesary data (see POST in page.js)
 async function evaluateReportedQuestion(request) {
+    await dbConnect();
     try {
        
         const { id, teacherComments, teacherReport} = await request.json();

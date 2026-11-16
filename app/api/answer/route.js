@@ -2,7 +2,6 @@ import dbConnect from "../../utils/dbconnect.js";
 import Question from "../../models/Question.js";
 import { NextResponse } from "next/server";
 
-await dbConnect();
 
 /**
  * @swagger
@@ -98,6 +97,7 @@ await dbConnect();
 //POST /aiquiz/api/ANSWER
 //aiquiz/api path to create a new answer or report "/api/answer" passing neccesary data (see POST in page.js)
 export async function POST(request) {
+    await dbConnect();
 	try {
 		const {
 			id,

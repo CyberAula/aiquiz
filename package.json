@@ -1,6 +1,6 @@
 {
   "name": "aiquiz",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -16,6 +16,7 @@
     "@distube/ytdl-core": "^4.16.12",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@google/genai": "^2.27.0",
     "@google/generative-ai": "^0.21.0",
     "@mui/icons-material": "^6.4.1",
     "@mui/material": "^6.4.2",

@@ -4,10 +4,10 @@ import Question from "../../models/Question.js";
 import { getSpanishComments } from "../../constants/evaluationComments.js";
 import { withAuth } from "../../utils/authMiddleware.js";
 
-await dbConnect();
 
 
 async function getReports(req) {
+    await dbConnect();
   try {
     let filters = { studentReport: false };
     let selectFields = {};

@@ -51,6 +51,9 @@ import dbConnect from "../../../utils/dbconnect";
  *                   type: string
  *                   example: Database connection failed
  */
+// Sin esto Next genera la respuesta una sola vez durante el build y la sirve siempre igual
+export const dynamic = "force-dynamic";
+
 export async function GET() {
 	const timestamp = new Date().toISOString();
 	let dbStatus = "disconnected";

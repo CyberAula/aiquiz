@@ -89,12 +89,12 @@ const questionsLogger = logger.create('Questions');
 
 // console.log("--------------------------------------------------");
 // console.log('[questions/route.js] Connecting to database...');
-await dbConnect();
 // console.log('[questions/route.js] Database connected successfully');
 // console.log("--------------------------------------------------");
 
 // Manejar las solicitudes HTTP POST
 export async function POST(request) {
+    await dbConnect();
 	let studentEmail, subject, subjectId, topic, topicId, subTopic, subtopicId, difficulty, numQuestions;
 
 
@@ -222,7 +222,8 @@ export async function POST(request) {
 		try {
 			responseLlmManager = await getModelResponse(
 				assignedModel,
-				finalPrompt
+				finalPrompt,
+				numQuestions
 			);
 			questionsLogger.success(`Respuesta recibida del modelo ${assignedModel}`);
 		} catch (llmError) {

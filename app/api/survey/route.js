@@ -6,7 +6,6 @@ import Question from "../../models/Question.js";
 
 import aiquizConfig from "../../../aiquiz.config.js";
 
-await dbConnect();
 
 /**
  * @swagger
@@ -52,6 +51,7 @@ await dbConnect();
  */
 
 export async function POST(request) {
+    await dbConnect();
 	try {
 		const { studentEmail, subject } = await request.json();
 

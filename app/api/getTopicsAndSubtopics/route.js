@@ -6,10 +6,10 @@ import Subject from "../../manager/models/Subject";
 
 import dbConnect from "../../utils/dbconnect.js";
 
-await dbConnect();
 
 // 🔹 Endpoint POST
 export async function POST(request) {
+    await dbConnect();
     try {
         const { subjectId } = await request.json();
         console.log("Received subjectId:", subjectId);

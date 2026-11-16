@@ -4,6 +4,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useManagerTranslation } from "../../hooks/useManagerTranslation";
+import packageJson from "../../../../package.json";
 
 /**
  * Componente de cabecera principal para la aplicación
@@ -74,6 +75,9 @@ const Header: React.FC = () => {
 						</div>
 					</div>
 					<div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+						<span className="text-xs text-gray-500" title="Versión">
+							{packageJson.name}-{packageJson.version}
+						</span>
 						{/* Selector de idioma */}
 						<div className="flex items-center border rounded-md overflow-hidden">
 							<button
